@@ -1,0 +1,132 @@
+/* RoboFetch - deliberately plain. No JavaScript anywhere in this project, and no decoration:
+   default fonts, thin rules, and colour used only where it carries meaning.
+
+   Two themes, chosen by the operating system. Every colour is a variable so the dark block below
+   is a short list of swaps rather than a second stylesheet. */
+
+:root {
+  --bg:    #fff;
+  --fg:    #111;
+  --line:  #ccc;
+  --head:  #f0f0f0;
+  --muted: #555;
+  --ok:    #060;
+  --bad:   #a00;
+  --warn:  #850;
+  --notice-bg: #fffbe6;
+  --estop-bg:  #ffecec;
+  --estop-fg:  #a00;
+  --pre-bg: #f5f5f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:    #111;
+    --fg:    #fff;
+    --line:  #444;
+    --head:  #1e1e1e;
+    --muted: #aaa;
+    /* Lifted well above the light-theme values: #060 on #111 is unreadable. */
+    --ok:    #4caf50;
+    --bad:   #ff6b6b;
+    --warn:  #e0b040;
+    --notice-bg: #2a2410;
+    --estop-bg:  #3a1414;
+    --estop-fg:  #ff6b6b;
+    --pre-bg: #1a1a1a;
+  }
+}
+
+body {
+  margin: 0 auto;
+  padding: 1rem;
+  max-width: 60rem;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+/* Links take the surrounding text colour instead of the browser's blue-then-purple. All five
+   states are pinned to the same value, so a visited link looks exactly like an unvisited one.
+   Underlined, so they still read as links without depending on colour at all. */
+a, a:link, a:visited, a:hover, a:active, a:focus {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------------ chrome */
+header {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;
+  border-bottom: 1px solid var(--line); padding-bottom: .5rem; margin-bottom: 1rem;
+}
+header nav a { margin-right: 1rem; }
+header .status { font-size: 13px; color: var(--muted); }
+
+h1 { font-size: 1.3rem; margin: 1rem 0 .5rem; }
+h2 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
+
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.mono { font-family: monospace; }
+.num { text-align: right; }
+
+/* ------------------------------------------------------------------------- tables */
+.scroll { overflow-x: auto; }            /* wide tables scroll, the page never does */
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 1rem; }
+th, td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: var(--head); font-weight: 600; white-space: nowrap; }
+td.empty { text-align: center; color: var(--muted); }
+
+/* Label/value pairs. Two columns is the whole design. */
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 1rem; margin: 0 0 1rem; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+
+pre { background: var(--pre-bg); border: 1px solid var(--line); padding: .5rem;
+      overflow-x: auto; }
+
+/* -------------------------------------------------------------------------- forms */
+label { display: block; margin-top: .5rem; font-size: 13px; }
+input, select, button {
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+input, select { padding: 3px 5px; }
+button { padding: 4px 10px; margin-top: .5rem; cursor: pointer; }
+form.inline { display: inline; }
+form.inline button { margin-top: 0; }
+
+/* ------------------------------------------------------------- meaning-only colour */
+.ok { color: var(--ok); }
+.bad { color: var(--bad); }
+.warn { color: var(--warn); }
+
+/* Order status. Text, not badges - the word already says it; colour only sorts good from bad. */
+.status { font-weight: 600; }
+.s-completed { color: var(--ok); }
+.s-failed    { color: var(--bad); }
+.s-refused, .s-cancelled { color: var(--warn); }
+
+/* A verdict and a warning are the two things the reader must not skim past. */
+.verdict, .notice { border: 1px solid var(--line); border-left-width: 5px;
+                    padding: .5rem .75rem; margin: 1rem 0; }
+.verdict.accepted { border-left-color: var(--ok); }
+.verdict.refused  { border-left-color: var(--bad); }
+.notice { border-left-color: var(--warn); background: var(--notice-bg); }
+.verdict-head { font-weight: 700; }
+.verdict p, .notice p { margin: .25rem 0; }
+
+/* The emergency stop. The one control that must be impossible to miss or to hit by accident, so
+   it is the single place a colour is hard-coded rather than themed - and the only one given a
+   wide berth. `margin-left: auto` pushes it to the far right of the header; the padding either
+   side is dead space that keeps a stray click from landing on it. */
+.estop-slot { margin-left: auto; padding: 0 .5rem 0 3rem; }
+button.estop {
+  background: #a00; color: #fff; font-weight: 700; letter-spacing: .5px;
+  padding: 10px 18px; border: 2px solid #700; margin-top: 0; cursor: pointer;
+}
+button.estop:hover { background: #c00; }

@@ -1,0 +1,19 @@
+# Python deps for the thesis workspace. ROS 2 Jazzy provides rclpy etc. through
+# --system-site-packages, so the venv must be created with that flag:
+#   python3 -m venv --system-site-packages venv
+#   venv/bin/pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+fastapi
+uvicorn
+jinja2
+numpy<2          # ROS Jazzy system packages are built against numpy 1.x
+pillow
+pyyaml
+torch
+gymnasium
+stable-baselines3
+sb3-contrib
+pandas
+matplotlib
+scipy
+pytest
+setuptools<80     # colcon/ament_python builds break with newer setuptools

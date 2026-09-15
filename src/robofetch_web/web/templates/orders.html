@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Orders &middot; RoboFetch{% endblock %}
+
+{% block content %}
+<h1>Orders</h1>
+
+<table>
+  <tbody>
+    <tr><th>Total deliveries</th><td class="num">{{ stats.total_orders }}</td>
+        <th>Delivered</th><td class="num ok">{{ stats.completed }}</td></tr>
+    <tr><th>Failed</th><td class="num bad">{{ stats.failed }}</td>
+        <th>Refused</th><td class="num">{{ stats.refused }}</td></tr>
+    <tr><th>Success rate</th>
+        <td class="num">{{ '%.0f%%'|format(stats.success_rate * 100)
+                            if stats.success_rate is not none else '-' }}</td>
+        <th>Avg. delivery</th>
+        <td class="num">{{ stats.average_delivery_seconds ~ ' s'
+                           if stats.average_delivery_seconds else '-' }}</td></tr>
+  </tbody>
+</table>
+
+<p>
+  <a href="/return">Return the robot to its station</a>
+</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr>
+      <th>#</th><th>Product</th><th>Destination</th><th>Status</th>
+      <th class="num">Tries</th><th class="num">Est.</th><th>Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for o in orders %}
+      <tr>
+        <td class="num">{{ o.id }}</td>
+        {# A return carries no product and its destination is the station, which is not a
+           delivery point - so both cells describe the task itself instead. #}
+        {% if o.kind == 'return' %}
+          <td><span class="muted">return to station</span></td>
+          <td class="muted">station</td>
+        {% else %}
+          <td>
+            <span class="mono">{{ o.product_id }}</span>
+            <span class="muted small">{{ o.product_name }}</span>
+          </td>
+          <td class="muted">{{ o.delivery_name or o.delivery_id }}</td>
+        {% endif %}
+        <td><span class="status s-{{ o.status }}">{{ o.status }}</span></td>
+        <td class="num">{{ o.attempts or '-' }}</td>
+        <td class="num muted small">
+          {% if o.estimated_energy_wh %}{{ '%.1f'|format(o.estimated_energy_wh) }} Wh{% else %}-{% endif %}
+        </td>
+        <td class="muted small">{{ o.detail or o.decision_reason or '' }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="empty">No orders yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

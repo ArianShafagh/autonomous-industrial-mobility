@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}New order &middot; RoboFetch{% endblock %}
+
+{% block content %}
+<h1>New order</h1>
+{# Only products still on their shelves may be ordered. Once a parcel has been delivered it is
+   at the bay, so ordering it again would send the robot to an empty pick point. #}
+{% if products %}
+<form method="post" action="/preview" >
+  <label for="product_id">Product</label>
+  <select id="product_id" name="product_id" required>
+    {% for p in products %}
+      <option value="{{ p.product_id }}">
+        {{ p.product_id }} &mdash; {{ p.name }} ({{ p.weight_kg }} kg)
+      </option>
+    {% endfor %}
+  </select>
+
+  <label for="delivery_id">Deliver to</label>
+  <select id="delivery_id" name="delivery_id" required>
+    {% for d in deliveries %}
+      <option value="{{ d.delivery_id }}">{{ d.name }} ({{ d.delivery_id }})</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Check availability</button>
+</form>
+{% else %}
+<p><strong>Nothing left to order.</strong></p>
+{% endif %}
+
+<h2>Catalogue</h2>
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>ID</th><th>Name</th><th>Category</th><th class="num">Weight</th>
+        <th>Shelf</th><th class="num">Stock</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for p in catalogue %}
+      <tr>
+        <td class="mono">{{ p.product_id }}</td>
+        <td>{{ p.name }}</td>
+        <td class="muted">{{ p.category }}</td>
+        <td class="num">{{ p.weight_kg }} kg</td>
+        <td class="muted">{{ p.shelf_id }}</td>
+        <td class="num">{{ p.stock }}</td>
+        <td class="muted">
+          {% if p.stock > 0 %}on the shelf{% else %}delivered &mdash; not orderable{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Order preview &middot; RoboFetch{% endblock %}
+
+{% block content %}
+<h1>Order preview</h1>
+
+{# The verdict comes first, before the numbers: it is the answer to the question the operator
+   actually asked, and a refusal has to explain itself. #}
+<div class="verdict {{ 'accepted' if accepted else 'refused' }}">
+  <div class="verdict-head">{{ 'Robot will accept this order' if accepted
+                               else 'Robot refuses this order' }}</div>
+  <p>{{ reason }}</p>
+</div>
+
+<div>
+  <section>
+    <h2>Product</h2>
+    <dl>
+      <dt>ID</dt><dd class="mono">{{ product.product_id }}</dd>
+      <dt>Name</dt><dd>{{ product.name }}</dd>
+      <dt>Category</dt><dd>{{ product.category }}</dd>
+      <dt>Weight</dt><dd>{{ product.weight_kg }} kg</dd>
+      <dt>Stored on</dt><dd>{{ product.shelf_id }} ({{ product.pick_point_id }})</dd>
+      <dt>Destination</dt><dd>{{ delivery.name }}</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Predicted cost</h2>
+    <dl>
+      <dt>Route</dt><dd>{{ estimate.distance_m }} m</dd>
+      <dt>Return to station</dt><dd>{{ estimate.return_distance_m }} m</dd>
+      <dt>Energy</dt><dd>{{ estimate.energy_wh }} Wh</dd>
+      <dt>Energy to get home</dt><dd>{{ estimate.return_energy_wh }} Wh</dd>
+      <dt>Time</dt><dd>~{{ estimate.seconds }} s</dd>
+      {# Shown only when work is queued: this order is costed against the battery the robot will
+         have AFTER that work, so without these two rows the numbers look like a bug. #}
+      {% if estimate.reserved_orders %}
+        <dt>Orders already queued</dt><dd>{{ estimate.reserved_orders }}</dd>
+        <dt>Energy reserved</dt><dd>{{ estimate.reserved_energy_wh }} Wh</dd>
+        <dt>Battery at start</dt><dd>{{ estimate.battery_at_start_percent }}%</dd>
+      {% endif %}
+      <dt>Battery afterwards</dt><dd>{{ estimate.battery_after_percent }}%</dd>
+      <dt>Peak motor temp.</dt><dd>{{ estimate.peak_temperature_c }} &deg;C</dd>
+    </dl>
+  </section>
+</div>
+
+{% if accepted %}
+  <form method="post" action="/confirm" class="inline">
+    <input type="hidden" name="product_id" value="{{ product.product_id }}">
+    <input type="hidden" name="delivery_id" value="{{ delivery.delivery_id }}">
+    <button type="submit">Confirm order</button>
+    <a href="/">Cancel</a>
+  </form>
+{% else %}
+  <a href="/">Back</a>
+{% endif %}
+{% endblock %}
