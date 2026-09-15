@@ -17,21 +17,12 @@ That mutual coupling is what makes this a model rather than three independent co
 from dataclasses import dataclass, asdict
 
 # ------------------------------------------------------------------ battery / energy
-# Sized so a charge is worth a SINGLE heavy delivery, or about three of the lightest. A larger
-# pack would be more realistic for a real warehouse robot, but then battery would never bind
-# inside a demo session and the accept/refuse decision would have nothing to refuse on: the whole
-# point of C2 is visible only if the robot actually runs low while someone is watching.
-#
-# Sized so the worst-case order/bay combination, judged AFTER the robot has driven home again
-# (which is what RESERVE_PERCENT is judged against, not the outbound leg alone), still clears
-# the reserve from a full charge - see the acceptance-suite figures in the report for the
-# current measured worst/best case across the whole catalogue, which move whenever this
-# constant or the cost formula in admission.estimate() changes.
-#
-# This constant is load-bearing well beyond this file. The ML training label depends on how much
-# of the pack an order consumes, so CHANGING IT INVALIDATES model.joblib - regenerate and
-# retrain (tools/ml/generate.py then tools/ml/train.py) whenever it moves.
-CAPACITY_WH = 11.0           # nominal usable pack energy
+# Doubled from the old warehouse project's 11 Wh: in the factory maze 11 Wh covered only ~31 m of
+# empty driving, less than one A -> delivery -> B -> delivery round (40.6 m). 22 Wh gives ~63 m
+# empty, so the robot can serve a few sections per charge but still has to plan its charging -
+# battery must bind during a shift or the energy side of the decision has nothing to decide.
+# Any trained decision model depends on this value: retrain after changing it.
+CAPACITY_WH = 22.0           # nominal usable pack energy
 E_BASE = 0.35                # Wh per metre, unloaded
 E_LOAD = 0.08                # Wh per metre per kg of payload
 T_REF = 25.0                 # temperature at which efficiency is nominal

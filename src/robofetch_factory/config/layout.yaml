@@ -1,0 +1,66 @@
+# Factory layout — the SINGLE source of truth for the world geometry.
+#
+# scripts/generate_world.py turns this file into:
+#   robofetch_gazebo/worlds/factory_maze.sdf     (Gazebo world)
+#   robofetch_nav/maps/factory_maze.{pgm,yaml}   (Nav2 occupancy map, same frame as the world)
+#   robofetch_factory/config/poi.yaml            (named poses the robot drives to)
+#   robofetch_factory/config/path_matrix.yaml    (maze path length between every pair of POIs)
+# Never edit those outputs by hand — edit this file and re-run the generator.
+#
+# Grid legend (one character = one cell of `cell_size` metres; row 0 is NORTH, column 0 is WEST):
+#   #  wall / rack (obstacle, full height)
+#   M  production machine (obstacle, coloured by the nearest section)
+#   A B C  pickup zone of section A / B / C (free floor, coloured pad)
+#   D  the single delivery point (free floor, green pad)
+#   S  the single charging station (free floor, blue pad) — robot spawns here
+#   .  free floor
+#
+# Design rules (lessons from the old project):
+#   * every passage is at least 3 cells = 1.5 m wide: a 0.44 m robot with 0.35 m inflation wedges
+#     itself in anything narrower than ~1.2 m;
+#   * the layout is deliberately asymmetric so every place produces a distinctive lidar scan
+#     (symmetric rooms make AMCL jump between look-alike poses);
+#   * alternative routes of different length exist, so the path/energy choice is not trivial.
+cell_size: 0.5
+wall_height: 1.0
+machine_height: 1.4
+
+grid:
+  - "#############################"
+  - "#MMM.....#.........#.....MMM#"
+  - "#MMM.....#.........#.....MMM#"
+  - "#AAA.....#...###...#.....BBB#"
+  - "#........#...###...#........#"
+  - "#........#...###...#........#"
+  - "#....######........######...#"
+  - "#....#..................#...#"
+  - "#....#..................#...#"
+  - "#....#....#######.......#...#"
+  - "#.........#######...........#"
+  - "#...........................#"
+  - "#######..........###........#"
+  - "#.....#..........#..........#"
+  - "#.....#....####..#.....##MMM#"
+  - "#..SS......####........##MMM#"
+  - "#..SS....................CCC#"
+  - "#............DD.............#"
+  - "#.....#......DD..#..........#"
+  - "#############################"
+
+# Where the robot stands at each point of interest and which way it faces (degrees, 0 = +x/east,
+# 90 = north). Position defaults to the centre of the zone's cells; the yaw points at the machine
+# (or into the room for D and S). `standoff` shifts the pose away from the machine along -yaw.
+poi:
+  A:        {zone: A, yaw_deg: 90}
+  B:        {zone: B, yaw_deg: 90}
+  C:        {zone: C, yaw_deg: 90}
+  delivery: {zone: D, yaw_deg: 90}
+  charger:  {zone: S, yaw_deg: 0}
+
+colors:
+  wall:     [0.50, 0.50, 0.55]
+  A:        [0.85, 0.30, 0.20]
+  B:        [0.95, 0.70, 0.10]
+  C:        [0.55, 0.30, 0.80]
+  D:        [0.10, 0.60, 0.20]
+  S:        [0.15, 0.35, 0.75]

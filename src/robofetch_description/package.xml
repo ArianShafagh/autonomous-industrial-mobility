@@ -3,7 +3,7 @@
 <package format="3">
   <name>robofetch_description</name>
   <version>0.1.0</version>
-  <description>RoboFetch robot description: custom differential-drive robot with 2D lidar and gripper link.</description>
+  <description>RoboFetch robot description: custom differential-drive robot with 2D lidar (no manipulator).</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
 

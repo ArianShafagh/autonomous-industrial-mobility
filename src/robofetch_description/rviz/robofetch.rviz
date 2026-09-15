@@ -59,11 +59,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        gripper_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         left_wheel:
           Alpha: 1
           Show Axes: false

@@ -3,7 +3,7 @@
 <package format="3">
   <name>robofetch_nav</name>
   <version>0.1.0</version>
-  <description>RoboFetch navigation: SLAM mapping, saved map, AMCL localization and Nav2 configuration.</description>
+  <description>Navigation: generated factory map, AMCL localization and Nav2 configuration.</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
 

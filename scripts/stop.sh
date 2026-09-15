@@ -22,7 +22,7 @@
 # the robot never localizes. One survivor from a previous run breaks every run after it.
 #
 # If you add a Nav2 server, add it here. `--check` below exists to catch the omission.
-PATTERN='gz|ruby|rviz2|gripper_node|task_manager|robot_state|parameter_bridg|map_server|amcl|lifecycle_manag|controller_serv|smoother_server|planner_server|behavior_server|bt_navigator|waypoint_follow|velocity_smooth|collision_monit|opennav_docking|route_server|ros2'
+PATTERN='gz|ruby|rviz2|task_manager|mission_executo|section_node|robot_state|parameter_bridg|map_server|amcl|lifecycle_manag|controller_serv|smoother_server|planner_server|behavior_server|bt_navigator|waypoint_follow|velocity_smooth|collision_monit|opennav_docking|route_server|ros2'
 
 # BOTH web services run as `python -m uvicorn robofetch_<something>`, so their process NAME is
 # just "python" - far too generic to put in PATTERN without killing unrelated work. They have

@@ -151,24 +151,6 @@
     <origin xyz="0.10 0 ${base_hgt/2 + 0.02}" rpy="0 0 0"/>
   </joint>
 
-  <!-- ===================== Gripper link (item attaches here in M3) ===================== -->
-  <link name="gripper_link">
-    <visual>
-      <geometry><box size="0.04 0.10 0.04"/></geometry>
-      <material name="green"><color rgba="0.1 0.7 0.2 1"/></material>
-    </visual>
-    <collision>
-      <geometry><box size="0.04 0.10 0.04"/></geometry>
-    </collision>
-    <xacro:box_inertia m="0.1" x="0.04" y="0.10" z="0.04"/>
-  </link>
-
-  <joint name="gripper_joint" type="fixed">
-    <parent link="base_link"/>
-    <child  link="gripper_link"/>
-    <origin xyz="${base_len/2 + 0.02} 0 0" rpy="0 0 0"/>
-  </joint>
-
   <!-- ===================== Gazebo (Harmonic) plugins & sensor ===================== -->
   <xacro:include filename="$(find robofetch_description)/urdf/robofetch.gazebo.xacro"/>
 

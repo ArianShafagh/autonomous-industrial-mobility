@@ -56,10 +56,8 @@
     </sensor>
   </gazebo>
 
-  <!-- Give links friction/material hints for stable contact. -->
-  <!-- Publish the robot's world pose on /model/robofetch/pose. Paired with the item's
-       pose publisher, this lets the gripper node measure the gripper-to-item gap in a
-       single common (world) frame. -->
+  <!-- Publish the robot's ground-truth world pose on /model/robofetch/pose (5 Hz). Used to
+       measure localisation error and the true distance driven, independently of AMCL/odometry. -->
   <gazebo>
     <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
       <publish_link_pose>false</publish_link_pose>
@@ -68,52 +66,9 @@
       <publish_model_pose>true</publish_model_pose>
       <use_pose_vector_msg>false</use_pose_vector_msg>
       <static_publisher>false</static_publisher>
-      <!-- 5 Hz, not 20 - see the matching note in warehouse.sdf. This publisher plus the
-           three parcel ones all land in the gripper node's single rclpy executor, and at
-           20 Hz the combined ~70 callbacks/s wedged it completely. -->
       <update_frequency>5</update_frequency>
     </plugin>
   </gazebo>
-
-  <!-- Keep gripper_link as a real link in the converted SDF.
-       URDF->SDF conversion "lumps" links joined by fixed joints into their parent, so
-       gripper_link would vanish into base_link and DetachableJoint could not find it. -->
-  <gazebo reference="gripper_joint">
-    <preserveFixedJoint>true</preserveFixedJoint>
-    <disableFixedJointLumping>true</disableFixedJointLumping>
-  </gazebo>
-
-  <!-- Simulated gripper: a DetachableJoint rigidly binds an item to gripper_link.
-       Publishing on attach_topic grabs it, detach_topic releases it, and output_topic
-       reports the current attach state.
-       NOTE: gz-sim 8 creates this joint ALREADY ATTACHED at startup and offers no
-       "suppress initial attach" option, so the gripper node publishes one detach on
-       start-up to guarantee a known, empty-handed initial state. -->
-  <!-- NOTE: giving each item its own dedicated attachment link was tried and REVERTED -
-       the extra links made the robot physically immovable in Gazebo (wheels spun and
-       odometry advanced while the body never moved). All items therefore share
-       gripper_link. -->
-  <xacro:macro name="grippable_item" params="name">
-    <gazebo>
-      <plugin filename="gz-sim-detachable-joint-system" name="gz::sim::systems::DetachableJoint">
-        <parent_link>gripper_link</parent_link>
-        <child_model>${name}</child_model>
-        <child_link>link</child_link>
-        <attach_topic>/gripper/${name}/attach</attach_topic>
-        <detach_topic>/gripper/${name}/detach</detach_topic>
-        <output_topic>/gripper/${name}/state</output_topic>
-      </plugin>
-    </gazebo>
-  </xacro:macro>
-
-  <!-- One joint per deliverable item in the world; the gripper node drives whichever
-       one the current order refers to. -->
-  <xacro:grippable_item name="parcel_1"/>
-  <xacro:grippable_item name="parcel_2"/>
-  <xacro:grippable_item name="parcel_3"/>
-  <xacro:grippable_item name="parcel_4"/>
-  <xacro:grippable_item name="parcel_5"/>
-  <xacro:grippable_item name="parcel_6"/>
 
   <!-- High wheel friction so the drive wheels grip instead of skidding: wheel slip is
        what corrupts the odometry that SLAM and AMCL depend on. -->

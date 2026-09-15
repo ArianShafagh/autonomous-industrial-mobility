@@ -2,7 +2,7 @@
 
     Gazebo + robot + ros_gz bridge
       -> Nav2 + AMCL + map
-      -> gripper node + robot condition monitor
+      -> robot condition monitor
       -> task manager
       -> web API (port 8000) + AI feasibility service (port 8001)
 
@@ -59,14 +59,6 @@ def generate_launch_description():
         parameters=[{"use_sim_time": use_sim_time}],
     )
 
-    gripper = Node(
-        package="robofetch_core",
-        executable="gripper_node",
-        name="gripper_node",
-        output="screen",
-        parameters=[{"use_sim_time": use_sim_time}],
-    )
-
     task_manager = Node(
         package="robofetch_core",
         executable="task_manager",
@@ -111,10 +103,9 @@ def generate_launch_description():
         DeclareLaunchArgument("gz_extra", default_value="",
                               description="Extra gz args, e.g. '-s --headless-rendering'."),
         navigation,
-        # Give Gazebo and Nav2 time to come up before the gripper starts watching poses
-        # and the task manager begins issuing goals.
+        # Give Gazebo and Nav2 time to come up before the task manager begins issuing goals.
         TimerAction(period=8.0, actions=[ai_service]),
-        TimerAction(period=12.0, actions=[gripper, robot_state]),
+        TimerAction(period=12.0, actions=[robot_state]),
         TimerAction(period=18.0, actions=[task_manager]),
         TimerAction(period=8.0, actions=[api]),
     ])

@@ -1,11 +1,6 @@
-"""M2 step 2 — AUTONOMOUS NAVIGATION.
-
-Starts the simulation + Nav2 (map_server, AMCL, planner, controller, recoveries) + RViz
-with the previously saved maze map.
-
-In RViz:
-  1. "2D Pose Estimate" -> click/drag where the robot actually is (it spawns near marker A).
-  2. "2D Goal Pose"     -> click/drag a destination; the robot plans and drives there.
+"""Simulation + Nav2 (map_server, AMCL, planner, MPPI controller, behaviours) + RViz, using the
+factory map generated from layout.yaml. Set the initial pose with scripts/set_pose.sh (the robot
+spawns on the charger), then send goals with scripts/goto.sh.
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
@@ -26,7 +21,7 @@ def generate_launch_description():
     pkg_gazebo = FindPackageShare("robofetch_gazebo")
     pkg_nav2_bringup = FindPackageShare("nav2_bringup")
 
-    default_map = PathJoinSubstitution([pkg_nav, "maps", "warehouse.yaml"])
+    default_map = PathJoinSubstitution([pkg_nav, "maps", "factory_maze.yaml"])
     default_params = PathJoinSubstitution([pkg_nav, "config", "nav2_params.yaml"])
     rviz_config = PathJoinSubstitution([pkg_nav, "rviz", "nav.rviz"])
 

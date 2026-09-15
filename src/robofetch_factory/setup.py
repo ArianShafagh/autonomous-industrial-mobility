@@ -1,6 +1,8 @@
+from glob import glob
+
 from setuptools import find_packages, setup
 
-package_name = "robofetch_core"
+package_name = "robofetch_factory"
 
 setup(
     name=package_name,
@@ -9,18 +11,18 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
+        ("share/" + package_name + "/config", glob("config/*.yaml")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
-    maintainer="robojazzy",
-    maintainer_email="shafagh.arian2003@gmail.com",
-    description="RoboFetch custom logic: robot condition model, mission execution.",
+    maintainer="ArianShafagh",
+    maintainer_email="arian.shafagh2003@gmail.com",
+    description="Factory layout, points of interest, path lengths and live production sections.",
     license="MIT",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "task_manager = robofetch_core.task_manager:main",
-            "robot_state_node = robofetch_core.robot_state_node:main",
+            "poi = robofetch_factory.layout:poi_cli",
         ],
     },
 )

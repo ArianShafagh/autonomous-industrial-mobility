@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
-# Send the robot to a named waypoint (or explicit coordinates) using Nav2.
+# Send the robot to a named point of interest (or explicit coordinates) using Nav2.
 #
-#   ./scripts/goto.sh shelf1     -> in front of shelf 1  (-2.5,  0.95)
-#   ./scripts/goto.sh shelf2     -> in front of shelf 2  ( 1.5,  0.95)
-#   ./scripts/goto.sh shelf3     -> in front of shelf 3  ( 2.75, -1.0)
-#   ./scripts/goto.sh delivery   -> the delivery station (-2.6, -2.0)
-#   ./scripts/goto.sh 1.5 -2.0   -> arbitrary x y
+#   ./scripts/goto.sh A | B | C | delivery | charger
+#   ./scripts/goto.sh 1.5 -2.0 [yaw_rad]
 #
-# Because the map is generated from the world geometry, map coordinates ARE world
-# coordinates, so these match the markers you see in Gazebo.
-#
-# Run `ros2 launch robofetch_nav navigation.launch.py` first, and set the robot's
-# initial pose once (see ./scripts/set_pose.sh or RViz "2D Pose Estimate").
+# POI poses come from robofetch_factory/config/poi.yaml (generated from layout.yaml), so map
+# coordinates are world coordinates. Needs navigation running and the initial pose set
+# (./scripts/set_pose.sh).
 WS="$(cd "$(dirname "$0")/.." && pwd)"
 source /opt/ros/jazzy/setup.bash
 source "$WS/install/setup.bash"
 
-case "${1:-}" in
-  shelf1|s1)      X=-2.5; Y=0.95; NAME="shelf 1 (north-west)" ;;
-  shelf2|s2)      X=1.5;  Y=0.95; NAME="shelf 2 (north-east)" ;;
-  shelf3|s3)      X=2.75; Y=-1.0; NAME="shelf 3 (east)" ;;
-  delivery|d)     X=-2.6; Y=-2.0; NAME="delivery station" ;;
-  centre|center)  X=0.0;  Y=0.0;  NAME="centre of the room" ;;
-  "")             echo "usage: $0 {shelf1|shelf2|shelf3|delivery|centre|<x> <y>}"; exit 1 ;;
-  *)              X="$1"; Y="${2:?need a y coordinate}"; NAME="($X, $Y)" ;;
-esac
+if [ -z "${1:-}" ]; then
+  echo "usage: $0 {$(ros2 run robofetch_factory poi | cut -d' ' -f1 | paste -sd'|')} | <x> <y> [yaw]"
+  exit 1
+fi
 
-echo "[goto] navigating to $NAME ..."
+if [[ "$1" =~ ^-?[0-9.]+$ ]]; then
+  X="$1"; Y="${2:?need a y coordinate}"; YAW="${3:-0.0}"; NAME="($X, $Y)"
+else
+  read -r X Y YAW < <(ros2 run robofetch_factory poi "$1") || exit 1
+  NAME="$1"
+fi
+
+# yaw -> quaternion (rotation about z only)
+read -r QZ QW < <(python3 -c "import math; print(math.sin($YAW/2), math.cos($YAW/2))")
+
+echo "[goto] navigating to $NAME  x=$X y=$Y yaw=$YAW ..."
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
-  "{pose: {header: {frame_id: 'map'}, pose: {position: {x: $X, y: $Y, z: 0.0}, orientation: {w: 1.0}}}}"
+  "{pose: {header: {frame_id: 'map'}, pose: {position: {x: $X, y: $Y, z: 0.0}, orientation: {z: $QZ, w: $QW}}}}"

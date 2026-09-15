@@ -3,9 +3,10 @@
 <package format="3">
   <name>robofetch_gazebo</name>
   <version>0.1.0</version>
-  <description>RoboFetch Gazebo Harmonic maze world, item models, spawn and ros_gz bridge launch.</description>
+  <description>Gazebo Harmonic factory maze world (generated), robot spawn and ros_gz bridge launch.</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
+  <exec_depend>robofetch_factory</exec_depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
