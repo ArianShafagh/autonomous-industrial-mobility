@@ -1,0 +1,98 @@
+# =================================================================================================
+#  ALL TUNABLE NUMBERS OF THE SYSTEM — robot, battery, energy, charging, thermal, wear, motion,
+#  handling, factory sections and time. Nothing numeric is hard-coded in the code any more.
+#
+#  * scenarios/<name>.yaml overrides any subset of these keys (deep merge).
+#  * After changing anything run:   venv/bin/python scripts/param_report.py --scenario <name>
+#    It prints what the numbers imply (range, runtime, trip energy, charging time, robot
+#    utilisation, time until each line blocks) so an experiment can be judged before running it.
+#  * Unknown or misspelled keys are rejected when loading, so a typo cannot silently do nothing.
+#  * The maze geometry is the only thing NOT here: it lives in layout.yaml (it needs the
+#    world/map generator, scripts/generate_world.py).
+#
+#  Units: SI unless named (Wh, %, units/h, kg). Times are simulation seconds unless named.
+#  Values are chosen for a small indoor AMR of this robot's size (TurtleBot-class: 4.3 kg,
+#  0.35 x 0.22 m, 2D lidar, single-board computer, ~20 Wh pack). Sources of each figure below.
+# =================================================================================================
+
+time:
+  # Factory production clock vs simulation clock. 1.0 = real time for EVERYTHING (the logical
+  # default). >1 speeds up production ONLY (the robot always moves and drains in real time), so
+  # use it just to stress-test; the report shows the effect on utilisation.
+  time_scale: 1.0
+  shift_duration_s: 3600.0        # one simulated shift (fast simulator can run longer)
+  seed: 1
+
+robot:
+  mass_kg: 4.3                    # URDF: chassis 3.0 + wheels 2x0.5 + casters/lidar 0.3
+
+  battery:
+    capacity_wh: 22.0             # 11.1 V x 2.0 Ah Li-ion pack (TurtleBot3-class is 19.98 Wh)
+    reserve_percent: 15.0         # must still remain AFTER returning to the charger
+    charge_power_w: 25.0          # charger output (~1.1 C); robot electronics run from it while docked
+    initial_percent: 100.0
+
+  energy:
+    idle_power_w: 6.0             # always drawn: SBC ~4 W + lidar ~1.5 W + drivers ~0.5 W
+    drive_wh_per_m: 0.005         # empty robot: 0.005 Wh/m x 0.39 m/s = ~7 W motor power, so ~13 W
+                                  # in total while driving -> ~1.7 h continuous-driving runtime
+    load_wh_per_m_per_kg: 0.00116 # extra drive energy per kg carried (= drive_wh_per_m / mass_kg:
+                                  # rolling resistance and acceleration scale with total mass)
+    temp_loss_per_c: 0.004        # efficiency loss per degC of motor temperature above 25 C
+    worn_extra_draw: 0.30         # a fully worn drive (condition 0 %) draws 30 % more
+
+  thermal:
+    ambient_c: 22.0
+    heat_c_per_s: 0.037           # motor heating at full load; with cool_per_s gives a steady
+    cool_per_s: 0.0011            #   state of ambient + 33 C = 55 C and a ~15 min time constant
+    payload_heat_per_kg: 0.05     # 5 kg payload -> 25 % more heating
+    dock_cooling_factor: 1.5      # parked with the drive off cools faster
+    warn_c: 55.0                  # above this wear accelerates
+    max_c: 70.0                   # above this the robot must stop and cool down
+    resume_c: 45.0                # cool enough to work again
+
+  wear:
+    condition_min_percent: 30.0   # below this the robot needs maintenance, not work
+    per_wh: 0.01                  # condition % lost per Wh drawn (~10 000 Wh = 1 000 shifts to 0)
+    per_c_s_above_warn: 0.0005    # condition % lost per second per degC above warn_c
+    initial_percent: 100.0
+
+  motion:
+    speed_m_s: 0.39               # MEASURED average in the maze incl. turns (WP1: 57.27 m / 147.4 s)
+    drive_load: 0.7               # typical motor load while driving, 0..1
+    dwell_load: 0.0               # motors off while loading/unloading or waiting
+
+  handling:
+    max_payload_kg: 5.0           # carrying limit per trip
+    load_time_s: 30.0             # standing at a section while units are loaded
+    unload_time_s: 30.0           # standing at the delivery point while units are unloaded
+
+factory:
+  sections:
+    A:
+      rate_per_hour: 20.0         # USER REQUIREMENT: one unit every 3 min
+      buffer_capacity: 8          # 24 min of output
+      unit_mass_kg: 0.5           # full buffer = 4.0 kg
+      initial_buffer: 1
+    B:
+      rate_per_hour: 30.0         # USER REQUIREMENT: one unit every 2 min
+      buffer_capacity: 10         # 20 min of output
+      unit_mass_kg: 0.4           # full buffer = 4.0 kg
+      initial_buffer: 2
+    C:
+      rate_per_hour: 5.0          # USER REQUIREMENT: one unit every 12 min
+      buffer_capacity: 3          # 36 min of output
+      unit_mass_kg: 1.5           # full buffer = 4.5 kg: slow line, heavy parts
+      initial_buffer: 0
+
+  # Applied to every section unless the section overrides the key.
+  section_defaults:
+    production_cv: 0.15           # cycle-time variation (coefficient of variation, Gamma)
+    health_initial: 100.0
+    wear_per_unit: 0.1            # machine health % lost per unit produced
+    degraded_below: 60.0          # below this the line runs slower:
+    min_rate_factor: 0.5          #   rate x (min_rate_factor + (1 - min_rate_factor) * health/100)
+    faults_per_hour: 0.1          # MTBF 10 h for a healthy machine
+    fault_wear_gain: 3.0          # hazard x (1 + gain * (1 - health/100)): worn machines fail more
+    repair_minutes: 20.0          # mean time to repair
+    repair_cv: 0.3

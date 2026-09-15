@@ -1,0 +1,9 @@
+name: low_battery_start
+description: Robot starts with 30 % battery while the buffers are already half full.
+robot:
+  battery: {initial_percent: 30.0}
+factory:
+  sections:
+    A: {initial_buffer: 4}
+    B: {initial_buffer: 5}
+    C: {initial_buffer: 1}

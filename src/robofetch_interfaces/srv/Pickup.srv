@@ -1,0 +1,9 @@
+# Robot collects finished units from a section's output buffer (/factory/<section_id>/pickup).
+int32 max_units -1           # -1 = no unit limit
+float32 max_mass_kg -1.0     # <= 0 = no mass limit (the robot passes its remaining payload)
+---
+bool success
+uint32 units                 # units actually taken
+float32 mass_kg              # their total mass
+uint32 buffer_left
+string message

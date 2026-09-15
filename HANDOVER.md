@@ -127,3 +127,153 @@ ros2 launch robofetch_nav navigation.launch.py rviz:=false gz_extra:="-s --headl
 venv/bin/python scripts/check_nav.py                   # after "Managed nodes are active"
 ./scripts/stop.sh
 ```
+
+---
+
+## WP2 — Live factory sections (2026-09-15)
+
+### Done
+- **`robofetch_factory/factory_model.py`** (pure Python, no ROS — the WP4 fast simulator will import the same code). A section = machine + output buffer:
+  - **production:** each unit needs Gamma-distributed work (mean 1, cv `production_cv` = 0.2); step-size independent (units are produced event by event inside a step);
+  - **buffer / BLOCKED:** full buffer stops the line; the production it would have made is counted as `lost_units`, with `blocked_time_s`;
+  - **health / DEGRADED:** −0.15 % per unit; below 60 % the line slows to `0.5 + 0.5·health/100` of nominal;
+  - **faults / FAULT:** hazard `faults_per_hour · (1 + 3·(1 − health/100))`, Gamma repair time (mean 45 factory min); repair services the machine to health 100;
+  - `pickup(max_units, max_mass_kg)` for the robot; `snapshot()` with everything a monitor/AI needs, incl. **time_to_full_s** (sim seconds) and fault time remaining.
+  - Separate random stream per section (`seed:section_id`), so one seed reproduces a whole shift.
+- **Config:** `config/factory.yaml` (base) + `config/scenarios/` overrides merged by `load_config()`:
+  - `balanced` — nominal; `one_hot_section` — B at 60 units/h, buffer 10; `fault_burst` — machines at health 55, 0.6 faults/h, 60 min repairs; `low_battery_start` — robot 35 % battery, buffers half full; `worn_robot` — robot condition 45 %.
+  - Sections (user requirement kept): **A 20 units/h** (buffer 12, 0.4 kg), **B 30 units/h** (buffer 15, 0.3 kg), **C 5 units/h** (buffer 4, 1.2 kg). Every full buffer fits the robot's 5 kg payload in one trip.
+  - Robot scenario fields for later WPs: initial battery/condition, `max_payload_kg` 5, load/unload dwell 6 s each.
+- **Interfaces:** `Grab.srv` removed; new `msg/SectionStatus.msg` (status code+text, counters, buffer, rates, health, time-to-full, fault time left, lost units, blocked time) and `srv/Pickup.srv`.
+- **`section_node`**: steps the model on the SIM clock (10 Hz), publishes `/factory/<id>/status` at 1 Hz, serves `/factory/<id>/pickup`, logs `logs/<run_id>_section_<id>.csv`.
+- **`factory.launch.py`**: the three section nodes (`scenario:=`, `seed:=`, `use_sim_time:=`).
+- **`factory_monitor`**: live terminal table of the three sections (read-only).
+- **Tests:** `src/robofetch_factory/test/test_factory_model.py`, 27 tests.
+- `stop.sh` pattern: `section_node`, `factory_monitor` added.
+
+### Decisions
+- **Everything the robot/AI sees is in simulation seconds;** rates stay "per factory hour". Factory time = sim time × `time_scale`, converted only inside the model.
+- **`time_scale` = 5, shift = 3600 sim s (= 5 factory hours)** — chosen from a capacity calculation, not guessed (see Problems 2).
+- **Each section is its own node** (each section "monitors itself", as in the scenario), sharing one run id so logs line up.
+- Executable named `factory_monitor`, not `monitor`: `stop.sh` kills by process name and `monitor` is too generic.
+
+### Problems and fixes
+1. **Test `worn machines fail more often` failed (238 vs 205 faults, needed 1.5×).** Not a model bug: repair restores health to 100, so a worn machine is only worn until its first fault. Rewrote the test to measure time to the *first* fault: ratio matches the expected 2.8× (±25 %) over 200 seeds.
+2. **Factory was overloaded at the first `time_scale` (20).** Characterisation showed every line blocking within ~90 s. Capacity calculation with the real energy model (`robot_model.energy_wh`, 22 Wh pack, measured 0.389 m/s, 12 s dwell, 1 %/s charging): one full-load trip delivery→A/B→delivery = ~64 s driving and **~49 % battery (~49 s charging)**; C = 44 s and 31 %. Robot utilisation needed for nominal demand: ts 20 → **3.12**, ts 8 → 1.25, ts 6 → 0.94, **ts 5 → 0.78**, ts 4 → 0.62. My first correction (ts 8, estimated 0.85) ignored charging and was still an overload — caught by doing the full calculation before accepting it. Final: **ts 5**.
+3. `ros2 run … monitor` printed nothing under `timeout` (stdout buffered when piped) → `flush=True`.
+4. A stale `monitor` executable stayed in `install/` after the rename → removed.
+
+### Results
+**Unit tests:** `pytest src/robofetch_factory/test` → **27 passed** (0.21 s). Covers: A/B/C rates = 20/30/5; noise-free section produces exactly its rate over 10 h; time_scale; noisy rate within 5 % over 100 h; identical results for step 2.0 s vs 0.1 s; blocking stops production and counts lost units exactly; pickup unblocks; predicted time-to-full matches actual (±0.5 s); payload limit (15 units × 0.4 kg with 5 kg limit → 12 taken); degraded rate factor; fault stops production for the repair time and restores health; worn machines fail 2.8× sooner; seed reproducibility; independent section streams; all 5 scenarios run a shift; overrides touch only named keys; every full buffer fits the robot.
+
+**Live, wall clock (no Gazebo, ts 20 at the time):** 3 topics at exactly 1.000 Hz. After 26.3 factory min: B produced 13 (13.2 expected), A 7 (8.8 expected, within noise), buffers consistent (A 2+7 = 9; B 3+13−6 = 10). Pickup service: B with `max_mass_kg 2.0` → 6 units / 1.80 kg, 7 left; C → 1 unit / 1.20 kg.
+
+**Live, Gazebo sim clock (`one_hot_section`):** section stamps follow `/clock` (10.1 → 125.0 s sim), factory time advanced **exactly 20.00×** sim time. B (60 units/h, buffer 10, started with 3) blocked after 7 units, 96.4 s blocked, **32.1 lost units = 96.35 s × 20 / 3600 × 60** (exact).
+
+**Scenario characterisation — full 3600 s shift, no robot, 20 seeds each (final ts 5):**
+
+| Scenario | Sec | First BLOCKED (s) mean / min | Potential units/shift | kg/shift | Faults/shift | Fault downtime (s) |
+|---|---|---|---|---|---|---|
+| balanced | A | 356 / 319 | 95.7 | 38.3 | 0.30 | 159 |
+| balanced | B | 294 / 269 | 144.4 | 43.3 | 0.25 | 129 |
+| balanced | C | 636 / 474 | 24.3 | 29.2 | 0.15 | 87 |
+| one_hot_section | B | **85 / 76** | 289.3 | 86.8 | 0.25 | 128 |
+| fault_burst | A | 944 / 432 | 55.2 | 22.1 | 2.35 | **1529** |
+| fault_burst | B | 673 / 340 | 80.5 | 24.2 | 2.20 | 1562 |
+| fault_burst | C | 1188 / 701 | 14.0 | 16.8 | 2.25 | 1391 |
+| low_battery_start | A | 211 / 186 | 95.7 | 38.3 | 0.30 | 159 |
+| low_battery_start | B | 172 / 147 | 144.5 | 43.4 | 0.25 | 128 |
+| low_battery_start | C | 296 / 204 | 24.3 | 29.2 | 0.15 | 87 |
+
+(`one_hot_section` A/C and `worn_robot` A/B/C are identical to `balanced` — those scenarios only change B or the robot.) Balanced demand ≈ **111 kg per shift**.
+
+### Open issues
+- **Energy per trip is heavy:** a full 4.8 kg trip costs ~49 % battery, so the robot must charge after roughly every second trip. This is what makes energy-aware decisions matter, but it must be re-checked in WP3 against the energy measured in Gazebo; if it proves unrealistic, `E_LOAD` or the payload limit is the knob.
+- `robot_model.EFFECTIVE_SPEED` (0.18) still to be replaced by the measured 0.389 m/s (WP3).
+- Legacy `task_manager.py` now fails at import (it used `Grab.srv`) — replaced by `mission_executor` in WP3; `delivery.launch.py` legacy until WP7.
+
+### How to reproduce
+```bash
+source /opt/ros/jazzy/setup.bash && source venv/bin/activate
+colcon build --symlink-install && source install/setup.bash
+PYTHONPATH=src/robofetch_factory python -m pytest -q src/robofetch_factory/test
+ros2 launch robofetch_factory factory.launch.py use_sim_time:=false scenario:=balanced &
+ros2 run robofetch_factory factory_monitor
+ros2 service call /factory/B/pickup robofetch_interfaces/srv/Pickup "{max_mass_kg: 5.0}"
+./scripts/stop.sh
+```
+
+---
+
+## WP2 revision — realistic numbers, all parameters in one config file (2026-09-15)
+
+User request: make the numbers logical and put them in one config file so different variables can be tried to find the best scenario.
+
+### Done
+- **`src/robofetch_factory/config/params.yaml` is now the single file of tunable numbers** (replaces `factory.yaml`). Groups: `time`, `robot.{battery, energy, thermal, wear, motion, handling}`, `factory.{sections, section_defaults}`. Each value has its unit and its justification in a comment. Only the maze geometry stays in `layout.yaml` (it needs the world generator).
+- **Scenarios** (`config/scenarios/*.yaml`) override any subset; now 6: `balanced`, `one_hot_section`, **`high_demand` (new)**, `fault_burst`, `low_battery_start`, `worn_robot`.
+- **No numbers left in code:**
+  - `robot_model.py` rewritten: `RobotParams.from_config(cfg)`, equations only. New physics: **idle electronics power** (energy is drawn while standing/waiting too), **charger power** (net = charger − idle), separate drive/idle/trip energy functions, `charge_time_s`, overheat time. The old Euclidean `route_legs` removed (maze path matrix is used instead).
+  - `SectionParams` has no default values any more.
+  - `robot_state_node` reads the scenario's `params.yaml`; also **fixed: it integrated battery/heat on wall-clock time**, now uses the simulation clock.
+- **Typo protection both ways:** a scenario/override key that does not exist in `params.yaml` is rejected (`unknown parameter 'params.robot.battery.capacity_w'`); a `robot.*` key in `params.yaml` that no code reads is rejected too.
+- **`scripts/param_report.py`** — run after any change. Shows range, runtime, charging time, full-load trip cost per section, robot utilisation (busy + charging), when each line blocks with no robot, and warnings (buffer heavier than payload, mission below reserve, overheating, utilisation > 1). `--set key=value` tries a value without editing files; `--all` compares all scenarios.
+
+### The numbers (TurtleBot-class indoor AMR, matches this robot's size)
+| Parameter | Old | New | Why |
+|---|---|---|---|
+| time_scale | 5 | **1.0** | real time for factory AND robot (the old scaling sped up production but not the robot) |
+| battery | 22 Wh | 22 Wh | 11.1 V × 2 Ah pack (TurtleBot3: 19.98 Wh) |
+| drive energy (empty) | 0.35 Wh/m | **0.005 Wh/m** | ≈7 W motor power at 0.39 m/s (old value = 490 W, 70× too high) |
+| payload energy | 0.08 Wh/m/kg | **0.00116 Wh/m/kg** | = drive energy / robot mass (4.3 kg) |
+| idle electronics | — (none) | **6 W** | computer ~4 W + lidar ~1.5 W + drivers |
+| charging | 1 %/s (full in 100 s) | **25 W** charger (net 19 W) | ~1 C; reserve → full in 59 min |
+| motor heating | 1.2 °C/s | **0.037 °C/s**, cooling 0.0011/s | steady 55 °C at full load, ~15 min time constant (old: 70 °C in a minute) |
+| speed | 0.18 m/s | **0.39 m/s** | measured in WP1 |
+| load / unload time | 8 s total | **30 s + 30 s** | realistic manual/automatic handling of up to ~10 parts |
+| A / B / C rate | 20 / 30 / 5 units/h | 20 / 30 / 5 (user requirement) | unchanged |
+| A / B / C buffer | 12 / 15 / 4 | **8 / 10 / 3** | 24 / 20 / 36 min of output |
+| A / B / C unit mass | 0.4 / 0.3 / 1.2 kg | **0.5 / 0.4 / 1.5 kg** | full buffers 4.0 / 4.0 / 4.5 kg, all ≤ 5 kg payload |
+| machine faults | 0.05/h, 45 min repair | **0.1/h (MTBF 10 h), 20 min repair** | |
+
+### Problems and fixes
+1. **My first drive-energy value was wrong by 3.6×.** I set 0.012 Wh/m and commented "≈4.7 W", but 0.012 Wh/m × 0.39 m/s = 16.8 W. The new sanity test (`test_realistic_magnitudes`: 5–40 Wh/km, 1–4 h driving runtime, 30–120 min charge) failed with a 0.96 h runtime → corrected to 0.005 Wh/m (1.69 h).
+2. **`worn_robot` looked identical to `balanced` in the report** — the report computed trip energy for a new drive instead of the scenario's 45 % condition. Fixed; worn robot now shows 14.2 W vs 13.0 W while driving.
+3. **First `high_demand` (3× rates) was impossible** (utilisation 1.11). Tried 2× and 2.5× with `--set` (0.85 and 0.98) → **2×** chosen: hard but achievable.
+4. Stale `factory.yaml` symlink in `build/` broke the colcon build after the rename → clean rebuild of `robofetch_factory`.
+
+### Results
+`pytest src/robofetch_core/test src/robofetch_factory/test` → **52 passed** (18 robot model incl. config/typo/magnitude checks, 34 factory model).
+`colcon build` → 10 packages finished. Section nodes start with the new values (`high_demand`: A 40 units/h, buffer 8, 0.5 kg …). `robot_state_node` with `low_battery_start` starts at 30 % and drains 0.0076 %/s standing (= 6 W on 22 Wh).
+
+`param_report.py` (balanced):
+```
+ROBOT  battery 22 Wh, reserve 15 %, idle 6 W, driving 13.0 W total at 0.39 m/s
+  energy per km (empty, incl. idle) 9.3 Wh; range empty 2372 m, with 5 kg 1460 m
+  runtime: driving non-stop 1.69 h, standing idle 3.67 h; charging reserve -> full 59 min
+FULL-LOAD TRIP delivery -> section -> delivery (incl. 60 s handling)
+   A  10.01 m  4.00 kg  111 s  0.33 Wh  1.5 %   2.50 trips/h  10.0 kg/h
+   B  10.26 m  4.00 kg  113 s  0.34 Wh  1.5 %   3.00 trips/h  12.0 kg/h
+   C   6.30 m  4.50 kg   92 s  0.25 Wh  1.1 %   1.67 trips/h   7.5 kg/h
+DEMAND: 29.5 kg/h; robot busy 21.4 %, energy 7.0 Wh/h -> charging 36.7 %  => UTILISATION 0.58
+NO ROBOT: A blocks after 23.7 min, B 15.7 min, C 36.0 min
+```
+`param_report.py --all`:
+
+| Scenario | Utilisation | Busy % | Charging % | kg/h | First BLOCKED A/B/C (min) | Warnings |
+|---|---|---|---|---|---|---|
+| balanced | 0.58 | 21.4 | 36.7 | 29.5 | 23.7 / 15.7 / 36.0 | 0 |
+| fault_burst | 0.58 | 21.4 | 36.7 | 29.5 | 35.0 / 28.0 / never | 0 |
+| high_demand | 0.85 | 42.8 | 41.9 | 59.0 | 10.6 / 7.9 / 18.1 | 0 |
+| low_battery_start | 0.58 | 21.4 | 36.7 | 29.5 | 11.6 / 10.0 / 24.5 | 0 |
+| one_hot_section | 0.70 | 30.8 | 39.1 | 41.5 | 23.7 / 7.9 / 36.0 | 0 |
+| worn_robot | 0.59 | 21.4 | 37.6 | 29.5 | 23.7 / 15.7 / 36.0 | 0 |
+
+### Finding worth noting for the thesis
+With realistic numbers **most of the robot's energy is the electronics' idle power** (6 of 7 Wh per hour in `balanced`); one full-load trip costs only ~1.5 % of the battery. Energy efficiency is therefore mostly about **time** (fewer, better-batched trips, no pointless waiting away from the charger, charging while idle) rather than about metres of path. If the thesis should put more weight on path/drive energy, a heavier industrial AMR profile (e.g. 50 kg robot, 50–100 kg payload, larger motors) can be tried by changing only `params.yaml`.
+
+### How to try variables
+```bash
+venv/bin/python scripts/param_report.py --all
+venv/bin/python scripts/param_report.py --scenario one_hot_section --set robot.battery.capacity_wh=15 --set robot.handling.load_time_s=45
+```

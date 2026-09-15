@@ -1,0 +1,7 @@
+name: fault_burst
+description: Worn machines (health 60 %) failing about once per hour with 15 min repairs - lines stop and restart unpredictably.
+factory:
+  section_defaults:
+    health_initial: 60.0
+    faults_per_hour: 1.0
+    repair_minutes: 15.0

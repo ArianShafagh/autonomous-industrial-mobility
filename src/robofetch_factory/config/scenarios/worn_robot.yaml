@@ -1,0 +1,4 @@
+name: worn_robot
+description: Robot drive condition 45 % (draws more energy, close to the maintenance limit) in the nominal factory.
+robot:
+  wear: {initial_percent: 45.0}

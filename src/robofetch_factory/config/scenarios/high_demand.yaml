@@ -1,0 +1,7 @@
+name: high_demand
+description: All lines at 2x the nominal rate (A=40, B=60, C=10 units/h) - robot utilisation ~0.85, near its capacity.
+factory:
+  sections:
+    A: {rate_per_hour: 40.0}
+    B: {rate_per_hour: 60.0}
+    C: {rate_per_hour: 10.0}

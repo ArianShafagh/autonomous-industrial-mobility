@@ -26,12 +26,13 @@ from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from std_msgs.msg import String
 
-from robofetch_core.robot_model import (RobotCondition, T_MAX, T_RESUME, T_WARN,
-                                        CONDITION_MIN, RESERVE_PERCENT)
+from robofetch_core.robot_model import RobotCondition, RobotParams
+from robofetch_factory.factory_model import load_config
 
 CSV_FIELDS = ["ts", "run_id", "order_id", "activity", "state", "battery_percent",
               "temperature_c", "condition_percent", "payload_kg", "motor_load", "speed",
-              "distance_delta_m", "cumulative_distance_m", "cumulative_energy_wh"]
+              "distance_delta_m", "cumulative_distance_m", "cumulative_energy_wh",
+              "cumulative_charged_wh"]
 
 
 class RobotStateNode(Node):
@@ -39,21 +40,15 @@ class RobotStateNode(Node):
         super().__init__("robot_state_node")
 
         self.declare_parameter("publish_period", 1.0)
-        # Where per-run CSV logs go. One file per launch, named with the run id.
-        self.declare_parameter("log_dir", os.path.expanduser("~/robofetch_ws/logs"))
-        # Starting condition. Defaults to a healthy, fully charged robot; override to stage
-        # a demo where the robot has to refuse work.
-        self.declare_parameter("initial_battery", 100.0)
-        self.declare_parameter("initial_condition", 100.0)
-        # Speed the drive is considered "at full load", for scaling the thermal model.
-        self.declare_parameter("nominal_speed", 0.22)
+        self.declare_parameter("log_dir", os.path.join(os.getcwd(), "logs"))
+        # All robot numbers (battery, energy, thermal, wear, speed) come from params.yaml and the
+        # scenario; nothing is configured here.
+        self.declare_parameter("scenario", "balanced")
 
         self.period = self.get_parameter("publish_period").value
-        self.nominal_speed = self.get_parameter("nominal_speed").value
-
-        self.condition = RobotCondition(
-            battery_percent=float(self.get_parameter("initial_battery").value),
-            condition_percent=float(self.get_parameter("initial_condition").value))
+        cfg = load_config(self.get_parameter("scenario").value)
+        self.p = RobotParams.from_config(cfg)
+        self.condition = RobotCondition(self.p)
 
         self.run_id = time.strftime("run_%Y%m%d_%H%M%S")
         self.activity = "idle"          # what the task manager says it is doing
@@ -63,7 +58,7 @@ class RobotStateNode(Node):
         self._last_xy = None
         self._pending_distance = 0.0    # metres since the last telemetry tick
         self._speed = 0.0
-        self._last_tick = time.time()
+        self._last_tick = None
 
         self.create_subscription(Odometry, "/odom", self._on_odom, 10)
         self.create_subscription(String, "/robot/activity", self._on_activity, 10)
@@ -112,20 +107,25 @@ class RobotStateNode(Node):
         # someone has just emergency-stopped would hide the one fact the operator needs.
         if self.activity == "stopped":
             return "stopped"
-        if self.condition.temperature_c >= T_MAX:
+        p = self.p
+        if self.condition.temperature_c >= p.max_c:
             return "cooldown"
-        if self.condition.condition_percent < CONDITION_MIN:
+        if self.condition.condition_percent < p.condition_min_percent:
             return "fault"
         if self.activity == "charging":
             return "charging"
-        if self.condition.temperature_c > T_RESUME and self.activity == "idle" \
-                and self.condition.temperature_c > T_WARN:
+        if self.condition.temperature_c > p.resume_c and self.activity == "idle" \
+                and self.condition.temperature_c > p.warn_c:
             return "cooldown"
         return self.activity
 
     def _tick(self):
-        now = time.time()
-        dt = max(1e-3, now - self._last_tick)
+        # Simulation clock, so battery drain and heating follow Gazebo time, not wall time.
+        now = self.get_clock().now().nanoseconds / 1e9
+        if self._last_tick is None or now <= self._last_tick:
+            self._last_tick = now
+            return
+        dt = now - self._last_tick
         self._last_tick = now
 
         distance = self._pending_distance
@@ -133,7 +133,7 @@ class RobotStateNode(Node):
 
         docked = self.activity == "charging"
         # Motor load tracks how hard the drive is working right now, saturated at 1.
-        load = 0.0 if docked else min(1.0, self._speed / max(1e-3, self.nominal_speed))
+        load = 0.0 if docked else min(1.0, self._speed / self.p.speed_m_s * self.p.drive_load)
 
         self.condition.step(dt, distance_m=distance, payload_kg=self.payload_kg,
                             motor_load=load, docked=docked)
@@ -154,6 +154,7 @@ class RobotStateNode(Node):
             "distance_delta_m": round(distance, 4),
             "cumulative_distance_m": round(self.condition.cumulative_distance_m, 3),
             "cumulative_energy_wh": round(self.condition.cumulative_energy_wh, 4),
+            "cumulative_charged_wh": round(self.condition.cumulative_charged_wh, 4),
         }
 
         self._writer.writerow(sample)
@@ -161,10 +162,10 @@ class RobotStateNode(Node):
         self.telemetry_pub.publish(String(data=json.dumps(sample)))
 
         # Warn once per crossing rather than every tick.
-        if state == "cooldown" and self.condition.temperature_c >= T_MAX:
+        if state == "cooldown" and self.condition.temperature_c >= self.p.max_c:
             self.get_logger().warn(
                 f"Motors at {self.condition.temperature_c:.0f} C - cooling down.")
-        if self.condition.battery_percent < RESERVE_PERCENT:
+        if self.condition.battery_percent < self.p.reserve_percent:
             self.get_logger().warn(
                 f"Battery {self.condition.battery_percent:.0f}% - below reserve.")
 

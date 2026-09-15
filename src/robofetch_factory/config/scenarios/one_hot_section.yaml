@@ -1,0 +1,6 @@
+name: one_hot_section
+description: Section B runs at double speed (60 units/h, one unit per minute) and blocks within 10 min if neglected.
+factory:
+  sections:
+    B:
+      rate_per_hour: 60.0
