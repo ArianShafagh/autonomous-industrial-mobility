@@ -1,0 +1,7 @@
+name: heavy_parts
+description: Heavy product mix - units weigh about twice as much, so fewer fit per trip and every trip costs more energy.
+factory:
+  sections:
+    A: {unit_mass_kg: 1.0, buffer_capacity: 5}
+    B: {unit_mass_kg: 0.8, buffer_capacity: 6}
+    C: {unit_mass_kg: 2.5, buffer_capacity: 2}

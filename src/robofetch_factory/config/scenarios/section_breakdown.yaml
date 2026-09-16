@@ -1,0 +1,8 @@
+name: section_breakdown
+description: Section B's machine is failing - health 35 %, frequent faults and long repairs - while A and C run normally.
+factory:
+  sections:
+    B:
+      health_initial: 35.0
+      faults_per_hour: 2.0
+      repair_minutes: 25.0

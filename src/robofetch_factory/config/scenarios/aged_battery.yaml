@@ -1,0 +1,6 @@
+name: aged_battery
+description: Worn battery pack - only 12 Wh left (55 % of new) and a slower 15 W charger, so charging has to be planned carefully.
+robot:
+  battery:
+    capacity_wh: 12.0
+    charge_power_w: 15.0

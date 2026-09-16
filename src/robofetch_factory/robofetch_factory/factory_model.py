@@ -223,12 +223,22 @@ def deep_merge(base, override):
 
 def check_keys(base, override, where="params"):
     """Every key a scenario sets must exist in params.yaml, so a typo fails loudly instead of
-    silently leaving the default in place."""
+    silently leaving the default in place.
+
+    One deliberate exception: a single section may override any `section_defaults` key (e.g. give
+    only section B a failing machine), so those keys count as valid under `factory.sections.<id>`.
+    """
     for key, value in (override or {}).items():
-        if key not in base:
+        allowed = base
+        if where.startswith("params.factory.sections.") and where.count(".") == 3:
+            allowed = dict(base, **_SECTION_DEFAULT_KEYS)
+        if key not in allowed:
             raise ValueError(f"unknown parameter '{where}.{key}' (not in params.yaml)")
-        if isinstance(value, dict) and isinstance(base[key], dict):
-            check_keys(base[key], value, f"{where}.{key}")
+        if isinstance(value, dict) and isinstance(allowed[key], dict):
+            check_keys(allowed[key], value, f"{where}.{key}")
+
+
+_SECTION_DEFAULT_KEYS = {}
 
 
 def load_config(scenario="balanced", config_dir=None, overrides=None):
@@ -249,6 +259,8 @@ def load_config(scenario="balanced", config_dir=None, overrides=None):
     with open(path) as fh:
         scen = yaml.safe_load(fh) or {}
     meta = {k: scen.pop(k) for k in ("name", "description") if k in scen}
+    _SECTION_DEFAULT_KEYS.clear()
+    _SECTION_DEFAULT_KEYS.update(base.get("factory", {}).get("section_defaults", {}))
     check_keys(base, scen)
     check_keys(base, overrides)
     cfg = deep_merge(deep_merge(base, scen), overrides)

@@ -1,0 +1,9 @@
+name: heavy_load
+description: Worst realistic day - double production, heavier parts and a half-charged robot. Slightly beyond what one robot can keep up with (utilisation ~1.03), so some loss is unavoidable - the question is how little.
+robot:
+  battery: {initial_percent: 50.0}
+factory:
+  sections:
+    A: {rate_per_hour: 40.0, unit_mass_kg: 0.8, buffer_capacity: 6}
+    B: {rate_per_hour: 60.0, unit_mass_kg: 0.6, buffer_capacity: 8}
+    C: {rate_per_hour: 10.0, unit_mass_kg: 2.0, buffer_capacity: 2}

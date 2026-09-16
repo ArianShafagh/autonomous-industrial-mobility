@@ -1,0 +1,6 @@
+name: hot_factory
+description: Summer - 38 C in the hall and poor cooling, so the motors run hot and long heavy trips risk the temperature limit.
+robot:
+  thermal:
+    ambient_c: 38.0
+    cool_per_s: 0.0008

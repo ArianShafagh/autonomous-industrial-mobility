@@ -1,6 +1,6 @@
 """Complete autonomous run: Gazebo + Nav2 + factory + robot condition model + AI + mission.
 
-    ros2 launch robofetch_bringup mission.launch.py                       # the AI drives (model:=ns)
+    ros2 launch robofetch_bringup mission.launch.py    # AI drives + dashboard on localhost:8000
     ros2 launch robofetch_bringup mission.launch.py model:=ppo scenario:=high_demand
     ros2 launch robofetch_bringup mission.launch.py model:="" plan:="PICKUP:B;DELIVER"   # scripted
     ros2 launch robofetch_bringup mission.launch.py ai:=false              # no AI: fallback rules
@@ -71,6 +71,15 @@ def generate_launch_description():
         output="screen",
         condition=IfCondition(LaunchConfiguration("ai")))
 
+    # The read-only dashboard, so one command gives a complete, watchable system.
+    dashboard = ExecuteProcess(
+        cmd=[workspace_python(), "-m", "uvicorn", "robofetch_bridge.app:app",
+             "--host", "0.0.0.0", "--port", "8000"],
+        additional_env={"ROBOFETCH_WEB": PathJoinSubstitution(
+            [FindPackageShare("robofetch_web"), "web"])},
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("web")))
+
     mission = Node(
         package="robofetch_core", executable="mission_executor", name="mission_executor",
         output="screen",
@@ -90,13 +99,15 @@ def generate_launch_description():
                                           "'' to follow `plan` instead"),
         DeclareLaunchArgument("ai", default_value="true",
                               description="start the decision service (false = fallback rules)"),
+        DeclareLaunchArgument("web", default_value="true",
+                              description="start the read-only dashboard on http://localhost:8000"),
         DeclareLaunchArgument("shift_s", default_value="0.0",
                               description="shift length in seconds (0 = from params.yaml)"),
         DeclareLaunchArgument("headless", default_value="false"),
         DeclareLaunchArgument("rviz", default_value="true"),
         navigation(False),
         navigation(True),
-        TimerAction(period=3.0, actions=[decision_service]),
+        TimerAction(period=3.0, actions=[decision_service, dashboard]),
         TimerAction(period=5.0, actions=[factory, robot_state]),
         TimerAction(period=8.0, actions=[mission]),
     ])

@@ -392,6 +392,13 @@ class MissionExecutor(Node):
         state = self.build_state()
         self.decision_stats["asked"] += 1
         started = time.time()
+        if self.model == "fallback":
+            # Chosen on purpose (run without any AI): use the built-in rules directly, without
+            # trying the service first and without reporting it as a failure.
+            action, why = self._fallback(state)
+            self._publish_decision(str(action), why, "fallback", {},
+                                   (time.time() - started) * 1000.0, False)
+            return action, why
         try:
             request = urllib.request.Request(
                 self.decision_url, method="POST",
@@ -413,15 +420,22 @@ class MissionExecutor(Node):
             self.decision_stats["failed"] += 1
             self.decision_stats["fallback"] += 1
             self.get_logger().warn(f"decision service unavailable ({exc}); using the fallback rules")
-            action, why = fallback_policy.decide(
-                dict(state, distance_to_charger_m=self.matrix[self.location][CHARGER],
-                     distance_to_delivery_m=self.matrix[self.location][DELIVERY],
-                     sections={sid: dict(sec, units_that_fit=self._units_that_fit(sec))
-                               for sid, sec in state["sections"].items()}),
-                self.p, self.charge_targets, self.wait_slice_s)
+            action, why = self._fallback(state)
             self._publish_decision(str(action), why, "fallback", {},
                                    (time.time() - started) * 1000.0, True)
             return action, why
+
+    def _fallback(self, state):
+        sections = {}
+        for sid, sec in state["sections"].items():
+            sec = dict(sec, units_that_fit=self._units_that_fit(sec))
+            if sec.get("time_to_full_s") is None:
+                sec["time_to_full_s"] = float("inf")
+            sections[sid] = sec
+        return fallback_policy.decide(
+            dict(state, distance_to_charger_m=self.matrix[self.location][CHARGER],
+                 distance_to_delivery_m=self.matrix[self.location][DELIVERY], sections=sections),
+            self.p, self.charge_targets, self.wait_slice_s)
 
     def _units_that_fit(self, section):
         unit = float(section.get("unit_mass_kg", 0.0)) or 1e-9
@@ -613,9 +627,10 @@ class MissionExecutor(Node):
         ok_count = 0
 
         if self.model:
-            self.get_logger().info(
-                f"autonomous mode: asking '{self.model}' at {self.decision_url} before every "
-                f"action; shift {self.shift_duration_s:.0f} s")
+            source = ("the built-in fallback rules (no AI)" if self.model == "fallback"
+                      else f"'{self.model}' at {self.decision_url}")
+            self.get_logger().info(f"autonomous mode: deciding with {source} before every "
+                                   f"action; shift {self.shift_duration_s:.0f} s")
             while not self._abort.is_set() and not self.stuck:
                 if self.sim_now() - t_start >= self.shift_duration_s:
                     self.get_logger().info("shift over")

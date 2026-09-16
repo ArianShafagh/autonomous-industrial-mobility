@@ -583,3 +583,41 @@ fuser -k 8001/tcp                         # "the AI is down": the robot continue
 - The dashboard is not started by `mission.launch.py` yet (run it manually); it should become a launch argument.
 - Decision latency in the summary includes the first request, which loads the model (~1.5 s); warm requests are 3–7 ms.
 - The maze map with the robot's position is not drawn on the page yet (planned for the evaluation work).
+
+---
+
+## Scenarios and interactive start (2026-09-16)
+
+User request: try several scenarios (heavy load, balanced, low battery and other realistic ones) and choose the mode at run time from the run script.
+
+### Done
+- **Six new scenarios** (12 in total), each checked with `param_report.py` before being accepted:
+
+| Scenario | What changes | Utilisation | Lines block after (A/B/C, no robot) |
+|---|---|---|---|
+| `heavy_load` | double rates, heavier parts, robot starts at 50 % | **1.03** (over capacity on purpose) | 7.6 / 6.0 / 11.9 min |
+| `small_buffers` | buffers of 3 / 4 / 1 units | 0.99 | 5.7 / 6.1 / 12.2 min |
+| `aged_battery` | 12 Wh pack (55 % of new), 15 W charger | 0.99 (charging 77 % of the time) | 23.7 / 15.7 / 36.0 min |
+| `heavy_parts` | units ~2× heavier, fewer per trip | 0.75 | 11.6 / 8.0 / 24.5 min |
+| `section_breakdown` | only B failing: health 35 %, 2 faults/h, 25 min repairs | 0.58 | 23.7 / never / 36.0 min |
+| `hot_factory` | 38 °C hall, weaker cooling (motor limit matters on long heavy work) | 0.58 | 23.7 / 15.7 / 36.0 min |
+
+  Existing: `balanced`, `high_demand`, `low_battery_start`, `one_hot_section`, `fault_burst`, `worn_robot`.
+- **Config loader:** a single section may now override any `section_defaults` key (needed for `section_breakdown`); every other unknown key is still rejected as a typo.
+- **`scripts/run.sh` is interactive** when started without arguments: it lists the 12 scenarios with their descriptions and the 5 decision modes, then asks for scenario, model, view (Gazebo + RViz or headless) and shift length, shows a summary and asks for confirmation. Invalid input is re-asked. `--list` prints the choices without starting anything. With arguments it stays non-interactive for repeat runs (`scenario:=… model:=… shift_s:=… --headless --no-build`).
+- **Decision modes:** `ns` (neuro-symbolic), `ns_symbolic_only`, `ppo`, `rule`, and **`fallback` = no AI**: the robot runs on its built-in rules inside the executor and the AI service is not started (not reported as a failure, unlike a service that dies mid-shift). `model:=` with a `plan:=` still runs a scripted sequence.
+- **Dashboard started by the launch file** (`web:=true` by default), so one command gives the robot, the AI and the monitor.
+
+### Results
+- `pytest` (core, factory, ai) → **161 passed** — the scenario-parametrised tests now also cover the six new scenarios (load, payload fits, safe and explained shift for every scenario).
+- Interactive menu tested with a simulated terminal, including invalid answers (99 as scenario, 3 as view, "abc" as minutes) and cancelling.
+- Real launch `./scripts/run.sh scenario:=hot_factory model:=fallback --headless --no-build shift_s:=180.0`: scenario `hot_factory` loaded, 3 decisions all by the built-in rules (`fallback: section B fills in 928 s` …), 0 "service unavailable" warnings, AI service correctly not running.
+- One-command check (`mission.launch.py headless:=true`): dashboard `/health` and AI `/health` both up, first decision `PICKUP:B - B has 2 units waiting; neural score +4.67`.
+
+### How to use
+```bash
+./scripts/run.sh                                 # asks: scenario, model, view, minutes
+./scripts/run.sh --list                          # show scenarios and models
+./scripts/run.sh scenario:=heavy_load model:=ppo shift_s:=900.0 --headless
+./scripts/stop.sh                                # stopping is always manual
+```

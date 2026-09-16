@@ -1,0 +1,7 @@
+name: small_buffers
+description: Lean production - output buffers hold only a few units, so lines block within minutes unless served on time.
+factory:
+  sections:
+    A: {buffer_capacity: 3, initial_buffer: 1}
+    B: {buffer_capacity: 4, initial_buffer: 1}
+    C: {buffer_capacity: 1, initial_buffer: 0}
