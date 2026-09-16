@@ -406,3 +406,58 @@ The full ladder ran, the timeout worked, and the robot stopped instead of drivin
 ### Open issues
 - After a recovered arrival at a blocked section the robot may still be ~0.3 m off; loading is allowed within `arrival_tolerance_m`. Tighten only if a blocked pickup point ever has to be refused outright.
 - A blocked route is currently only visible to the AI as a failed action (WP5–WP7 will decide what to do next: retry later, pick another section, charge).
+
+---
+
+## WP4 — Fast simulator, policy interface and rule-based reference (2026-09-16)
+
+### Done
+- **`robofetch_ai/env/factory_sim.py`** — the whole factory without Gazebo or ROS. It executes the **same actions** (`mission_plan`), moves the robot with the **same** energy/thermal/wear model (`robot_model`), uses the **same** maze path lengths (`path_matrix.yaml`) and runs the **same** production sections (`factory_model`); only Nav2 + physics are replaced by "distance / speed". One shift: **0.07 s** (Gazebo: ~30 min).
+  - `state()` gives a decision model exactly the facts the live system publishes (section status + robot telemetry) plus distances and "units that still fit".
+  - `legal_actions()` refuses pointless actions (pickup from an empty section, deliver with an empty load, charge when already full at the charger) — the mask shared by the rules, the neuro-symbolic layer and the RL agent.
+  - Safety violations recorded: `battery_empty`, `below_reserve`, `overheated`.
+  - `summary()`: delivered units (per section), lost production, energy, **Wh per unit**, distance, charge trips, min battery, violations, score.
+- **`robofetch_ai/env/factory_env.py`** — Gymnasium wrapper for the PPO comparison (WP6): 6 discrete actions (PICKUP A/B/C, DELIVER, CHARGE, WAIT), `action_masks()`, ~28-value observation, reward = the configured objective.
+- **`robofetch_ai/policies/base.py`** — `Policy.decide(state, legal_actions, sim) -> Decision(action, explanation, scores)`. One interface for rule-based, neuro-symbolic and PPO, used by the fast simulator AND later by the live decision service.
+- **`robofetch_ai/policies/rule_based.py`** — the reference line and the live fallback: charge when the battery only just covers getting home; serve BLOCKED sections first, then the one that blocks soonest; fill the load on the way; deliver what you carry; wait at the charger (where waiting is free). Every decision returns a sentence explaining itself.
+- **Objective in `params.yaml`** (`mission.objective`): +1 per delivered unit, −1 per lost unit, −0.5 per Wh, −20 per safety violation. Training and reporting therefore optimise the same thing. `mission.simulation` holds the step size, the WAIT slice (60 s), the CHARGE target (90 %) and a `nav_overhead_factor`.
+- **`tools/ai/evaluate.py`** — policies × scenarios × seeds → `tools/ai/results/episodes_*.csv` + a table with means and a 95 % bootstrap CI on the score (paired seeds across policies).
+- **`tools/ai/validate_against_gazebo.py`** — replays a finished Gazebo mission's actions in the fast simulator and compares distance/time/energy per action and in total; fails above 15 %.
+- Deleted the old classifier service (`robofetch_ai/service.py`, `models/model.joblib`) and `tools/ml/`. The mission summary now records scenario, seed and plan.
+
+### Results
+**Fast simulator vs the real Gazebo run** (`run_20260915_125858`, 7 actions):
+
+| Total | Gazebo | Fast sim | Diff |
+|---|---|---|---|
+| distance | 61.17 m | 61.17 m | +0.0 % |
+| duration | 526.4 s | 529.1 s | +0.5 % |
+| energy | 0.844 Wh | 0.849 Wh | +0.6 % |
+
+Worst per-action difference: PICKUP:B 62.6 s vs 68.9 s (+10 %). **Worst total 0.6 %** (target ≤ 15 %), so what a model learns in the fast simulator transfers to the robot.
+
+**Rule-based reference, 20 seeds per scenario (120 episodes in 5.8 s):**
+
+| Scenario | Score | Delivered | Lost | Energy Wh | Wh/unit | Distance m | Charge trips | Min battery % |
+|---|---|---|---|---|---|---|---|---|
+| balanced | 46.7 | 49.1 | 0.0 | 4.86 | 0.10 | 343 | 9.1 | 96.1 |
+| one_hot_section | 74.0 | 77.3 | 0.0 | 6.44 | 0.08 | 451 | 11.2 | 93.6 |
+| high_demand | 94.4 | 98.2 | 0.02 | 7.53 | 0.08 | 495 | 8.7 | 85.6 |
+| fault_burst | 31.3 | 33.0 | 0.0 | 3.41 | 0.10 | 243 | 7.2 | 96.5 |
+| worn_robot | 46.5 | 49.1 | 0.0 | 5.21 | 0.11 | 343 | 9.1 | 95.7 |
+| **low_battery_start** | **9.6** | 32.3 | **21.6** | 2.23 | 0.07 | 140 | 2.0 | 27.1 |
+
+No safety violations anywhere. The interesting case is `low_battery_start`: the rule policy charges to 90 % first, which costs ~42 min of the 60 min shift, and **21.6 units of production are lost**. A better policy would charge partially, or serve the nearest line first — exactly the decision the thesis is about, and a clear gap for the neuro-symbolic model and PPO to close.
+
+**Tests:** `pytest src/robofetch_core/test src/robofetch_factory/test src/robofetch_ai/test` → **103 passed** (36 new: unit conservation, energy = robot-model energy, distances = path matrix, payload limit, charge/wait behaviour, legal actions, violations, seed reproducibility, episode speed; Gymnasium checker, action mask vs simulator, reward = objective weights; rule policy delivers, never violates safety and explains every decision in all 6 scenarios).
+
+### Problems and fixes
+1. A rule-policy test demanded charging at 17 % battery; the policy correctly delivered first (it needed 15.4 %). The test was wrong and now pins both cases: charge at 15.6 %, deliver at 17 %.
+2. `Outcome.violations` was never filled, so per-action rewards ignored violations → violations are now diffed per action.
+
+### How to run
+```bash
+venv/bin/python tools/ai/evaluate.py --seeds 20               # all scenarios, rule policy
+venv/bin/python tools/ai/evaluate.py --scenarios balanced --trace   # see the decisions
+venv/bin/python tools/ai/validate_against_gazebo.py           # newest Gazebo mission vs fast sim
+```

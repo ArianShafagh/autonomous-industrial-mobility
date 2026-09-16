@@ -17,12 +17,10 @@ setup(
     zip_safe=True,
     maintainer="robojazzy",
     maintainer_email="shafagh.arian2003@gmail.com",
-    description="Order feasibility prediction service for RoboFetch.",
+    description="Decision models (rule-based, neuro-symbolic, RL) and the fast factory simulator.",
     license="MIT",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": [
-            "ai_service = robofetch_ai.service:main",
-        ],
+        "console_scripts": [],
     },
 )

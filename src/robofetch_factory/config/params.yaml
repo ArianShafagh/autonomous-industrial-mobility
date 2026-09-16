@@ -86,6 +86,22 @@ mission:
     backup_speed_m_s: 0.1
     return_to_charger_on_failure: true
 
+  # What a good decision maximises. The fast simulator's reward and every evaluation metric use
+  # these weights, so training and reporting optimise the same thing.
+  objective:
+    value_per_unit_delivered: 1.0     # one delivered unit is the unit of value
+    cost_per_lost_unit: 1.0           # production lost while a line is BLOCKED hurts as much
+    cost_per_wh: 0.5                  # energy: 1 Wh costs half a delivered unit (~0.03 Wh/trip)
+    cost_per_safety_violation: 20.0   # battery below reserve, overheating, battery empty
+    cost_per_second_idle: 0.0         # time itself is not charged; the shift length is fixed
+
+  # The fast simulator (no Gazebo) advances in these steps and offers these fixed choices.
+  simulation:
+    step_s: 1.0                       # integration step for robot and sections
+    wait_slice_s: 60.0                # how long one WAIT action lasts
+    charge_target_percent: 90.0       # what one CHARGE action charges to
+    nav_overhead_factor: 1.0          # multiplies path lengths (Gazebo drives ~1.00x the matrix)
+
 factory:
   sections:
     A:

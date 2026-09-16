@@ -73,6 +73,7 @@ class MissionExecutor(Node):
         self.declare_parameter("charge_check_period_s", 2.0)
 
         cfg = load_config(self.get_parameter("scenario").value)
+        self.cfg = cfg
         self.p = RobotParams.from_config(cfg)
         self.nav_cfg = cfg["mission"]["navigation"]
         self.pois = load_pois()
@@ -519,6 +520,9 @@ class MissionExecutor(Node):
 
         summary = {
             "run_id": self.run_id,
+            "scenario": self.cfg["name"],
+            "seed": self.cfg["time"]["seed"],
+            "plan": "; ".join(str(a) for a in self.plan),
             "ended_by": ("emergency_stop" if self._abort.is_set()
                          else "navigation_stuck" if self.stuck else "plan_finished"),
             "actions": len(self.rows), "succeeded": ok_count,

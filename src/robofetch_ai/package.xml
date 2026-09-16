@@ -3,12 +3,11 @@
 <package format="3">
   <name>robofetch_ai</name>
   <version>0.1.0</version>
-  <description>Order feasibility prediction service. Loads the classifier trained by
-    tools/ml/train.py and serves it over HTTP so the web tier can consult it during order
-    admission. Deliberately a separate process: the main API must keep working when this
-    service is down.</description>
+  <description>Decision models (rule-based, neuro-symbolic, RL) and the fast factory simulator used to train and evaluate them.</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
+  <exec_depend>robofetch_core</exec_depend>
+  <exec_depend>robofetch_factory</exec_depend>
 
   <exec_depend>python3-pytest</exec_depend>
 
