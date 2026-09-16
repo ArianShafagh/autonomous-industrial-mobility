@@ -2,9 +2,10 @@
 <package format="3">
   <name>robofetch_bridge</name>
   <version>0.1.0</version>
-  <description>FastAPI + SQLite web tier bridging clients to the RoboFetch ROS 2 system.</description>
+  <description>Read-only monitoring dashboard: live sections, robot condition and AI decisions.</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
+  <exec_depend>robofetch_interfaces</exec_depend>
 
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>

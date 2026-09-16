@@ -19,6 +19,7 @@ Three modes, so the thesis can show what each half contributes:
 If no trained network is available the model runs in `symbolic` mode and says so, which is also
 what the live service falls back to.
 """
+import math
 import time
 
 from robofetch_core.mission_plan import CHARGE, DELIVER, PICKUP, WAIT
@@ -129,6 +130,8 @@ class NeuroSymbolicPolicy(Policy):
     def _decision(self, action, explanation, scores, started):
         if self.model_note:
             explanation += f" | {self.model_note}"
-        return Decision(action, explanation,
-                        {str(a): round(float(s), 3) for a, s in scores.items()},
-                        (time.perf_counter() - started) * 1000.0)
+        # "moves no units" scores as minus infinity internally; reported as None so the score can
+        # travel over HTTP to the dashboard (JSON has no infinity).
+        clean = {str(a): (round(float(s), 3) if math.isfinite(s) else None)
+                 for a, s in scores.items()}
+        return Decision(action, explanation, clean, (time.perf_counter() - started) * 1000.0)

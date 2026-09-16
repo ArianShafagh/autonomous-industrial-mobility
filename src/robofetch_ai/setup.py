@@ -21,6 +21,8 @@ setup(
     license="MIT",
     tests_require=["pytest"],
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "decision_service = robofetch_ai.service:main",
+        ],
     },
 )

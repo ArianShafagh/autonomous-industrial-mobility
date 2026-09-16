@@ -529,3 +529,57 @@ venv/bin/python -u tools/ai/train_ppo.py --threads 3     # ~8 min
 venv/bin/python tools/ai/evaluate.py --policies rule ns ns_neural_only ns_symbolic_only ppo --seeds 20
 venv/bin/python tools/ai/evaluate.py --policies ns --scenarios low_battery_start --seeds 1 --trace
 ```
+
+---
+
+## WP7 — Live integration: the AI drives the robot, and a dashboard shows it (2026-09-16)
+
+### Done
+- **Decision service** (`robofetch_ai/service.py`, port 8001, its own process): `POST /decide {model, scenario, state}` → `{action, explanation, scores, latency_ms}`; `GET /health`, `GET /models`. Models: `ns`, `ns_symbolic_only`, `ns_neural_only`, `ppo`, `rule` — the same objects evaluated in the fast simulator, so what the thesis measures offline is what drives the robot. A failing model returns an error instead of taking the robot down.
+- **`robofetch_ai/env/live_state.py`**: presents the REAL system (section messages + robot telemetry) through the same interface as `FactorySim` (`state()`, `legal_actions()`, `p`, `matrix`). The deciding code is literally the same in simulation and on the robot — no second implementation to drift.
+- **Autonomous executor**: with `model:=…` the executor asks the service before every action and executes the answer with Nav2 until the shift ends; `plan:=…` still runs a scripted sequence for reproducible tests. It publishes `/mission/decision` (model, action, explanation, scores, latency, fallback flag) and logs decision statistics in the run summary.
+- **Fallback** (`robofetch_core/fallback_policy.py`): ~40 lines, no dependencies, deliberately placed in `robofetch_core` so it cannot depend on the thing that failed. Used whenever the service does not answer; every such decision is marked `fallback` in the log and on the dashboard.
+- **Read-only dashboard** (`robofetch_bridge/app.py` + `ros_link.py`, port 8000): section cards (buffer bar, status, produced/collected, rate, health, time-to-full, lost production), robot card (battery, activity, payload, temperature, condition, position, distance, energy), shift totals, the AI's decisions with their reasons and latency, and the actions carried out with **predicted vs measured** time/distance/energy. `GET /api/state` returns the same data as JSON (the source for thesis figures). **No publisher, no buttons, no login** — the only intervention is `./scripts/stop.sh` at the console.
+- Deleted the last of the old web tier: `admission.py`, `predictor.py`, `db.py`, the ordering `app.py`/`ros_link.py`, all 11 old templates and the old bridge tests.
+- `mission.launch.py` now starts the decision service too, with arguments `model:=`, `ai:=false` (run on the fallback rules), `shift_s:=`.
+
+### Results
+**Full autonomous shift in Gazebo** (`model:=ns`, balanced, 900 s shift, `run_20260916_170805`):
+
+| | |
+|---|---|
+| actions | **17 / 17 succeeded**, 0 failed |
+| decisions | 17 asked, **17 answered by the model, 0 fallbacks** |
+| delivered | **13 units** (A 4, B 8, C 1) |
+| driven / energy | 170.1 m / 2.505 Wh, battery 100 → 88.6 % |
+| navigation | 17 drives, 0 failures, 0 recoveries, 0 timeouts |
+| prediction error | duration −0.5 %, distance −0.1 %, energy −0.2 % |
+
+Example live decision: `PICKUP:A — [routine] A has 2 units waiting; neural score −0.89, chosen over PICKUP:B by +0.34`, answered in **7 ms**.
+
+**Fallback under failure** (`logs/wp7_fallback.log`): the decision service was killed mid-shift. The model answered 2 decisions, then the executor logged `decision service unavailable (Connection refused); using the fallback rules` and finished the shift on its own rules (5 decisions, e.g. `fallback: carrying 4 units, nothing to collect`). The robot never stopped and never waited for a human; the summary reports `answered_by_model: 2, fallback: 5`.
+
+**Dashboard against the running system**: `/health` → connected, 3 sections; the page showed live buffers (A 2/8, B 1/10, C 0/3), battery 89.2 %, 13 produced / 1 delivered / 0 lost, 166 m, 2.4 Wh, and the decision table with reasons and latency.
+
+**Tests**: `pytest src/robofetch_core/test src/robofetch_factory/test src/robofetch_ai/test` → **131 passed**; `colcon build` → 10 packages.
+
+### Problems and fixes
+1. **Decision service died at launch**: it was started with the system `python3` (no FastAPI) because the launch file resolved the workspace with `abspath`, which does not follow the `--symlink-install` symlink from `install/` into `src/` → `realpath`.
+2. **`shift_s:=900` rejected**: an integer where the node declares a double → `ParameterValue(..., value_type=float)`.
+3. **Dashboard returned 500 while the JSON API worked**: Starlette's `TemplateResponse` now takes `(request, name, context)`; passing the name first made it treat the context dict as the template name ("unhashable type: dict").
+4. **Infinite scores could not be sent**: symbolic-only scores "moves no units" as −infinity, which JSON cannot encode → reported as `null`, with a `json_safe()` guard in the service.
+5. `pkill -f "uvicorn robofetch_ai"` killed the calling shell again (the pattern matched its own command line). Kill by port instead: `fuser -k 8001/tcp`.
+
+### How to run the whole thing
+```bash
+./scripts/run.sh                          # Gazebo + RViz + AI (model ns) + dashboard-ready topics
+ros2 launch robofetch_bringup mission.launch.py headless:=true model:=ppo scenario:=high_demand
+venv/bin/python -m uvicorn robofetch_bridge.app:app --port 8000     # dashboard at localhost:8000
+fuser -k 8001/tcp                         # "the AI is down": the robot continues on fallback rules
+./scripts/stop.sh                         # the only way to stop the system
+```
+
+### Open issues
+- The dashboard is not started by `mission.launch.py` yet (run it manually); it should become a launch argument.
+- Decision latency in the summary includes the first request, which loads the model (~1.5 s); warm requests are 3–7 ms.
+- The maze map with the robot's position is not drawn on the page yet (planned for the evaluation work).

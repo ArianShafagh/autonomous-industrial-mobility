@@ -2,8 +2,12 @@
 
     PICKUP <section> | DELIVER | CHARGE <percent> | WAIT <seconds>     (see mission_plan.py)
 
-Where the next action comes from is pluggable. For now (WP3) it is a scripted `plan` parameter;
-the AI decision service replaces it later without changing how actions are executed.
+Where the next action comes from:
+  * `model` set (ns, ppo, rule, ...) -> the decision service is asked before every action, which
+    is the autonomous mode: the robot works a whole shift on its own;
+  * `plan` set -> a scripted sequence, used for testing and for reproducing a fixed run;
+  * the service unreachable or failing -> `fallback_policy`, so the robot keeps working safely
+    with no AI at all (and every such decision is reported as a fallback).
 
     uses      Nav2 NavigateToPose                   driving
               /factory/<id>/pickup                  taking units from a section
@@ -25,6 +29,8 @@ import math
 import os
 import threading
 import time
+import urllib.error
+import urllib.request
 
 import rclpy
 import yaml
@@ -39,13 +45,14 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
-from robofetch_core.mission_plan import (CHARGE, CHARGER, DELIVER, DELIVERY, PICKUP, WAIT,
-                                         parse_plan, predict)
+from robofetch_core import fallback_policy
+from robofetch_core.mission_plan import (CHARGE, CHARGER, DELIVER, DELIVERY, PICKUP, SECTIONS,
+                                         WAIT, parse_action, parse_plan, predict)
 from robofetch_core.paths import default_log_dir
 from robofetch_core.robot_model import RobotParams
 from robofetch_factory.factory_model import load_config
 from robofetch_factory.layout import load_path_matrix, load_pois
-from robofetch_interfaces.msg import TaskEvent
+from robofetch_interfaces.msg import SectionStatus, TaskEvent
 from robofetch_interfaces.srv import Pickup
 
 CSV_FIELDS = ["seq", "action", "target", "phase", "detail", "sim_start_s", "duration_s",
@@ -68,17 +75,31 @@ class MissionExecutor(Node):
         super().__init__("mission_executor")
         self.declare_parameter("scenario", "balanced")
         self.declare_parameter("plan", "")
+        self.declare_parameter("model", "")                # "" = follow `plan` instead
+        self.declare_parameter("decision_url", "http://localhost:8001/decide")
+        self.declare_parameter("decision_timeout_s", 5.0)
+        self.declare_parameter("shift_duration_s", 0.0)    # 0 = value from params.yaml
         self.declare_parameter("run_id", "")
         self.declare_parameter("log_dir", default_log_dir())
         self.declare_parameter("charge_check_period_s", 2.0)
 
-        cfg = load_config(self.get_parameter("scenario").value)
+        self.scenario = self.get_parameter("scenario").value
+        cfg = load_config(self.scenario)
         self.cfg = cfg
         self.p = RobotParams.from_config(cfg)
         self.nav_cfg = cfg["mission"]["navigation"]
         self.pois = load_pois()
         self.matrix = load_path_matrix()
         self.plan = parse_plan(self.get_parameter("plan").value)
+        self.model = self.get_parameter("model").value
+        self.decision_url = self.get_parameter("decision_url").value
+        shift = float(self.get_parameter("shift_duration_s").value)
+        self.shift_duration_s = shift if shift > 0 else float(cfg["time"]["shift_duration_s"])
+        self.charge_targets = [float(t) for t in cfg["mission"]["simulation"]
+                               ["charge_targets_percent"]]
+        self.wait_slice_s = float(cfg["mission"]["simulation"]["wait_slice_s"])
+        self.sections = {}                                  # live SectionStatus per section
+        self.decision_stats = {"asked": 0, "fallback": 0, "failed": 0, "latency_ms": []}
         self.run_id = self.get_parameter("run_id").value or time.strftime("run_%Y%m%d_%H%M%S")
 
         group = ReentrantCallbackGroup()
@@ -90,6 +111,11 @@ class MissionExecutor(Node):
         self.initial_pose_pub = self.create_publisher(PoseWithCovarianceStamped, "/initialpose", 10)
         self.activity_pub = self.create_publisher(String, "/robot/activity", 10)
         self.event_pub = self.create_publisher(TaskEvent, "/mission/events", 10)
+        self.decision_pub = self.create_publisher(String, "/mission/decision", 10)
+        for sid in SECTIONS:
+            self.create_subscription(SectionStatus, f"/factory/{sid}/status",
+                                     lambda msg, sid=sid: self.sections.__setitem__(sid, msg), 10,
+                                     callback_group=group)
         self.halt_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.nav_active_client = self.create_client(
             Trigger, "/lifecycle_manager_navigation/is_active", callback_group=group)
@@ -117,6 +143,7 @@ class MissionExecutor(Node):
 
         # Robot's own bookkeeping
         self.location = CHARGER                  # the robot spawns on the charger
+        self.shift_start_s = 0.0
         self.payload_kg = 0.0
         self.cargo = {}                          # section -> units on board
         self.delivered = {"A": 0, "B": 0, "C": 0}
@@ -326,6 +353,89 @@ class MissionExecutor(Node):
         return min(self.pois, key=lambda n: math.dist(self._truth,
                                                        (self.pois[n]["x"], self.pois[n]["y"])))
 
+    # ------------------------------------------------------------------ deciding
+    def build_state(self):
+        """The robot's situation, in the shape the decision service (and the models) expect."""
+        telemetry = self.telemetry or {}
+        sections = {}
+        for sid, msg in self.sections.items():
+            sections[sid] = {
+                "status": msg.status_text, "status_code": int(msg.status),
+                "produced_total": int(msg.produced_total), "picked_total": int(msg.picked_total),
+                "buffer_units": int(msg.buffer_units), "buffer_capacity": int(msg.buffer_capacity),
+                "buffer_fill": float(msg.buffer_fill), "unit_mass_kg": float(msg.unit_mass_kg),
+                "buffer_mass_kg": float(msg.buffer_mass_kg),
+                "rate_nominal_per_hour": float(msg.rate_nominal_per_hour),
+                "rate_actual_per_hour": float(msg.rate_actual_per_hour),
+                "health_percent": float(msg.health_percent),
+                "time_to_full_s": (None if not math.isfinite(msg.time_to_full_s)
+                                   else float(msg.time_to_full_s)),
+                "fault_remaining_s": float(msg.fault_remaining_s),
+                "faults_total": int(msg.faults_total), "lost_units": float(msg.lost_units),
+                "blocked_time_s": float(msg.blocked_time_s),
+                "factory_time_s": float(msg.factory_time_s),
+            }
+        return {
+            "time_s": self.sim_now() - self.shift_start_s,
+            "location": self.location,
+            "battery_percent": float(telemetry.get("battery_percent", 100.0)),
+            "temperature_c": float(telemetry.get("temperature_c", self.p.ambient_c)),
+            "condition_percent": float(telemetry.get("condition_percent", 100.0)),
+            "payload_kg": self.payload_kg,
+            "cargo_units": int(sum(self.cargo.values())),
+            "shift_duration_s": self.shift_duration_s,
+            "sections": sections,
+        }
+
+    def next_action(self):
+        """Ask the decision service; fall back to the built-in rules if it cannot answer."""
+        state = self.build_state()
+        self.decision_stats["asked"] += 1
+        started = time.time()
+        try:
+            request = urllib.request.Request(
+                self.decision_url, method="POST",
+                data=json.dumps({"model": self.model, "scenario": self.scenario,
+                                 "state": state}).encode(),
+                headers={"Content-Type": "application/json"})
+            timeout = float(self.get_parameter("decision_timeout_s").value)
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                answer = json.load(response)
+            if "error" in answer:
+                raise RuntimeError(answer["error"])
+            action = parse_action(answer["action"])
+            self._publish_decision(answer["action"], answer.get("explanation", ""), self.model,
+                                   answer.get("scores", {}),
+                                   (time.time() - started) * 1000.0, False)
+            self.decision_stats["latency_ms"].append((time.time() - started) * 1000.0)
+            return action, answer.get("explanation", "")
+        except (urllib.error.URLError, OSError, KeyError, ValueError, RuntimeError) as exc:
+            self.decision_stats["failed"] += 1
+            self.decision_stats["fallback"] += 1
+            self.get_logger().warn(f"decision service unavailable ({exc}); using the fallback rules")
+            action, why = fallback_policy.decide(
+                dict(state, distance_to_charger_m=self.matrix[self.location][CHARGER],
+                     distance_to_delivery_m=self.matrix[self.location][DELIVERY],
+                     sections={sid: dict(sec, units_that_fit=self._units_that_fit(sec))
+                               for sid, sec in state["sections"].items()}),
+                self.p, self.charge_targets, self.wait_slice_s)
+            self._publish_decision(str(action), why, "fallback", {},
+                                   (time.time() - started) * 1000.0, True)
+            return action, why
+
+    def _units_that_fit(self, section):
+        unit = float(section.get("unit_mass_kg", 0.0)) or 1e-9
+        free = max(0.0, self.p.max_payload_kg - self.payload_kg)
+        return min(int(section.get("buffer_units", 0)), int(free / unit + 1e-9))
+
+    def _publish_decision(self, action, explanation, model, scores, latency_ms, fallback):
+        self.decision_pub.publish(String(data=json.dumps({
+            "seq": self.seq + 1, "sim_time_s": round(self.sim_now() - self.shift_start_s, 1),
+            "action": action, "explanation": explanation, "model": model, "scores": scores,
+            "latency_ms": round(latency_ms, 2), "fallback": fallback,
+            "battery_percent": round(self.battery(), 1), "location": self.location,
+        })))
+
     # ------------------------------------------------------------------ actions
     def run_action(self, action):
         self.seq += 1
@@ -499,11 +609,29 @@ class MissionExecutor(Node):
         self._activity("waiting")
 
         t_start, e_start = self.sim_now(), self.energy_counters()
+        self.shift_start_s = t_start
         ok_count = 0
-        for action in self.plan:
-            if self._abort.is_set() or self.stuck:
-                break
-            ok_count += self.run_action(action)
+
+        if self.model:
+            self.get_logger().info(
+                f"autonomous mode: asking '{self.model}' at {self.decision_url} before every "
+                f"action; shift {self.shift_duration_s:.0f} s")
+            while not self._abort.is_set() and not self.stuck:
+                if self.sim_now() - t_start >= self.shift_duration_s:
+                    self.get_logger().info("shift over")
+                    break
+                if not self.sections:
+                    self.get_logger().info("waiting for the factory sections ...")
+                    self.sim_sleep(2.0)
+                    continue
+                action, why = self.next_action()
+                self.get_logger().info(f"decision: {action} - {why}")
+                ok_count += self.run_action(action)
+        else:
+            for action in self.plan:
+                if self._abort.is_set() or self.stuck:
+                    break
+                ok_count += self.run_action(action)
         self.write_summary(t_start, e_start, ok_count)
 
     def write_summary(self, t_start, e_start, ok_count):
@@ -533,6 +661,15 @@ class MissionExecutor(Node):
             "energy_charged_wh": round(e_end[1] - e_start[1], 3),
             "battery_end_percent": round(self.battery(), 2),
             "delivered_units": self.delivered,
+            "model": self.model or f"scripted plan ({len(self.plan)} actions)",
+            "decisions": {
+                "asked": self.decision_stats["asked"],
+                "answered_by_model": self.decision_stats["asked"] - self.decision_stats["fallback"],
+                "fallback": self.decision_stats["fallback"],
+                "mean_latency_ms": round(
+                    sum(self.decision_stats["latency_ms"]) / len(self.decision_stats["latency_ms"]), 1)
+                if self.decision_stats["latency_ms"] else None,
+            },
             "navigation": dict(self.nav_stats),
             "prediction_error_percent (non-charge actions, total measured vs predicted)": {
                 "duration": err("duration_s"), "distance": err("distance_m"),

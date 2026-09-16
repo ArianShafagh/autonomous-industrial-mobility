@@ -1,132 +1,50 @@
-/* RoboFetch - deliberately plain. No JavaScript anywhere in this project, and no decoration:
-   default fonts, thin rules, and colour used only where it carries meaning.
-
-   Two themes, chosen by the operating system. Every colour is a variable so the dark block below
-   is a short list of swaps rather than a second stylesheet. */
-
+/* Factory monitor - plain, readable, no JavaScript. The page refreshes itself with a meta tag,
+   which is enough for a 1 Hz system and keeps the whole web tier free of a frontend build.
+   Colour carries meaning only: a stopped line is red, a degraded one amber, a fallback decision
+   is marked. Light and dark follow the operating system. */
 :root {
-  --bg:    #fff;
-  --fg:    #111;
-  --line:  #ccc;
-  --head:  #f0f0f0;
-  --muted: #555;
-  --ok:    #060;
-  --bad:   #a00;
-  --warn:  #850;
-  --notice-bg: #fffbe6;
-  --estop-bg:  #ffecec;
-  --estop-fg:  #a00;
-  --pre-bg: #f5f5f5;
+  --bg: #fbfbfa; --fg: #23211f; --muted: #6b6560; --line: #d9d5d0; --card: #ffffff;
+  --ok: #1f7a3d; --warn: #9a6b00; --bad: #b3261e; --accent: #1f4f8b;
 }
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg:    #111;
-    --fg:    #fff;
-    --line:  #444;
-    --head:  #1e1e1e;
-    --muted: #aaa;
-    /* Lifted well above the light-theme values: #060 on #111 is unreadable. */
-    --ok:    #4caf50;
-    --bad:   #ff6b6b;
-    --warn:  #e0b040;
-    --notice-bg: #2a2410;
-    --estop-bg:  #3a1414;
-    --estop-fg:  #ff6b6b;
-    --pre-bg: #1a1a1a;
-  }
+  :root { --bg: #17181a; --fg: #e8e6e3; --muted: #a09a94; --line: #34363a; --card: #1e2023;
+          --ok: #5fbe80; --warn: #e0b054; --bad: #ef8b84; --accent: #7aa8e0; }
 }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 1.2rem 1.4rem 3rem; background: var(--bg); color: var(--fg);
+       font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+h1 { font-size: 1.3rem; margin: 0 0 .2rem; }
+h2 { font-size: 1rem; margin: 0 0 .6rem; }
+.sub, footer { color: var(--muted); font-size: .85rem; }
+header { border-bottom: 1px solid var(--line); padding-bottom: .8rem; margin-bottom: 1.2rem; }
+code { background: rgba(127,127,127,.15); padding: 0 .25rem; border-radius: 3px; }
 
-body {
-  margin: 0 auto;
-  padding: 1rem;
-  max-width: 60rem;
-  font-family: system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--fg);
-  background: var(--bg);
-}
-
-/* Links take the surrounding text colour instead of the browser's blue-then-purple. All five
-   states are pinned to the same value, so a visited link looks exactly like an unvisited one.
-   Underlined, so they still read as links without depending on colour at all. */
-a, a:link, a:visited, a:hover, a:active, a:focus {
-  color: inherit;
-  text-decoration: underline;
-}
-
-/* ------------------------------------------------------------------------ chrome */
-header {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 1rem;
-  border-bottom: 1px solid var(--line); padding-bottom: .5rem; margin-bottom: 1rem;
-}
-header nav a { margin-right: 1rem; }
-header .status { font-size: 13px; color: var(--muted); }
-
-h1 { font-size: 1.3rem; margin: 1rem 0 .5rem; }
-h2 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
-
-.muted { color: var(--muted); }
-.small { font-size: 13px; }
-.mono { font-family: monospace; }
-.num { text-align: right; }
-
-/* ------------------------------------------------------------------------- tables */
-.scroll { overflow-x: auto; }            /* wide tables scroll, the page never does */
-table { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 1rem; }
-th, td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
-th { background: var(--head); font-weight: 600; white-space: nowrap; }
-td.empty { text-align: center; color: var(--muted); }
-
-/* Label/value pairs. Two columns is the whole design. */
-dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 1rem; margin: 0 0 1rem; }
+.cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: .9rem; }
+.card .tag { float: right; font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
+.status-blocked { border-color: var(--bad); }
+.status-blocked .tag { color: var(--bad); font-weight: 700; }
+.status-fault { border-color: var(--bad); }
+.status-degraded { border-color: var(--warn); }
+.status-degraded .tag { color: var(--warn); }
+.big { font-size: 1.15rem; margin: .4rem 0 .6rem; }
+.bar { height: 9px; background: rgba(127,127,127,.2); border-radius: 5px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+.status-blocked .bar span { background: var(--bad); }
+.battery span { background: var(--ok); }
+dl { display: grid; grid-template-columns: auto 1fr; gap: .15rem .6rem; margin: 0; font-size: .85rem; }
 dt { color: var(--muted); }
-dd { margin: 0; }
+dd { margin: 0; text-align: right; }
 
-pre { background: var(--pre-bg); border: 1px solid var(--line); padding: .5rem;
-      overflow-x: auto; }
-
-/* -------------------------------------------------------------------------- forms */
-label { display: block; margin-top: .5rem; font-size: 13px; }
-input, select, button {
-  font: inherit;
-  color: var(--fg);
-  background: var(--bg);
-  border: 1px solid var(--line);
-}
-input, select { padding: 3px 5px; }
-button { padding: 4px 10px; margin-top: .5rem; cursor: pointer; }
-form.inline { display: inline; }
-form.inline button { margin-top: 0; }
-
-/* ------------------------------------------------------------- meaning-only colour */
-.ok { color: var(--ok); }
-.bad { color: var(--bad); }
-.warn { color: var(--warn); }
-
-/* Order status. Text, not badges - the word already says it; colour only sorts good from bad. */
-.status { font-weight: 600; }
-.s-completed { color: var(--ok); }
-.s-failed    { color: var(--bad); }
-.s-refused, .s-cancelled { color: var(--warn); }
-
-/* A verdict and a warning are the two things the reader must not skim past. */
-.verdict, .notice { border: 1px solid var(--line); border-left-width: 5px;
-                    padding: .5rem .75rem; margin: 1rem 0; }
-.verdict.accepted { border-left-color: var(--ok); }
-.verdict.refused  { border-left-color: var(--bad); }
-.notice { border-left-color: var(--warn); background: var(--notice-bg); }
-.verdict-head { font-weight: 700; }
-.verdict p, .notice p { margin: .25rem 0; }
-
-/* The emergency stop. The one control that must be impossible to miss or to hit by accident, so
-   it is the single place a colour is hard-coded rather than themed - and the only one given a
-   wide berth. `margin-left: auto` pushes it to the far right of the header; the padding either
-   side is dead space that keeps a stray click from landing on it. */
-.estop-slot { margin-left: auto; padding: 0 .5rem 0 3rem; }
-button.estop {
-  background: #a00; color: #fff; font-weight: 700; letter-spacing: .5px;
-  padding: 10px 18px; border: 2px solid #700; margin-top: 0; cursor: pointer;
-}
-button.estop:hover { background: #c00; }
+.panel { margin-top: 1.6rem; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th { text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--line);
+     padding: .3rem .5rem; }
+td { padding: .3rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.why { color: var(--muted); }
+.pred { color: var(--muted); font-size: .8em; }
+tr.fallback td { background: rgba(224,176,84,.12); }
+tr.failed td { background: rgba(179,38,30,.12); }
+.empty { color: var(--muted); font-style: italic; }
+footer { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: .7rem; }
+a { color: var(--accent); }

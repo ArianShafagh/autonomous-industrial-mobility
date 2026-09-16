@@ -14,12 +14,12 @@ setup(
     zip_safe=True,
     maintainer="robojazzy",
     maintainer_email="shafagh.arian2003@gmail.com",
-    description="FastAPI + SQLite web tier for RoboFetch.",
+    description="Read-only monitoring dashboard for the autonomous factory robot.",
     license="MIT",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "bridge = robofetch_bridge.app:main",
+            "monitor_web = robofetch_bridge.app:main",
         ],
     },
 )

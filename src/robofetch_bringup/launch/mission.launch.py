@@ -1,19 +1,35 @@
-"""Complete autonomous run: Gazebo + Nav2 + factory sections + robot condition model + mission.
+"""Complete autonomous run: Gazebo + Nav2 + factory + robot condition model + AI + mission.
 
-    ros2 launch robofetch_bringup mission.launch.py plan:="PICKUP:B;DELIVER;CHARGE:95"
-    ros2 launch robofetch_bringup mission.launch.py scenario:=high_demand headless:=true plan:=...
+    ros2 launch robofetch_bringup mission.launch.py                       # the AI drives (model:=ns)
+    ros2 launch robofetch_bringup mission.launch.py model:=ppo scenario:=high_demand
+    ros2 launch robofetch_bringup mission.launch.py model:="" plan:="PICKUP:B;DELIVER"   # scripted
+    ros2 launch robofetch_bringup mission.launch.py ai:=false              # no AI: fallback rules
 
-No operator input: the executor localises the robot on the charger and starts by itself.
+No operator input at any point: the robot localises on the charger, asks the decision model what
+to do, and works the shift by itself. Stopping is manual (./scripts/stop.sh).
 """
+import os
 import time
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, TimerAction
+from launch.actions import (DeclareLaunchArgument, ExecuteProcess, GroupAction,
+                            IncludeLaunchDescription, TimerAction)
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
+
+
+def workspace_python():
+    """The venv interpreter: FastAPI, torch and the models live there, rclpy comes from ROS."""
+    # realpath, not abspath: with --symlink-install this file is a symlink from install/ into
+    # src/, and only the resolved path leads back to the workspace root (and its venv).
+    here = os.path.dirname(os.path.realpath(__file__))
+    ws = os.path.normpath(os.path.join(here, "..", "..", ".."))
+    candidate = os.path.join(ws, "venv", "bin", "python")
+    return candidate if os.path.exists(candidate) else "python3"
 
 
 def generate_launch_description():
@@ -47,21 +63,40 @@ def generate_launch_description():
         output="screen",
         parameters=[sim_time, {"scenario": scenario, "run_id": run_id}])
 
+    # The decision service runs as its own process on port 8001, so "the AI is down" is a state
+    # you can produce by stopping it - and the robot then falls back to its built-in rules.
+    decision_service = ExecuteProcess(
+        cmd=[workspace_python(), "-m", "uvicorn", "robofetch_ai.service:app",
+             "--host", "0.0.0.0", "--port", "8001"],
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("ai")))
+
     mission = Node(
         package="robofetch_core", executable="mission_executor", name="mission_executor",
         output="screen",
         parameters=[sim_time, {"scenario": scenario, "run_id": run_id,
-                               "plan": LaunchConfiguration("plan")}])
+                               "plan": LaunchConfiguration("plan"),
+                               "model": LaunchConfiguration("model"),
+                               "shift_duration_s": ParameterValue(
+                                   LaunchConfiguration("shift_s"), value_type=float)}])
 
     return LaunchDescription([
         DeclareLaunchArgument("scenario", default_value="balanced"),
         DeclareLaunchArgument("seed", default_value="-1"),
         DeclareLaunchArgument("plan", default_value="",
                               description="scripted actions, e.g. 'PICKUP:B;DELIVER;CHARGE:90'"),
+        DeclareLaunchArgument("model", default_value="ns",
+                              description="decision model: ns, ns_symbolic_only, ppo, rule, or "
+                                          "'' to follow `plan` instead"),
+        DeclareLaunchArgument("ai", default_value="true",
+                              description="start the decision service (false = fallback rules)"),
+        DeclareLaunchArgument("shift_s", default_value="0.0",
+                              description="shift length in seconds (0 = from params.yaml)"),
         DeclareLaunchArgument("headless", default_value="false"),
         DeclareLaunchArgument("rviz", default_value="true"),
         navigation(False),
         navigation(True),
+        TimerAction(period=3.0, actions=[decision_service]),
         TimerAction(period=5.0, actions=[factory, robot_state]),
         TimerAction(period=8.0, actions=[mission]),
     ])

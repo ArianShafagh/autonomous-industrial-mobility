@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Factory monitor</title>
+  <meta http-equiv="refresh" content="{{ refresh_s }}">
+  <link rel="stylesheet" href="/static/style.css?v={{ style_version }}">
+</head>
+<body>
+<header>
+  <h1>Autonomous factory &mdash; live monitor</h1>
+  <p class="sub">
+    {% if s.connected %}
+      scenario <b>{{ s.sections[0].scenario if s.sections else "?" }}</b> &middot;
+      factory time {{ "%.0f"|format((s.sections[0].factory_time_s if s.sections else 0) / 60) }} min
+      &middot; refreshes every {{ refresh_s }} s &middot; read-only: the robot decides for itself
+    {% else %}
+      waiting for the system &mdash; start it with <code>./scripts/run.sh</code>
+    {% endif %}
+  </p>
+</header>
+
+<section class="cards">
+  {% for sec in s.sections %}
+  <article class="card status-{{ sec.status|lower }}">
+    <h2>Section {{ sec.section_id }} <span class="tag">{{ sec.status }}</span></h2>
+    <div class="bar" title="output buffer">
+      <span style="width: {{ (sec.buffer_fill * 100)|round(0, 'floor') }}%"></span>
+    </div>
+    <p class="big">{{ sec.buffer_units }} / {{ sec.buffer_capacity }} units waiting</p>
+    <dl>
+      <dt>produced</dt><dd>{{ sec.produced_total }}</dd>
+      <dt>collected</dt><dd>{{ sec.picked_total }}</dd>
+      <dt>rate</dt><dd>{{ sec.rate_actual_per_hour }} / {{ sec.rate_nominal_per_hour }} per h</dd>
+      <dt>machine health</dt><dd>{{ sec.health_percent }} %</dd>
+      <dt>full in</dt>
+      <dd>{% if sec.status == "BLOCKED" %}now (stopped){% elif sec.time_to_full_s is none %}&mdash;{% else %}{{ sec.time_to_full_s }} s{% endif %}</dd>
+      <dt>lost production</dt><dd>{{ sec.lost_units }} units</dd>
+      {% if sec.fault_remaining_s %}<dt>repair left</dt><dd>{{ sec.fault_remaining_s }} s</dd>{% endif %}
+    </dl>
+  </article>
+  {% endfor %}
+
+  <article class="card robot">
+    <h2>Robot</h2>
+    {% set t = s.telemetry %}
+    <div class="bar battery"><span style="width: {{ (t.battery_percent or 0)|round(0, 'floor') }}%"></span></div>
+    <p class="big">{{ "%.1f"|format(t.battery_percent or 0) }} % battery</p>
+    <dl>
+      <dt>doing</dt><dd>{{ t.activity or "&mdash;"|safe }}</dd>
+      <dt>carrying</dt><dd>{{ "%.1f"|format(t.payload_kg or 0) }} kg</dd>
+      <dt>motor temperature</dt><dd>{{ "%.1f"|format(t.temperature_c or 0) }} &deg;C</dd>
+      <dt>condition</dt><dd>{{ "%.1f"|format(t.condition_percent or 0) }} %</dd>
+      <dt>position</dt><dd>{% if s.robot_xy %}{{ s.robot_xy[0] }}, {{ s.robot_xy[1] }}{% else %}&mdash;{% endif %}</dd>
+      <dt>driven</dt><dd>{{ s.totals.distance_m }} m</dd>
+      <dt>energy used</dt><dd>{{ s.totals.energy_wh }} Wh</dd>
+    </dl>
+  </article>
+
+  <article class="card totals">
+    <h2>Shift</h2>
+    <p class="big">{{ s.totals.delivered_units }} units delivered</p>
+    <dl>
+      <dt>produced</dt><dd>{{ s.totals.produced_units }}</dd>
+      <dt>lost production</dt><dd>{{ s.totals.lost_units }}</dd>
+      <dt>energy per unit</dt>
+      <dd>{% if s.totals.delivered_units %}{{ "%.3f"|format(s.totals.energy_wh / s.totals.delivered_units) }} Wh{% else %}&mdash;{% endif %}</dd>
+    </dl>
+  </article>
+</section>
+
+<section class="panel">
+  <h2>What the AI decided, and why</h2>
+  {% if s.decisions %}
+  <table>
+    <thead><tr><th>time</th><th>model</th><th>action</th><th>reason</th><th>battery</th><th>latency</th></tr></thead>
+    <tbody>
+    {% for d in s.decisions %}
+      <tr class="{{ 'fallback' if d.fallback else '' }}">
+        <td>{{ d.sim_time_s }} s</td>
+        <td>{{ d.model }}{% if d.fallback %} (fallback){% endif %}</td>
+        <td><b>{{ d.action }}</b></td>
+        <td class="why">{{ d.explanation }}</td>
+        <td>{{ d.battery_percent }} %</td>
+        <td>{{ d.latency_ms }} ms</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">no decisions yet</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>Actions carried out <span class="sub">(predicted vs measured)</span></h2>
+  {% if s.events %}
+  <table>
+    <thead><tr><th>#</th><th>action</th><th>result</th><th>time s</th><th>distance m</th><th>energy Wh</th><th>units</th><th>battery</th></tr></thead>
+    <tbody>
+    {% for e in s.events %}
+      <tr class="{{ 'failed' if e.phase == 'FAILED' else '' }}">
+        <td>{{ e.seq }}</td>
+        <td><b>{{ e.action }}{% if e.target %}:{{ e.target }}{% endif %}</b></td>
+        <td class="why">{{ e.detail }}</td>
+        <td>{{ e.duration_s }} <span class="pred">/ {{ e.predicted_duration_s }}</span></td>
+        <td>{{ e.distance_m }} <span class="pred">/ {{ e.predicted_distance_m }}</span></td>
+        <td>{{ e.energy_wh }} <span class="pred">/ {{ e.predicted_energy_wh }}</span></td>
+        <td>{{ e.units }}</td>
+        <td>{{ e.battery_end_percent }} %</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">no actions yet</p>{% endif %}
+</section>
+
+<footer>
+  read-only monitor &middot; data: <a href="/api/state">/api/state</a> &middot;
+  stop the system from the console with <code>./scripts/stop.sh</code>
+</footer>
+</body>
+</html>
