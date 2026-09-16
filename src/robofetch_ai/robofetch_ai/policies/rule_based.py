@@ -45,11 +45,23 @@ class RuleBasedPolicy(Policy):
         # Worst case from the goal: the longest way home among the known distances.
         return max(state["distance_to_charger_m"], state["distance_to_delivery_m"])
 
+    @staticmethod
+    def _charge(legal_actions, urgent):
+        """Which charge action: a quick top-up when lines need the robot, otherwise a full one."""
+        charges = sorted((a for a in legal_actions if a.kind == CHARGE), key=lambda a: a.value)
+        if not charges:
+            return None
+        return charges[0] if urgent else charges[-1]
+
     def decide(self, state, legal_actions, sim=None):
         p = sim.p
         kinds = {a.kind: a for a in legal_actions}
         pickups = [a for a in legal_actions if a.kind == PICKUP]
         battery = state["battery_percent"]
+
+        # Is any line stopped or about to stop? Then charging should be a quick top-up.
+        urgent = any(s["status"] == "BLOCKED" or s["time_to_full_s"] <= self.urgency_horizon_s
+                     for s in state["sections"].values())
 
         # --- rule 1: be able to get home -------------------------------------------------
         if CHARGE in kinds:
@@ -62,9 +74,12 @@ class RuleBasedPolicy(Policy):
                     return Decision(kinds[DELIVER],
                                     f"battery {battery:.0f} % is near the reserve and the delivery "
                                     "point is on the way to the charger")
-                return Decision(kinds[CHARGE],
+                charge = self._charge(legal_actions, urgent)
+                return Decision(charge,
                                 f"battery {battery:.0f} % only just covers getting home "
-                                f"({reserve_needed + p.reserve_percent:.0f} % needed)")
+                                f"({reserve_needed + p.reserve_percent:.0f} % needed); charging to "
+                                f"{charge.value:.0f} %"
+                                + (" - a quick top-up, lines are waiting" if urgent else ""))
 
         # --- rule 2/3: who needs the robot most ------------------------------------------
         def urgency(action):
@@ -95,6 +110,7 @@ class RuleBasedPolicy(Policy):
 
         # --- rule 5: wait where waiting is free -------------------------------------------
         if state["location"] != CHARGER and CHARGE in kinds:
-            return Decision(kinds[CHARGE], "nothing to do - waiting at the charger is free "
-                                           "(and tops the battery up)")
+            return Decision(self._charge(legal_actions, urgent=False),
+                            "nothing to do - waiting at the charger is free "
+                            "(and tops the battery up)")
         return Decision(kinds[WAIT], "nothing ready to collect; waiting at the charger")

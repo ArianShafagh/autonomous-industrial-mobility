@@ -99,8 +99,48 @@ mission:
   simulation:
     step_s: 1.0                       # integration step for robot and sections
     wait_slice_s: 60.0                # how long one WAIT action lasts
-    charge_target_percent: 90.0       # what one CHARGE action charges to
+    charge_targets_percent: [40, 70, 100]   # the robot chooses HOW MUCH to charge, not just
+                                            # whether to: a quick top-up keeps the lines running
     nav_overhead_factor: 1.0          # multiplies path lengths (Gazebo drives ~1.00x the matrix)
+
+  # Neuro-symbolic decision model (WP5): a neural scorer inside a symbolic rule layer.
+  neurosymbolic:
+    # --- symbolic layer
+    urgency_horizon_s: 180.0      # a line that blocks within this is urgent (priority tier 1)
+    safety_margin_percent: 2.0    # extra battery on top of the reserve before an action is allowed
+    # --- neural scorer
+    hidden_sizes: [64, 64]
+    # --- training (tools/ai/train_ns.py)
+    training:
+      episodes: 80                # shifts of experience to collect per round
+      rollout_horizon_s: 900.0    # how far the look-ahead oracle simulates after each action
+      rollout_samples: 3          # futures averaged per action (production and faults are random,
+                                  # one sample makes a very noisy target)
+      discount_per_100s: 0.97     # future value discount (per 100 simulated seconds)
+      exploration: 0.25           # fraction of decisions taken at random while collecting
+      epochs: 40
+      batch_size: 256
+      learning_rate: 0.001
+      validation_fraction: 0.2
+      iterations: 3               # policy-iteration rounds: each round walks the shifts AND looks
+                                  # ahead with the model trained in the previous one
+      seed: 12345
+
+  # Deep reinforcement learning comparison (WP6): MaskablePPO on the same environment, the same
+  # action set and the same objective as the neuro-symbolic model, so the comparison is fair.
+  rl:
+    total_timesteps: 300000
+    n_envs: 4                     # parallel shifts while training
+    n_steps: 512                  # env steps per update and env
+    batch_size: 256
+    learning_rate: 0.0003
+    gamma: 0.995                  # one step is a whole action (~60 s), so discount slowly
+    gae_lambda: 0.95
+    ent_coef: 0.01
+    net_arch: [64, 64]            # same size as the neuro-symbolic scorer
+    use_action_masks: true        # false = the agent must learn the rules itself (ablation)
+    eval_seeds: 4
+    seed: 4242
 
 factory:
   sections:

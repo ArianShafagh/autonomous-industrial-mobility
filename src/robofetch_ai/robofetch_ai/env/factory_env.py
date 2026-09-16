@@ -5,7 +5,7 @@ is a few dozen steps rather than thousands: the decision problem is "what next",
 speed". Nav2 and the physics remain the robot's job.
 
 Action space (fixed, same order everywhere):
-    0 PICKUP A   1 PICKUP B   2 PICKUP C   3 DELIVER   4 CHARGE   5 WAIT
+    PICKUP A | PICKUP B | PICKUP C | DELIVER | CHARGE to each configured target | WAIT
 
 `action_masks()` returns which of them are currently legal (sb3-contrib MaskablePPO uses it, and
 the symbolic layer of the neuro-symbolic model uses the same mask), so no model ever has to learn
@@ -39,11 +39,10 @@ class FactoryEnv(gym.Env):
         self.randomise_seed = randomise_seed
         self.sim = FactorySim(seed=seed, **self.sim_kwargs)
         self.sections = list(self.sim.sections)
-        self.actions = [Action(PICKUP, sid) for sid in self.sections] + [
-            Action(DELIVER),
-            Action(CHARGE, value=float(self.sim.sim_cfg["charge_target_percent"])),
-            Action(WAIT, value=float(self.sim.sim_cfg["wait_slice_s"])),
-        ]
+        self.actions = ([Action(PICKUP, sid) for sid in self.sections]
+                        + [Action(DELIVER)]
+                        + [Action(CHARGE, value=t) for t in self.sim.charge_targets()]
+                        + [Action(WAIT, value=float(self.sim.sim_cfg["wait_slice_s"]))])
         self.action_space = spaces.Discrete(len(self.actions))
         size = ROBOT_FEATURES + len(self.sections) * SECTION_FEATURES
         self.observation_space = spaces.Box(low=-1.0, high=2.0, shape=(size,), dtype=np.float32)

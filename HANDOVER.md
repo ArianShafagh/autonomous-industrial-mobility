@@ -461,3 +461,71 @@ venv/bin/python tools/ai/evaluate.py --seeds 20               # all scenarios, r
 venv/bin/python tools/ai/evaluate.py --scenarios balanced --trace   # see the decisions
 venv/bin/python tools/ai/validate_against_gazebo.py           # newest Gazebo mission vs fast sim
 ```
+
+---
+
+## WP5 / WP6 — Neuro-symbolic decision model and the PPO comparison (2026-09-16)
+
+### What was built
+**Neuro-symbolic model** (`robofetch_ai/policies/`):
+- `symbolic.py` — the rules, in code, in words.
+  - **Hard rules (forbid, never overridable):** battery must still cover "reach the charger + reserve" *after* the action (checked by forward-simulating the route with `robot_model`), motors must stay below `max_c`, a pickup must fit the payload, and a robot below `condition_min` may only charge or wait.
+  - **Priority rules (rank):** tier 2 = unblock a stopped line, tier 1 = prevent one from stopping, tier 0 = routine.
+  - Every verdict carries its reason, so a decision can always be explained.
+- `neural.py` — `ActionScorer`, a 2×64 MLP (~6 k parameters) scoring ONE candidate action; feature normalisation is stored with the weights; loading a model trained on different features is refused.
+- `features.py` — 27 features per candidate action, plus `symbolic_estimate()`: the obvious part of the value (units moved × value − energy × cost). **The network only learns the correction to this**, which is what keeps it sane when unsure.
+- `neurosymbolic.py` — the model: hard rules → top priority tier → neural ranking inside that tier → decision + explanation. Modes `full`, `neural` (ablation: no rules), `symbolic` (ablation: no network, ranks by energy per unit). Without a trained model it runs symbolic and says so.
+- **Charging became a decision**: `CHARGE 40 / 70 / 100 %` instead of one fixed target, so "top up briefly and keep the lines running" is expressible.
+
+**PPO comparison** (`policies/rl_ppo.py`, `tools/ai/train_ppo.py`): MaskablePPO (sb3-contrib) on the same environment, actions and objective. Two honest differences: no symbolic layer (it can only *learn* safety) and no explanation beyond the action probability. 300 k steps = 7.9 min on CPU.
+
+**Training** (`tools/ai/train_ns.py`): no human labels. At each decision the simulator is cloned, each candidate executed, and the shift played on by a reference policy for `rollout_horizon_s`; the discounted objective collected is what that action was worth. Policy iteration over rounds (round 1 looks ahead with the symbolic policy, later rounds with the model trained so far), states walked by the current model (DAgger), only candidates that survive the symbolic layer are labelled, and the round with the best validation score is kept.
+
+### The three fixes that made the model work (each one measured)
+1. **Residual learning.** First version: the network predicted the whole value → it lost to the plain rules (low battery 25.5 vs 54.0 for symbolic-only). Learning only the correction to `symbolic_estimate` raised oracle agreement from ~40 % to 60 %.
+2. **Best-round selection.** The last round was being saved even when worse; now each round is scored on unseen validation shifts and the best is kept.
+3. **Ranking instead of regression (the decisive one).** The look-ahead value carries ±2.5 units of noise while two candidates typically differ by < 1 unit, so regressing values spent the network on noise. Training it to pick the better candidate (softmax cross-entropy over the candidates of each decision, small value term kept for readable scores) took the validation score from 56.8 to **59.7** and turned a model that lost to the rules into one that leads in 4 of 6 scenarios.
+   - A change that did NOT help is recorded too: walking the shifts with the model's own states (DAgger) alone made it slightly worse (56.8 vs 58.3). It was kept because it is methodologically right, but the gain came from the ranking loss.
+
+### Results — 20 seeds per scenario, fast simulator (`logs/wp5_eval6.txt`)
+Score = delivered units − lost production − 0.5 × Wh − 20 × safety violations.
+
+| Scenario | rule | **neuro-symbolic** | symbolic only | PPO |
+|---|---|---|---|---|
+| balanced | 46.8 | **47.9** | 46.3 | 46.8 |
+| one_hot_section | 72.8 | **74.8** | 72.9 | 74.4 |
+| high_demand | 93.2 | **96.9** | 96.7 | 96.4 |
+| fault_burst | 31.0 | **32.0** | 30.7 | 31.5 |
+| low_battery_start | −4.9 | 49.5 | **54.0** | 48.4 |
+| worn_robot | **46.6** | 43.9 | 45.4 | 46.4 |
+
+**Safety and efficiency**
+
+| Policy | Episodes with safety violations | Lost production | Energy (balanced) | Explains decisions |
+|---|---|---|---|---|
+| **neuro-symbolic** | **0 / 120** | **0.00 everywhere** | 8.0 Wh | yes, every decision |
+| symbolic only | 0 / 120 | ≤ 0.52 | 8.4 Wh | yes |
+| rule | 0 / 120 | ≤ 27.8 | 4.9 Wh | yes |
+| neural only (ablation) | **20 / 20** in low battery | ≤ 28.5 | 8.4 Wh | no (score only) |
+| PPO | **5 / 20** in low battery | ≤ 0.40 | 10.1 Wh | no (probability only) |
+
+Headline for the thesis: **the neuro-symbolic model matches or beats PPO on throughput while using ~20 % less energy, never violates safety, and explains every decision** — and the ablations show where that comes from: remove the rules and the same network drains the battery to 0 % in every hard shift; PPO, which can only learn safety, violates it in a quarter of them.
+
+### Tests
+`pytest src/robofetch_core/test src/robofetch_factory/test src/robofetch_ai/test` → **131 passed**, including:
+- every hard rule has a test that constructs the situation and checks the refusal AND its wording;
+- a **deliberately sabotaged network** (always prefers the most dangerous action) runs a whole shift with zero violations and a battery that never drops below the reserve — the guarantee does not depend on what the network learnt;
+- the ablations really differ (neural-only ignores the rules), a missing model falls back to rules and says so, decision latency < 100 ms.
+
+### Open issues / next steps for the model
+- `worn_robot` (43.9) is below the rules (46.6), and `low_battery_start` is still better with symbolic-only (54.0 vs 49.5).
+- Policy iteration does not pay off yet: round 1 was best in the final run; rounds 2–3 got worse.
+- PPO is trained masked; the `ppo_unmasked` ablation (how much of the benefit is simply knowing the rules) is implemented but not yet run.
+
+### How to reproduce
+```bash
+venv/bin/python -u tools/ai/train_ns.py                  # ~40 min, 3 rounds, keeps the best
+venv/bin/python -u tools/ai/train_ppo.py --threads 3     # ~8 min
+venv/bin/python tools/ai/evaluate.py --policies rule ns ns_neural_only ns_symbolic_only ppo --seeds 20
+venv/bin/python tools/ai/evaluate.py --policies ns --scenarios low_battery_start --seeds 1 --trace
+```

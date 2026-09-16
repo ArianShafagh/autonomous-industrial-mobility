@@ -101,6 +101,9 @@ class FactorySim:
         return (self.matrix[frm or self.location][target]
                 * float(self.sim_cfg["nav_overhead_factor"]))
 
+    def charge_targets(self):
+        return [float(t) for t in self.sim_cfg["charge_targets_percent"]]
+
     def units_that_fit(self, sid):
         unit = self.sections[sid].params.unit_mass_kg
         free = max(0.0, self.p.max_payload_kg - self.payload_kg)
@@ -152,9 +155,10 @@ class FactorySim:
                 legal.append(Action(PICKUP, sid))
         if sum(self.cargo.values()) > 0:
             legal.append(Action(DELIVER))
-        if not (self.location == CHARGER
-                and self.robot.battery_percent >= float(self.sim_cfg["charge_target_percent"])):
-            legal.append(Action(CHARGE, value=float(self.sim_cfg["charge_target_percent"])))
+        for target in self.charge_targets():
+            # Charging to a level the robot is already at would be a no-op.
+            if self.robot.battery_percent < target - 1.0:
+                legal.append(Action(CHARGE, value=target))
         legal.append(Action(WAIT, value=float(self.sim_cfg["wait_slice_s"])))
         return legal
 
@@ -283,5 +287,7 @@ def run_episode(policy, scenario="balanced", seed=0, config_dir=None, overrides=
         if trace:
             decisions.append({"time_s": round(state["time_s"], 1), "action": str(decision.action),
                               "why": decision.explanation, "units": outcome.units,
-                              "battery": round(sim.robot.battery_percent, 1)})
+                              "battery": round(sim.robot.battery_percent, 1),
+                              "latency_ms": round(decision.latency_ms, 3),
+                              "scores": decision.scores})
     return sim.summary(), decisions
