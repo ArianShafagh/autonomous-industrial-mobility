@@ -155,8 +155,8 @@ def write_world(lay):
      three production sections (A, B, C), one delivery point (green) and one charger (blue). -->
 <sdf version="1.10">
   <world name="factory_maze">
-    <physics name="1ms" type="ignored">
-      <max_step_size>0.001</max_step_size>
+    <physics name="step" type="ignored">
+      <max_step_size>{lay.cfg["physics_step_s"]}</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>
     <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>

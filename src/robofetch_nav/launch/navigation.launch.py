@@ -2,13 +2,44 @@
 factory map generated from layout.yaml. Set the initial pose with scripts/set_pose.sh (the robot
 spawns on the charger), then send goals with scripts/goto.sh.
 """
+import os
+import tempfile
+
+import yaml
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
+from launch.actions import (DeclareLaunchArgument, GroupAction, IncludeLaunchDescription,
+                            OpaqueFunction)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+
+
+def params_with_initial_pose(params_path):
+    """nav2_params.yaml with AMCL's initial pose set to the robot's spawn pose (poi.yaml).
+
+    Nav2's planner/controller cannot ACTIVATE until the map->odom transform exists, and AMCL only
+    publishes it once it has an initial pose. If nobody sends one within the activation timeout
+    (~60 s) the whole navigation bringup aborts - which is what made launches flaky in WP3.
+    Giving AMCL the spawn pose up front removes that race. The pose is read from the generated
+    poi.yaml, so moving the charger in layout.yaml moves this too.
+    """
+    poi_file = os.path.join(get_package_share_directory("robofetch_factory"), "config", "poi.yaml")
+    with open(poi_file) as fh:
+        poi = yaml.safe_load(fh)
+    spawn = poi["poi"][poi["spawn"]]
+    with open(params_path) as fh:
+        params = yaml.safe_load(fh)
+    amcl = params["amcl"]["ros__parameters"]
+    amcl["set_initial_pose"] = True
+    amcl["initial_pose"] = {"x": float(spawn["x"]), "y": float(spawn["y"]), "z": 0.0,
+                            "yaw": float(spawn["yaw"])}
+    out = tempfile.NamedTemporaryFile("w", prefix="nav2_params_", suffix=".yaml", delete=False)
+    yaml.safe_dump(params, out)
+    out.close()
+    return out.name
 
 
 def generate_launch_description():
@@ -43,19 +74,21 @@ def generate_launch_description():
         forwarding=True,
     )
 
-    # 2) Nav2 stack (localization + navigation), using the stock bringup with our params.
-    nav2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([pkg_nav2_bringup, "launch", "bringup_launch.py"])
-        ),
-        launch_arguments={
-            "map": map_yaml,
-            "use_sim_time": use_sim_time,
-            "params_file": params_file,
-            "autostart": "true",
-            "use_composition": "False",
-        }.items(),
-    )
+    # 2) Nav2 stack (localization + navigation), using the stock bringup with our params plus
+    #    AMCL's initial pose (see params_with_initial_pose).
+    def nav2(context):
+        return [IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([pkg_nav2_bringup, "launch", "bringup_launch.py"])
+            ),
+            launch_arguments={
+                "map": map_yaml,
+                "use_sim_time": use_sim_time,
+                "params_file": params_with_initial_pose(params_file.perform(context)),
+                "autostart": "true",
+                "use_composition": "False",
+            }.items(),
+        )]
 
     rviz = Node(
         package="rviz2",
@@ -73,6 +106,6 @@ def generate_launch_description():
         DeclareLaunchArgument("rviz", default_value="true",
                               description="Set false to run navigation headless."),
         sim,
-        nav2,
+        OpaqueFunction(function=nav2),
         rviz,
     ])

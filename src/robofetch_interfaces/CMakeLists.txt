@@ -7,6 +7,7 @@ find_package(builtin_interfaces REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/SectionStatus.msg"
+  "msg/TaskEvent.msg"
   "srv/Pickup.srv"
   DEPENDENCIES builtin_interfaces
 )

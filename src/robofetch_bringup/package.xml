@@ -3,7 +3,7 @@
 <package format="3">
   <name>robofetch_bringup</name>
   <version>0.1.0</version>
-  <description>Top-level launch files that start the complete RoboFetch system.</description>
+  <description>Top-level launch files that start the complete autonomous factory robot system.</description>
   <maintainer email="shafagh.arian2003@gmail.com">robojazzy</maintainer>
   <license>MIT</license>
 
@@ -12,6 +12,7 @@
   <exec_depend>robofetch_gazebo</exec_depend>
   <exec_depend>robofetch_nav</exec_depend>
   <exec_depend>robofetch_core</exec_depend>
+  <exec_depend>robofetch_factory</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

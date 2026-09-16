@@ -27,6 +27,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 from robofetch_core.robot_model import RobotCondition, RobotParams
+from robofetch_core.paths import default_log_dir
 from robofetch_factory.factory_model import load_config
 
 CSV_FIELDS = ["ts", "run_id", "order_id", "activity", "state", "battery_percent",
@@ -40,7 +41,8 @@ class RobotStateNode(Node):
         super().__init__("robot_state_node")
 
         self.declare_parameter("publish_period", 1.0)
-        self.declare_parameter("log_dir", os.path.join(os.getcwd(), "logs"))
+        self.declare_parameter("log_dir", default_log_dir())
+        self.declare_parameter("run_id", "")
         # All robot numbers (battery, energy, thermal, wear, speed) come from params.yaml and the
         # scenario; nothing is configured here.
         self.declare_parameter("scenario", "balanced")
@@ -50,7 +52,7 @@ class RobotStateNode(Node):
         self.p = RobotParams.from_config(cfg)
         self.condition = RobotCondition(self.p)
 
-        self.run_id = time.strftime("run_%Y%m%d_%H%M%S")
+        self.run_id = self.get_parameter("run_id").value or time.strftime("run_%Y%m%d_%H%M%S")
         self.activity = "idle"          # what the task manager says it is doing
         self.payload_kg = 0.0
         self.order_id = None
@@ -66,7 +68,7 @@ class RobotStateNode(Node):
 
         log_dir = self.get_parameter("log_dir").value
         os.makedirs(log_dir, exist_ok=True)
-        self.csv_path = os.path.join(log_dir, f"{self.run_id}.csv")
+        self.csv_path = os.path.join(log_dir, f"{self.run_id}_robot.csv")
         self._csv = open(self.csv_path, "w", newline="")
         self._writer = csv.DictWriter(self._csv, fieldnames=CSV_FIELDS)
         self._writer.writeheader()

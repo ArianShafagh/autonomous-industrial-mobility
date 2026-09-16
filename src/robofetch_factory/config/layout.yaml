@@ -23,6 +23,10 @@
 #   * alternative routes of different length exist, so the path/energy choice is not trivial.
 cell_size: 0.5
 wall_height: 1.0
+# Gazebo physics step. Gazebo publishes /clock once per step, and every ROS node on sim time
+# handles every /clock message - at 0.001 s (1000 Hz) the Python nodes alone used ~2 CPU cores
+# and starved Nav2's start-up (WP3). 0.004 s = 250 Hz is ample for a 0.39 m/s diff-drive robot.
+physics_step_s: 0.004
 machine_height: 1.4
 
 grid:

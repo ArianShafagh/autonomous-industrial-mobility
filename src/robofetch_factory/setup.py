@@ -25,7 +25,7 @@ setup(
     entry_points={
         "console_scripts": [
             "poi = robofetch_factory.layout:poi_cli",
-            "section_node = robofetch_factory.section_node:main",
+            "factory_node = robofetch_factory.factory_node:main",
             "factory_monitor = robofetch_factory.monitor:main",
         ],
     },

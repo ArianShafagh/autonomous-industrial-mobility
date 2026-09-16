@@ -22,7 +22,7 @@
 # the robot never localizes. One survivor from a previous run breaks every run after it.
 #
 # If you add a Nav2 server, add it here. `--check` below exists to catch the omission.
-PATTERN='gz|ruby|rviz2|task_manager|mission_executo|section_node|factory_monitor|robot_state|parameter_bridg|map_server|amcl|lifecycle_manag|controller_serv|smoother_server|planner_server|behavior_server|bt_navigator|waypoint_follow|velocity_smooth|collision_monit|opennav_docking|route_server|ros2'
+PATTERN='gz|ruby|rviz2|task_manager|mission_executo|factory_node|factory_monitor|robot_state|parameter_bridg|map_server|amcl|lifecycle_manag|controller_serv|smoother_server|planner_server|behavior_server|bt_navigator|waypoint_follow|velocity_smooth|collision_monit|opennav_docking|route_server|ros2'
 
 # BOTH web services run as `python -m uvicorn robofetch_<something>`, so their process NAME is
 # just "python" - far too generic to put in PATTERN without killing unrelated work. They have
@@ -51,6 +51,15 @@ pids_now() {
     printf '%s\n' "$snapshot" | grep -E "${API_PATTERN}" | awk '{print $1}'
   } | sort -u
 }
+
+# `./scripts/stop.sh --running` prints how many simulation processes are alive and exits 0 if any.
+# The launch scripts use it to REFUSE to start on top of a running simulation instead of killing
+# it: stopping is manual, so a run in progress (or a test) is never killed behind your back.
+if [ "${1:-}" = "--running" ]; then
+  n=$(pids_now | wc -l)
+  echo "$n"
+  [ "$n" -gt 0 ] && exit 0 || exit 1
+fi
 
 # `./scripts/stop.sh --check` names every live ROS-looking process this script would NOT kill,
 # without killing anything. Run it while the system is up: anything listed is a future leftover

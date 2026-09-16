@@ -19,7 +19,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "task_manager = robofetch_core.task_manager:main",
+            "mission_executor = robofetch_core.mission_executor:main",
             "robot_state_node = robofetch_core.robot_state_node:main",
         ],
     },

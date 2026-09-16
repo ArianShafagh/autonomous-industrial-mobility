@@ -67,6 +67,25 @@ robot:
     load_time_s: 30.0             # standing at a section while units are loaded
     unload_time_s: 30.0           # standing at the delivery point while units are unloaded
 
+mission:
+  navigation:
+    # A drive is abandoned after max(timeout_min_s, timeout_factor * predicted drive time), so a
+    # robot that is stuck or oscillating can never hang the mission.
+    timeout_factor: 3.0
+    timeout_min_s: 60.0
+    # Recovery ladder when a drive fails: 1) clear both costmaps and retry (stale obstacles),
+    # 2) back up and retry (robot wedged against an obstacle), 3) give up on the goal and return
+    # to the charger (safe place). If the charger is unreachable too, the robot halts and the
+    # mission ends as "navigation_stuck" - it needs a human.
+    # Nav2 can report SUCCESS without being at the goal: when the goal pose is blocked its planner
+    # (tolerance 0.5 m) plans to the nearest free spot and the controller "arrives" there. So after
+    # every success the robot's localised position is checked against the requested pose; farther
+    # than this counts as a failure. Normal arrivals in WP1 were <= 0.22 m off.
+    arrival_tolerance_m: 0.35
+    backup_distance_m: 0.3
+    backup_speed_m_s: 0.1
+    return_to_charger_on_failure: true
+
 factory:
   sections:
     A:

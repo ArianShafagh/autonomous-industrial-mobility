@@ -277,3 +277,132 @@ With realistic numbers **most of the robot's energy is the electronics' idle pow
 venv/bin/python scripts/param_report.py --all
 venv/bin/python scripts/param_report.py --scenario one_hot_section --set robot.battery.capacity_wh=15 --set robot.handling.load_time_s=45
 ```
+
+---
+
+## WP3 — Mission executor (2026-09-15)
+
+### Done
+- **Action vocabulary** `robofetch_core/mission_plan.py` (pure Python, shared with the future simulator/AI): `PICKUP:<A|B|C>` (drive, load `load_time_s`, take what still fits the payload), `DELIVER` (drive, unload), `CHARGE:<%>` (drive to charger, charge to target), `WAIT:<s>` (waiting at the charger charges). `predict()` gives distance, time, energy and end battery from `robot_model` + the maze path matrix. The robot can collect from several sections before delivering.
+- **`mission_executor`** (replaces `task_manager.py`): runs a scripted plan with no operator; waits for Nav2 to be ACTIVE, localises on the charger, drives with Nav2 (2 attempts per goal), calls `/factory/<id>/pickup`, dwells on the simulation clock, tells `robot_state_node` what it does and carries (`/robot/activity`), publishes **`TaskEvent`** on `/mission/events` (new message, predicted vs measured), writes `logs/<run_id>_mission.csv` and `_mission_summary.yaml`. Emergency stop kept (script-only `/robot/estop`): cancels the goal, brakes, ends the mission (`ended_by: emergency_stop`). The AI decision source replaces the scripted plan in WP7 without changing execution.
+- **`mission.launch.py`** (replaces `delivery.launch.py`): Gazebo + Nav2 + factory + robot model + executor, `scenario:=`, `seed:=`, `plan:=`, `headless:=true`.
+- **`scripts/run_mission.sh "<plan>" [scenario] [timeout]`**: one headless run, waits for the end, stops everything, exit code 0/1/2 — the basis for batch experiments later.
+- **`factory_node`** replaces the three `section_node` processes (same per-section topics/services and CSVs).
+- **Robustness:** physics step 1 ms → 4 ms (`layout.yaml: physics_step_s`); AMCL receives the spawn pose as initial pose from `poi.yaml` in `navigation.launch.py`; executor and `check_nav.py` wait for `/lifecycle_manager_navigation/is_active`; executor uses a single-threaded ROS executor.
+- `robot_state_node`: `run_id`/`log_dir` parameters, log file `<run_id>_robot.csv`, logs `cumulative_charged_wh`.
+- Deleted: `task_manager.py`, `section_node.py`, `delivery.launch.py`. Tests: `test_mission_plan.py` (15).
+
+### Problems and fixes
+1. **Launch arguments invisible in included launch files** (`launch configuration 'scenario' does not exist`): scoped groups had `forwarding=False` → `forwarding=True`.
+2. **Nav2 bringup hung** — `failed to send response to /controller_server/change_state (timeout)`, the navigation lifecycle manager waited for ever, the executor waited for ever. Cause: every Python node on sim time processes every `/clock` message; at the 1 ms physics step (1000 Hz) the 3 section nodes + robot model used **~55 % CPU each**, load average **14 on 12 cores**, and lifecycle service replies got lost. Fix: one factory process + 4 ms physics step (250 Hz). Result: factory 26–30 %, robot model 28–34 %, load average **3.1**.
+3. **Nav2 navigation bringup aborted** — `transform from base_footprint to map did not become available`. Navigation only activates once AMCL publishes `map→odom`, which needs an initial pose within ~60 s; WP1 and the first successful mission had only worked because a pose happened to arrive in time. Fix: AMCL gets the spawn pose at start (generated from `poi.yaml`), clients wait for `is_active`. Verified with the nav check started with **no** wait.
+4. First navigation re-check at 4 ms showed paths through walls (A→charger 6.15 m = straight line) and a rejected goal — a symptom of problem 3 (the planner ran on an empty costmap), not of the physics step.
+5. The launch directory vanished when `delivery.launch.py` (its only file) was removed with `git rm`, so the first `mission.launch.py` was never written → recreated.
+6. `pkill -f mission_executor` killed my own shell (its command line contained the pattern) — never use `pkill -f` with a pattern that appears in the calling command.
+7. Executor CPU with MultiThreadedExecutor(4) was 76 % → SingleThreadedExecutor: **43 %**.
+8. Summary said "MISSION COMPLETE" after an emergency stop → now `MISSION ENDED BY EMERGENCY STOP` and `ended_by` in the summary; `run_mission.sh` returns 1.
+
+### Results (headless Gazebo, all runs logged in `logs/`)
+**Tests:** `pytest src/robofetch_core/test src/robofetch_factory/test` → **67 passed**.
+
+**Navigation with 4 ms physics + AMCL initial pose** (`check_nav_20260915_131518.csv`, started with no wait): planner vs matrix worst **2.0 %** (identical to WP1), tour **7/7**, max AMCL error **0.077 m**, max goal error 0.221 m.
+
+**Mission 1** — balanced, `PICKUP:B;PICKUP:A;DELIVER;PICKUP:C;DELIVER;CHARGE:100;WAIT:60` (run_20260915_125858):
+
+| # | Action | Predicted m / s / Wh | Measured m / s / Wh | Result |
+|---|---|---|---|---|
+| 1 | PICKUP:B from charger | 15.2 / 69 / 0.19 | 15.0 / 63 / 0.18 | 2 units (0.8 kg) |
+| 2 | PICKUP:A from B | 18.3 / 77 / 0.24 | 17.9 / 72 / 0.22 | 1 unit (0.5 kg) |
+| 3 | DELIVER from A | 10.0 / 56 / 0.16 | 10.1 / 58 / 0.16 | 3 units delivered |
+| 4 | PICKUP:C from delivery | 6.3 / 46 / 0.11 | 6.5 / 48 / 0.11 | nothing ready (C: 1 unit per 12 min) |
+| 5 | DELIVER from C | 6.3 / 46 / 0.11 | 6.4 / 48 / 0.11 | 0 units |
+| 6 | CHARGE:100 from delivery | 5.1 / 174 / 0.05 | 5.2 / 177 / 0.05 | 96.3 → 100 % |
+| 7 | WAIT:60 at charger | 0 / 60 / 0 | 0 / 61 / 0 | charging while waiting |
+
+7/7, 526 s, 61.2 m, 0.844 Wh drawn, 0.854 Wh charged. Total prediction error (non-charge): **duration −1.4 %, distance −0.2 %, energy −1.3 %**. Cross-checks: section B buffer 2 → 0 exactly at the pickup (t = 71 s); B produced 4 units in 466 s (3.9 expected); robot log shows `charging` only after arriving at the charger.
+
+**Startup reliability** — 3 launches back-to-back, `PICKUP:C;DELIVER;CHARGE:100`: **3/3 complete** (205 s, 200 s, 205 s wall), measured values identical to ±1 s / ±0.1 m between runs; prediction error per run: duration −0.7/−1.0/−0.4 %, distance +1.0/+0.4/+1.0 %, energy −0.3/−0.5/−0.3 %.
+
+**Long mission** — `low_battery_start` (30 % battery, half-full buffers), 12 actions incl. two charges and multi-section trips (run_20260915_165614):
+
+| # | Action | Measured | Battery |
+|---|---|---|---|
+| 1 | PICKUP:B | 5 units, 15.0 m, 62 s | 29.9 → 29.1 % |
+| 2 | PICKUP:A | 4 units, 18.1 m, 71 s | → 28.0 % |
+| 3 | DELIVER | 9 units | → 27.1 % |
+| 4 | CHARGE:40 | 565 s | → 40.0 % |
+| 5 | PICKUP:C | 2 units (3.0 kg) | → 39.3 % |
+| 6 | PICKUP:B | 5 units (payload limit reached, 2 left) | → 38.6 % |
+| 7 | DELIVER | 7 units | → 37.6 % |
+| 8 | WAIT:120 at delivery | 0.20 Wh idle | → 36.7 % |
+| 9 | PICKUP:A | 6 units | → 36.1 % |
+| 10 | PICKUP:B | 5 units | → 34.8 % |
+| 11 | DELIVER | 11 units | → 33.9 % |
+| 12 | CHARGE:45 | 493 s | → 45.0 % |
+
+**12/12**, 1723 s sim, 123.6 m, delivered **A 10, B 15, C 2**, 2.09 Wh drawn, 5.41 Wh charged. Prediction error: duration −2.1 %, distance +0.2 %, energy −0.9 %. Charging 27.1 → 40 % in ~550 s = 2.84 Wh ≈ 18.6 W, matching the configured 19 W net.
+
+**Emergency stop** — published `/robot/estop` 12 s into a drive to B: ground-truth speed **0.771 → 0.001 m/s within 2 s, 0.0 m/s for the next 10 s**; action FAILED, remaining plan not executed, summary written.
+
+**CPU (during a mission):** Gazebo 78 %, executor 43 %, robot model 34 %, factory 30 %, bridge 27 %; load average 3.1.
+
+### Open issues
+- Nav2 success criterion is its 0.25 m xy tolerance; loading/unloading assumes the robot is "at" the section when Nav2 reports success. Good enough for virtual transport.
+- A navigation failure currently moves to the next planned action; the AI (WP5–WP7) will decide what to do after a failure instead.
+- Measured sim time runs faster than wall time in headless mode (speed 0.77 m/s by wall clock vs 0.39 m/s sim) — all our measurements use sim time, so results are unaffected.
+
+### How to reproduce
+```bash
+source /opt/ros/jazzy/setup.bash && source venv/bin/activate && colcon build --symlink-install
+./scripts/run_mission.sh "PICKUP:B;PICKUP:A;DELIVER;CHARGE:100" balanced 1200
+cat logs/$(ls -t logs | grep mission_summary | head -1)
+ros2 topic pub --once /robot/estop std_msgs/msg/String "{data: stop}"   # emergency stop
+```
+
+---
+
+## WP3b — Navigation failure handling + manual stopping (2026-09-16)
+
+User asked to fix problems before WP4: (a) how the robot handles navigation failures, (b) scripts stopping a running simulation behind the user's back.
+
+### Navigation failure handling
+- **Timeout per drive:** `max(timeout_min_s, timeout_factor × predicted drive time)` (60 s / 3.0 in `params.yaml → mission.navigation`). A stuck or oscillating robot can no longer hang a mission; the goal is cancelled.
+- **Arrival verification (important finding):** Nav2 can report **SUCCESS without being at the goal** — when the goal pose is blocked, its planner (tolerance 0.5 m) plans to the nearest free spot and the controller "arrives" there. The first obstacle test showed PICKUP:C "succeeding" with a box sitting on C. Now, after every Nav2 success, the robot's **own localised pose** (AMCL, not Gazebo ground truth — a real robot has none) is compared with the requested pose: farther than `arrival_tolerance_m` (0.35 m; normal arrivals are ≤ 0.22 m) counts as a failure.
+- **Recovery ladder:** attempt 1 → clear both costmaps → attempt 2 → back up 0.3 m (Nav2 BackUp behaviour) → attempt 3 → give up.
+- **After giving up:** drive to the charger (the safe place); cargo stays on board (virtual, nothing is lost) and a later DELIVER still delivers it. If the charger is unreachable too, the robot **halts** (`_declare_stuck`) and the mission ends with `ended_by: navigation_stuck` — it needs a human.
+- **Reporting:** every attempt and recovery step is written to the event/CSV `recovery` column, and the summary carries counters `drives, drive_attempt_failures, timeouts, recovered_after_retry, goals_abandoned, returned_to_charger`.
+- **New test tooling:** `scripts/obstacle.sh add|remove <name> <poi|x y>` puts a real box into the running Gazebo world; `scripts/test_nav_recovery.sh [1|2|all]` runs the two failure scenarios end to end.
+
+### Manual stopping (user request)
+- No script stops a simulation automatically any more. `run.sh` and `run_mission.sh` **refuse to start** when something is already running (two simulations publish two `/clock` streams and both break) and print `./scripts/stop.sh`.
+- `stop.sh --running` (new) prints how many simulation processes are alive; exit 0 if any.
+- `run.sh` rewritten for the new system: launches `mission.launch.py` with a demo plan (`PICKUP:B;PICKUP:A;DELIVER;PICKUP:C;DELIVER;CHARGE:100`), accepts `--headless`, `--no-build` and any launch argument (`scenario:=`, `plan:=`). It previously still launched the deleted `delivery.launch.py` — this is what failed when the user ran it.
+- Deleted the last user-ordering leftovers: `scripts/order.sh`, `scripts/order.py`.
+
+### Results (headless Gazebo)
+**Test 1 — box on section C's pickup pose**, plan `PICKUP:C;DELIVER`:
+```
+drive to C failed (Nav2 reported success but the robot is 0.62 m from C (goal blocked?)), attempt 1
+reached C after recovery: ['attempt 1: ...0.62 m from C...', 'recovery: clear costmaps']
+[1] PICKUP:C done | [2] DELIVER done | ended_by: plan_finished
+navigation: drives 2, drive_attempt_failures 1, recovered_after_retry 1, goals_abandoned 0
+```
+False success detected, recovery worked, the mission continued.
+
+**Test 2 — box on the charger after the robot left**, plan `PICKUP:A;CHARGE:100`:
+```
+[1] PICKUP:A done: took 1 units (0.50 kg)
+drive to charger failed (timeout after 70 s), attempt 1
+drive to charger failed (Nav2 aborted), attempt 2          (after clear costmaps)
+drive to charger failed (timeout after 70 s), attempt 3    (after back up)
+NAVIGATION STUCK: the robot cannot reach the charger. Halting - needs a human.
+ended_by: navigation_stuck
+navigation: drives 2, drive_attempt_failures 3, timeouts 2, goals_abandoned 1
+```
+The full ladder ran, the timeout worked, and the robot stopped instead of driving for ever.
+
+`pytest src/robofetch_core/test src/robofetch_factory/test` → 67 passed.
+
+### Open issues
+- After a recovered arrival at a blocked section the robot may still be ~0.3 m off; loading is allowed within `arrival_tolerance_m`. Tighten only if a blocked pickup point ever has to be refused outright.
+- A blocked route is currently only visible to the AI as a failed action (WP5–WP7 will decide what to do next: retry later, pick another section, charge).

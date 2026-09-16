@@ -25,6 +25,7 @@ from nav2_msgs.action import ComputePathToPose, NavigateToPose
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
+from std_srvs.srv import Trigger
 
 from robofetch_factory.layout import load_path_matrix, load_pois
 
@@ -149,6 +150,17 @@ def main():
     rclpy.init()
     node = NavCheck()
     rows = []
+    print("[check] waiting for Nav2 navigation to be ACTIVE ...")
+    active = node.create_client(Trigger, "/lifecycle_manager_navigation/is_active")
+    deadline = time.monotonic() + 240
+    while time.monotonic() < deadline:
+        if active.wait_for_service(timeout_sec=2.0):
+            res = node.wait_future(active.call_async(Trigger.Request()), 5.0)
+            if res and res.success:
+                break
+        time.sleep(2.0)
+    else:
+        sys.exit("[check] Nav2 navigation never became active")
     print("[check] waiting for Nav2 action servers and ground-truth pose ...")
     if not (node.nav.wait_for_server(timeout_sec=120) and node.plan.wait_for_server(timeout_sec=60)):
         sys.exit("[check] Nav2 action servers not available")
