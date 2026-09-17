@@ -17,7 +17,10 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
-def params_with_initial_pose(params_path):
+PLANNERS = ("NavfnDijkstra", "NavfnAStar", "Smac2D", "ThetaStar", "SmacLattice")
+
+
+def params_with_initial_pose(params_path, planner="ThetaStar"):
     """nav2_params.yaml with AMCL's initial pose set to the robot's spawn pose (poi.yaml).
 
     Nav2's planner/controller cannot ACTIVATE until the map->odom transform exists, and AMCL only
@@ -32,6 +35,11 @@ def params_with_initial_pose(params_path):
     spawn = poi["poi"][poi["spawn"]]
     with open(params_path) as fh:
         params = yaml.safe_load(fh)
+    # The behaviour tree plans with the plugin called "GridBased"; make it the chosen algorithm.
+    planners = params["planner_server"]["ros__parameters"]
+    if planner not in PLANNERS:
+        raise RuntimeError(f"unknown planner '{planner}', choose one of {', '.join(PLANNERS)}")
+    planners["GridBased"] = dict(planners[planner])
     amcl = params["amcl"]["ros__parameters"]
     amcl["set_initial_pose"] = True
     amcl["initial_pose"] = {"x": float(spawn["x"]), "y": float(spawn["y"]), "z": 0.0,
@@ -84,7 +92,8 @@ def generate_launch_description():
             launch_arguments={
                 "map": map_yaml,
                 "use_sim_time": use_sim_time,
-                "params_file": params_with_initial_pose(params_file.perform(context)),
+                "params_file": params_with_initial_pose(params_file.perform(context),
+                                                        LaunchConfiguration("planner").perform(context)),
                 "autostart": "true",
                 "use_composition": "False",
             }.items(),
@@ -103,6 +112,8 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         DeclareLaunchArgument("map", default_value=default_map),
         DeclareLaunchArgument("params_file", default_value=default_params),
+        DeclareLaunchArgument("planner", default_value="ThetaStar",
+                              description="global planner used when driving: " + ", ".join(PLANNERS)),
         DeclareLaunchArgument("rviz", default_value="true",
                               description="Set false to run navigation headless."),
         sim,

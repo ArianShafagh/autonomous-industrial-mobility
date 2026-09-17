@@ -12,6 +12,7 @@
   <p class="sub">
     {% if s.connected %}
       scenario <b>{{ s.sections[0].scenario if s.sections else "?" }}</b> &middot;
+      model <b>{{ run.model }}</b> &middot; planner <b>{{ run.planner }}</b> &middot;
       factory time {{ "%.0f"|format((s.sections[0].factory_time_s if s.sections else 0) / 60) }} min
       &middot; refreshes every {{ refresh_s }} s &middot; read-only: the robot decides for itself
     {% else %}

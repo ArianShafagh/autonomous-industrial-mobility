@@ -621,3 +621,111 @@ User request: try several scenarios (heavy load, balanced, low battery and other
 ./scripts/run.sh scenario:=heavy_load model:=ppo shift_s:=900.0 --headless
 ./scripts/stop.sh                                # stopping is always manual
 ```
+
+---
+
+## WP8 — Global path planner comparison (done 2026-09-17, awaiting approval)
+
+### What was done
+- `nav2_params.yaml`: five planners loaded side by side — `NavfnDijkstra` (old default), `NavfnAStar`, `Smac2D`, `ThetaStar`, `SmacLattice` (diff-drive motion primitives, 5 cm / 0.5 m turning radius). The behaviour tree's `GridBased` is set by the new launch argument `planner:=` (navigation.launch.py, passed through mission.launch.py).
+- `tools/nav/compare_planners.py`: the planner is isolated — each planner computes the path, the SAME MPPI controller follows it (FollowPath). Phase 1 plans all 20 ordered POI pairs (success, planning time, length vs the generated shortest path, total turning, clearance from walls); phase 2 drives the 7-leg tour per planner (time, ground-truth distance, energy from the robot model, arrival error). `--drive-repeats N` rotates the planner order each repeat and reports mean ± 95 % CI plus a paired t-test against NavfnDijkstra; results are saved after every repeat.
+
+### Results so far
+**Phase 1 — planning, 20 routes × 3 repeats (300/300 planned):**
+
+| Planner | Plan ms mean / p95 | Length vs shortest | Turning rad | Min clearance m |
+|---|---|---|---|---|
+| NavfnDijkstra | 15.3 / 36.0 | +1.0 % | 7.40 | 0.34 |
+| NavfnAStar | 18.6 / 35.6 | +2.3 % | 11.59 | 0.32 |
+| Smac2D | 9.2 / 20.0 | +0.7 % | 4.88 | 0.28 |
+| **ThetaStar** | **7.9 / 18.2** | **−0.6 %** | **4.07** | 0.32 |
+| SmacLattice | 129.6 / 680.0 | +6.8 % | 5.21 | 0.29 |
+
+**Phase 2 — one tour per planner (35/35 legs driven):**
+
+| Planner | Time s | Driven m | Energy Wh | Wh/km | Turning rad | Arrival error m |
+|---|---|---|---|---|---|---|
+| NavfnDijkstra | 151.5 | 57.17 | 0.540 | 9.45 | 45.1 | 0.178 |
+| NavfnAStar | 157.2 | 58.67 | 0.559 | 9.52 | 76.7 | 0.139 |
+| Smac2D | 153.0 | 58.60 | 0.554 | 9.46 | 25.8 | **0.121** |
+| **ThetaStar** | **146.1** | 57.38 | **0.540** | **9.40** | **24.2** | 0.150 |
+| SmacLattice | 155.7 | 59.02 | 0.569 | 9.64 | 35.9 | 0.196 |
+
+Theta* led after one tour, but a single tour is not enough to change the default, so 5 repeats followed.
+
+**Phase 2 — 5 repeats per planner** (resumed 2026-09-17 in a fresh headless session; planner order rotated every repeat; mean ± 95 % CI, t-distribution; `tools/nav/results/planners_drive_20260917_103512.csv`, log `wp8_repeats.log`). The paused session's repeats 1–2 (`planners_drive_20260916_221042.csv`) are kept but not pooled, because the conditions differ between sessions.
+
+| Planner | Tours ok | Time s | Driven m | Energy Wh | Turning rad | Arrival error m |
+|---|---|---|---|---|---|---|
+| NavfnDijkstra | 5/5 | 152.7 ± 1.9 | 57.69 ± 0.53 | 0.561 ± 0.015 | 45.2 ± 3.8 | 0.167 ± 0.009 |
+| NavfnAStar | 5/5 | 155.0 ± 2.4 | 58.05 ± 0.25 | 0.565 ± 0.013 | 73.0 ± 12.8 | 0.139 ± 0.007 |
+| Smac2D | 5/5 | 153.3 ± 0.5 | 58.58 ± 0.19 | 0.566 ± 0.010 | 26.1 ± 0.2 | **0.111 ± 0.005** |
+| **ThetaStar** | **5/5** | **147.8 ± 0.9** | **57.26 ± 0.23** | **0.551 ± 0.009** | **24.1 ± 2.5** | 0.153 ± 0.006 |
+| SmacLattice | 4/5 | 160.9 ± 8.4 | 59.53 ± 0.69 | 0.585 ± 0.018 | 33.5 ± 2.0 | 0.191 ± 0.009 |
+
+**Paired t-test against NavfnDijkstra** (same repeat = same session conditions):
+
+| Planner | Δ time s | p (time) | Δ energy Wh | p (energy) |
+|---|---|---|---|---|
+| NavfnAStar | +2.2 ± 2.9 | 0.099 | +0.0043 ± 0.0110 | 0.339 |
+| Smac2D | +0.5 ± 1.8 | 0.443 | +0.0052 ± 0.0091 | 0.186 |
+| **ThetaStar** | **−5.0 ± 1.7** | **0.001** | **−0.0104 ± 0.0103** | **0.049** |
+| SmacLattice | +8.3 ± 10.0 | 0.076 | +0.0248 ± 0.0304 | 0.081 |
+
+**The only failure:** SmacLattice, repeat 4, delivery → charger. It planned 7.78 m for a route the other planners plan at about 5.2 m, drove 5.94 m in 48.8 s and was marked FAIL (goal not reached). The lattice's minimum turning radius near the charger dead end is the likely cause, but this was not investigated further. The other four planners completed all 140/140 legs.
+
+### Decision: ThetaStar is the default planner
+- It is the only planner that is significantly better than the old default. Each tour is 5.0 s faster (−3.3 %, p = 0.001) and uses 0.010 Wh less energy (−1.9 %, p = 0.049). It also has the least turning (−47 %), the fastest planning (7.9 ms) and the shortest paths (−0.6 % vs the generated shortest path), with 100 % success.
+- Trade-off: its arrival error (0.153 m) is larger than Smac2D's (0.111 m). Both are well inside the 0.35 m arrival tolerance, so this does not matter for the mission.
+- Why it helps: any-angle paths remove the stair-step corners of grid planners, so MPPI spends less time turning and decelerating. In this maze the energy gain is small because distance dominates drive energy, and all planners drive nearly the same distance. The time gain is the larger effect.
+- Changed: `planner` default = `ThetaStar` in `navigation.launch.py` (argument + `params_with_initial_pose`) and `mission.launch.py`; the `GridBased` block in `nav2_params.yaml` is now Theta* as well. Any other planner is still one argument away: `planner:=NavfnDijkstra`.
+
+### Problem met
+- The first repeat attempt found the simulation already stopped; the script waited the full 5 minutes for Nav2 and exited. It now fails with "Nav2 navigation never became active" (a clear message, no hang).
+
+### How to reproduce
+```bash
+source /opt/ros/jazzy/setup.bash && source install/setup.bash
+ros2 launch robofetch_nav navigation.launch.py rviz:=false gz_extra:="-s --headless-rendering" &
+ros2 run robofetch_core robot_state_node --ros-args -p use_sim_time:=true &
+venv/bin/python -u tools/nav/compare_planners.py --repeats 3 --drive-repeats 5    # phase 1 + phase 2, ~1 h
+./scripts/stop.sh
+```
+
+## Starter config: choose scenario, model and planner from a file (2026-09-17, awaiting approval)
+
+### What was done
+- **`config/run.yaml`** (new) is the starter config that `./scripts/run.sh` reads. Keys: `ask`, `scenario`, `model`, `planner`, `view` (gui|headless), `shift_minutes` (0 = full shift), `seed` (-1 = from params), `dashboard`, `build`.
+- **`scripts/run_config.py`** (new) loads and validates the file.
+  - Valid scenarios come from the scenario folder; valid planners come from `PLANNERS` in `navigation.launch.py`. A new scenario or planner therefore appears automatically.
+  - Unknown or missing keys and invalid values stop the run with the list of valid choices.
+  - `save` writes chosen values back into the file, keeping comments and column layout, and refuses to write a file that would not load.
+- **`scripts/run.sh`** (rewritten around the config):
+  - `ask: true` shows the menu (scenario → model → **planner** → view → minutes). The file's values are the defaults, so Enter keeps them. After confirming, it offers to save the choices as the new defaults.
+  - `ask: false` or `--yes` starts straight from the file. `--ask` forces the menu. `--config FILE` uses another starter file.
+  - `--dry-run` prints the resolved `ros2 launch` command without starting anything. `--list` now also lists the planners.
+  - Command-line values (`scenario:= model:= planner:= seed:= shift_s:= --headless --no-build`) override the file for one run. `model:=` (scripted plan) and pass-through `name:=value` still work. It still refuses to start next to a running simulation.
+- **Planner visible live and recorded:**
+  - `mission.launch.py` passes `planner` to the mission executor (log line + `planner` in the mission summary) and to the dashboard.
+  - The dashboard header now reads "scenario … · model … · planner …", and `/api/state` has `run: {model, planner}`.
+  - Runs with different planners can therefore be told apart live and in `logs/*_mission_summary.yaml`.
+
+### Tests (real output)
+- `--yes --dry-run` → `mission.launch.py scenario:=balanced planner:=ThetaStar seed:=-1 shift_s:=600.0 web:=true headless:=false model:=ns`.
+- `planner:=Smac2D model:=ppo shift_s:=600.0 --headless --no-build --dry-run` → overrides applied, `headless:=true`.
+- `model:= --dry-run` → `model:= ai:=false plan:=<demo plan>`.
+- `planner:=Foo` → `config error: planner: 'Foo' is not one of: NavfnDijkstra, NavfnAStar, Smac2D, ThetaStar, SmacLattice`, exit 1.
+- `ask: true` without a terminal → a clear message to use `--yes`, exit 1.
+- Menu driven through a pseudo-terminal (answers 3, 2, 5, 2, 7) → `fault_burst`, `ns_symbolic_only`, `SmacLattice`, headless, `shift_s:=420.0`.
+- `save` on a copy → only the three values changed, comments stayed aligned. An invalid save was refused and the file was left unchanged.
+- `ros2 launch robofetch_bringup mission.launch.py --show-args` → `planner` default `ThetaStar`.
+- The dashboard header renders `model <b>ppo</b> · planner <b>Smac2D</b>` from the launch environment. Core tests: 33 passed.
+- Not yet done: a full Gazebo launch through the new `run.sh`. The WP8 simulation was still running, and stopping it is manual.
+
+### How to use
+```bash
+./scripts/run.sh                    # menu, defaults from config/run.yaml
+./scripts/run.sh --yes              # start exactly what config/run.yaml says
+./scripts/run.sh planner:=Smac2D    # one-off override (no menu)
+./scripts/run.sh --dry-run          # show what would be launched
+```

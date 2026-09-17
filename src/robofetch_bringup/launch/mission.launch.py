@@ -45,6 +45,7 @@ def generate_launch_description():
                 launch_arguments={
                     "rviz": "false" if headless else LaunchConfiguration("rviz"),
                     "gz_extra": "-s --headless-rendering" if headless else "",
+                    "planner": LaunchConfiguration("planner"),
                 }.items())],
             scoped=True, forwarding=True,
             condition=(IfCondition(LaunchConfiguration("headless")) if headless
@@ -76,7 +77,10 @@ def generate_launch_description():
         cmd=[workspace_python(), "-m", "uvicorn", "robofetch_bridge.app:app",
              "--host", "0.0.0.0", "--port", "8000"],
         additional_env={"ROBOFETCH_WEB": PathJoinSubstitution(
-            [FindPackageShare("robofetch_web"), "web"])},
+            [FindPackageShare("robofetch_web"), "web"]),
+                        # shown in the page header, so a planner/model comparison is readable live
+                        "ROBOFETCH_MODEL": LaunchConfiguration("model"),
+                        "ROBOFETCH_PLANNER": LaunchConfiguration("planner")},
         output="screen",
         condition=IfCondition(LaunchConfiguration("web")))
 
@@ -86,6 +90,7 @@ def generate_launch_description():
         parameters=[sim_time, {"scenario": scenario, "run_id": run_id,
                                "plan": LaunchConfiguration("plan"),
                                "model": LaunchConfiguration("model"),
+                               "planner": LaunchConfiguration("planner"),
                                "shift_duration_s": ParameterValue(
                                    LaunchConfiguration("shift_s"), value_type=float)}])
 
@@ -104,6 +109,9 @@ def generate_launch_description():
         DeclareLaunchArgument("shift_s", default_value="0.0",
                               description="shift length in seconds (0 = from params.yaml)"),
         DeclareLaunchArgument("headless", default_value="false"),
+        DeclareLaunchArgument("planner", default_value="ThetaStar",
+                              description="global path planner (WP8 winner ThetaStar): NavfnDijkstra, NavfnAStar, "
+                                          "Smac2D, ThetaStar, SmacLattice"),
         DeclareLaunchArgument("rviz", default_value="true"),
         navigation(False),
         navigation(True),

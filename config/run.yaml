@@ -1,0 +1,22 @@
+# Starter config for ./scripts/run.sh - what gets built and started.
+#
+#   ./scripts/run.sh                     reads this file; ask: true shows the menu with these values
+#                                        as the defaults (Enter keeps them), ask: false starts at once
+#   ./scripts/run.sh --config my.yaml    use another starter file (copy this one)
+#   ./scripts/run.sh --yes               start straight from the file, no questions
+#   ./scripts/run.sh planner:=Smac2D     command-line values override the file for this run only
+#
+# Every value is checked before anything starts; a typo stops the script with the valid choices.
+
+ask: true                 # true = menu with these defaults, false = start without questions
+
+scenario: balanced        # file name in src/robofetch_factory/config/scenarios/ (./scripts/run.sh --list)
+model: ns                 # ns | ns_symbolic_only | ppo | rule | fallback (no AI service)
+planner: ThetaStar        # NavfnDijkstra | NavfnAStar | Smac2D | ThetaStar | SmacLattice (WP8 winner: ThetaStar)
+
+view: gui                 # gui = Gazebo + RViz windows, headless = no windows (faster)
+shift_minutes: 10         # simulated shift length; 0 = full shift from params.yaml
+seed: -1                  # -1 = seed from params.yaml / scenario, otherwise a fixed number
+
+dashboard: true           # read-only monitor on http://localhost:8000
+build: true               # colcon build before launching (false = faster restart, no code changes)

@@ -22,6 +22,9 @@ WEB_DIR = os.environ.get("ROBOFETCH_WEB") or os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "robofetch_web", "web")
 REFRESH_S = float(os.environ.get("ROBOFETCH_REFRESH_S", "2"))
+# What this run was started with (set by mission.launch.py); shown in the header and /api/state.
+RUN_INFO = {"model": os.environ.get("ROBOFETCH_MODEL") or "scripted plan",
+            "planner": os.environ.get("ROBOFETCH_PLANNER") or "unknown"}
 
 app = FastAPI(title="RoboFetch factory monitor")
 templates = Jinja2Templates(directory=os.path.join(WEB_DIR, "templates"))
@@ -52,7 +55,7 @@ def health():
 
 @app.get("/api/state")
 def api_state():
-    return JSONResponse(ros().snapshot())
+    return JSONResponse({**ros().snapshot(), "run": RUN_INFO})
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -63,7 +66,7 @@ def dashboard(request: Request):
     # Starlette's current signature is (request, name, context); passing the name first makes it
     # treat the context dict as the template name ("unhashable type: dict").
     return templates.TemplateResponse(request, "dashboard.html", {
-        "s": snapshot, "refresh_s": REFRESH_S, "style_version": version})
+        "s": snapshot, "run": RUN_INFO, "refresh_s": REFRESH_S, "style_version": version})
 
 
 def main():

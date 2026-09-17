@@ -76,6 +76,7 @@ class MissionExecutor(Node):
         self.declare_parameter("scenario", "balanced")
         self.declare_parameter("plan", "")
         self.declare_parameter("model", "")                # "" = follow `plan` instead
+        self.declare_parameter("planner", "")              # Nav2 global planner, for the record
         self.declare_parameter("decision_url", "http://localhost:8001/decide")
         self.declare_parameter("decision_timeout_s", 5.0)
         self.declare_parameter("shift_duration_s", 0.0)    # 0 = value from params.yaml
@@ -92,6 +93,7 @@ class MissionExecutor(Node):
         self.matrix = load_path_matrix()
         self.plan = parse_plan(self.get_parameter("plan").value)
         self.model = self.get_parameter("model").value
+        self.planner = self.get_parameter("planner").value or "unknown"
         self.decision_url = self.get_parameter("decision_url").value
         shift = float(self.get_parameter("shift_duration_s").value)
         self.shift_duration_s = shift if shift > 0 else float(cfg["time"]["shift_duration_s"])
@@ -630,7 +632,7 @@ class MissionExecutor(Node):
             source = ("the built-in fallback rules (no AI)" if self.model == "fallback"
                       else f"'{self.model}' at {self.decision_url}")
             self.get_logger().info(f"autonomous mode: deciding with {source} before every "
-                                   f"action; shift {self.shift_duration_s:.0f} s")
+                                   f"action; planner {self.planner}; shift {self.shift_duration_s:.0f} s")
             while not self._abort.is_set() and not self.stuck:
                 if self.sim_now() - t_start >= self.shift_duration_s:
                     self.get_logger().info("shift over")
@@ -677,6 +679,7 @@ class MissionExecutor(Node):
             "battery_end_percent": round(self.battery(), 2),
             "delivered_units": self.delivered,
             "model": self.model or f"scripted plan ({len(self.plan)} actions)",
+            "planner": self.planner,
             "decisions": {
                 "asked": self.decision_stats["asked"],
                 "answered_by_model": self.decision_stats["asked"] - self.decision_stats["fallback"],
