@@ -53,13 +53,13 @@ def main():
         rl["total_timesteps"] = args.timesteps
     if args.no_masks:
         rl["use_action_masks"] = False
-    scenarios = sorted(f[:-5] for f in os.listdir(os.path.join(CONFIG_DIR, "scenarios")))
+    scenarios = list(cfg["mission"]["evaluation"]["training_scenarios"])
 
     def make(rank):
         def _make():
-            # Each parallel environment trains on a different scenario, so one agent has to cope
-            # with all of them - the same six the other policies are evaluated on.
-            env = FactoryEnv(scenario=scenarios[rank % len(scenarios)], config_dir=CONFIG_DIR)
+            # Every parallel environment draws a random training scenario at each reset, so all
+            # six are seen however many envs there are. Seeded per rank for reproducibility.
+            env = FactoryEnv(scenario=scenarios, seed=int(rl["seed"]) + rank, config_dir=CONFIG_DIR)
             if rl["use_action_masks"]:
                 env = ActionMasker(env, lambda e: e.unwrapped.action_masks())
             return Monitor(env)

@@ -109,8 +109,9 @@ def generate_launch_description():
         DeclareLaunchArgument("shift_s", default_value="0.0",
                               description="shift length in seconds (0 = from params.yaml)"),
         DeclareLaunchArgument("headless", default_value="false"),
-        DeclareLaunchArgument("planner", default_value="ThetaStar",
-                              description="global path planner (WP8 winner ThetaStar): NavfnDijkstra, NavfnAStar, "
+        DeclareLaunchArgument("planner", default_value="NavfnDijkstra",
+                              description="global path planner (WP8 fastest: ThetaStar; WP9 default for "
+                                          "reliability: NavfnDijkstra): NavfnDijkstra, NavfnAStar, "
                                           "Smac2D, ThetaStar, SmacLattice"),
         DeclareLaunchArgument("rviz", default_value="true"),
         navigation(False),

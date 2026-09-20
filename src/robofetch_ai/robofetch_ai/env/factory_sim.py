@@ -43,8 +43,12 @@ class FactorySim:
     """One shift: robot + three sections + the clock. Deterministic for a given seed."""
 
     def __init__(self, scenario="balanced", seed=None, config_dir=None, overrides=None,
-                 shift_duration_s=None):
+                 shift_duration_s=None, finish_last_action=False):
         self.cfg = load_config(scenario, config_dir, overrides)
+        # False: the shift ends exactly on time, mid-action (training and evaluation).
+        # True: an action started before the end is completed, as the real mission executor does
+        # (it only checks the clock between actions) - used to compare with Gazebo runs.
+        self.finish_last_action = finish_last_action
         self.p = RobotParams.from_config(self.cfg)
         self.sim_cfg = self.cfg["mission"]["simulation"]
         self.objective = self.cfg["mission"]["objective"]
@@ -131,7 +135,7 @@ class FactorySim:
                 self.done = True
             if self.robot.temperature_c >= self.p.max_c:
                 self._violation("overheated")
-            if self.time_s >= self.shift_duration_s:
+            if self.time_s >= self.shift_duration_s and not self.finish_last_action:
                 self.done = True
         self.distance_m += speed * (seconds - left)
         return (self.robot.cumulative_energy_wh - before_energy,
@@ -218,6 +222,8 @@ class FactorySim:
         if (self.robot.battery_percent < self.p.reserve_percent and self.location != CHARGER
                 and not self.done):
             self._violation("below_reserve")
+        if self.finish_last_action and self.time_s >= self.shift_duration_s:
+            self.done = True
 
         outcome = Outcome(action, ok, detail, units, self.time_s - t0, distance, energy, charged,
                           lost, [f"{k}@{t:.0f}s" for k, t in self.violations[violations_before:]])
@@ -275,19 +281,24 @@ class FactorySim:
 
 
 def run_episode(policy, scenario="balanced", seed=0, config_dir=None, overrides=None,
-                shift_duration_s=None, trace=False):
+                shift_duration_s=None, trace=False, finish_last_action=False):
     """Run one whole shift with a policy. Returns (summary, decisions)."""
-    sim = FactorySim(scenario, seed, config_dir, overrides, shift_duration_s)
-    decisions = []
+    sim = FactorySim(scenario, seed, config_dir, overrides, shift_duration_s, finish_last_action)
+    decisions, latencies = [], []
     while not sim.done:
         state = sim.state()
         legal = sim.legal_actions()
         decision = policy.decide(state, legal, sim)
         outcome = sim.step(decision.action)
+        latencies.append(decision.latency_ms)
         if trace:
             decisions.append({"time_s": round(state["time_s"], 1), "action": str(decision.action),
                               "why": decision.explanation, "units": outcome.units,
                               "battery": round(sim.robot.battery_percent, 1),
                               "latency_ms": round(decision.latency_ms, 3),
                               "scores": decision.scores})
-    return sim.summary(), decisions
+    summary = sim.summary()
+    # mean time per decision; the first one is left out because it loads the model
+    timed = latencies[1:] or latencies or [0.0]
+    summary["decision_ms"] = round(sum(timed) / len(timed), 3)
+    return summary, decisions

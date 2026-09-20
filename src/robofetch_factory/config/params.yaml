@@ -110,6 +110,11 @@ mission:
     safety_margin_percent: 2.0    # extra battery on top of the reserve before an action is allowed
     # --- neural scorer
     hidden_sizes: [64, 64]
+    # How far (score units, ~ delivered units) the network may move an action away from its
+    # symbolic estimate, relative to the other candidates. null = unbounded (the WP5 model).
+    # 1.0 chosen in WP9 on the TRAINING scenarios with validation seeds 1000-1019
+    # (null 57.75, 20 57.75, 10 58.06, 5 58.15, 2 58.15, 1 58.70, 0 = estimate only 57.41).
+    max_correction: 1.0
     # --- training (tools/ai/train_ns.py)
     training:
       episodes: 80                # shifts of experience to collect per round
@@ -141,6 +146,16 @@ mission:
     use_action_masks: true        # false = the agent must learn the rules itself (ablation)
     eval_seeds: 4
     seed: 4242
+
+  evaluation:                     # WP9
+    # Both learned models train on these six only. Every other file in scenarios/ was written
+    # after training and is never seen by either model: those measure generalisation.
+    training_scenarios: [balanced, fault_burst, high_demand, low_battery_start, one_hot_section,
+                         worn_robot]
+    seeds: 30                     # shifts per policy and scenario in the fast simulator
+    # Test seeds must not overlap any seed used while training or selecting a model:
+    # NS collection uses 12345+, NS round selection 1000-1003, PPO draws random 31-bit seeds.
+    test_seed_start: 5000
 
 factory:
   sections:

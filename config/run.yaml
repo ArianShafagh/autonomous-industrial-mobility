@@ -12,7 +12,8 @@ ask: true                 # true = menu with these defaults, false = start witho
 
 scenario: balanced        # file name in src/robofetch_factory/config/scenarios/ (./scripts/run.sh --list)
 model: ns                 # ns | ns_symbolic_only | ppo | rule | fallback (no AI service)
-planner: ThetaStar        # NavfnDijkstra | NavfnAStar | Smac2D | ThetaStar | SmacLattice (WP8 winner: ThetaStar)
+planner: NavfnDijkstra    # NavfnDijkstra | NavfnAStar | Smac2D | ThetaStar | SmacLattice
+                          # (WP8: ThetaStar fastest on short tours; WP9: NavFn for full-shift reliability)
 
 view: gui                 # gui = Gazebo + RViz windows, headless = no windows (faster)
 shift_minutes: 10         # simulated shift length; 0 = full shift from params.yaml

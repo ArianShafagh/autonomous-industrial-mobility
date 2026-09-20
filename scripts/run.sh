@@ -40,10 +40,10 @@ declare -A MODEL_TEXT=(
   [fallback]="no AI               built-in fallback rules only (AI service off)"
 )
 declare -A PLANNER_TEXT=(
-  [NavfnDijkstra]="NavFn Dijkstra      wavefront over the whole map (Nav2 default)"
+  [NavfnDijkstra]="NavFn Dijkstra      wavefront, 0.5 m goal tolerance - the default (most reliable)"
   [NavfnAStar]="NavFn A*            same costs, heuristic search"
   [Smac2D]="Smac 2D             cost-aware A*, smoothed; most precise arrival"
-  [ThetaStar]="Theta*              any-angle, fewest turns (WP8 winner: fastest, least energy)"
+  [ThetaStar]="Theta*              any-angle, fewest turns; fastest on short tours, but WP9: refuses\n                      to plan when start/goal is momentarily blocked (6 of 17 shifts)"
   [SmacLattice]="Smac Lattice        diff-drive motion primitives; slow planning"
 )
 

@@ -729,3 +729,165 @@ venv/bin/python -u tools/nav/compare_planners.py --repeats 3 --drive-repeats 5  
 ./scripts/run.sh planner:=Smac2D    # one-off override (no menu)
 ./scripts/run.sh --dry-run          # show what would be launched
 ```
+
+---
+
+## WP9 — Evaluation and system improvement (IN PROGRESS, 2026-09-17)
+
+### 1. Fairness problems found and fixed before evaluating
+- **PPO trained on only 4 of its 6 scenarios.** `train_ppo.py` gave each of its 4 parallel environments one fixed scenario (`scenarios[rank % 6]`), so `one_hot_section` and `worn_robot` were never trained on.
+  - Fix: `FactoryEnv` accepts a list of scenarios and draws one at random at every reset (seeded per env).
+  - Verified: 40 resets covered all 6. PPO masked and unmasked were retrained (9.8 min each).
+  - The WP6 model is kept as `tools/ai/checkpoints/ppo_policy_wp6.zip` (policy `ppo_wp6`).
+- **Seed overlap.** Evaluation used seeds 0–19. PPO draws random 31-bit seeds and NS collection uses 12345+, so neither was affected. Still, a fixed, documented test range is cleaner.
+- **New config `mission.evaluation`:**
+  - `training_scenarios`: the six the models train on (both training scripts now read it).
+  - `seeds: 30`.
+  - `test_seed_start: 5000`: never used by any training or model selection; NS round selection uses 1000–1003.
+- **Train/test split:** the six scenarios added after training (`aged_battery`, `heavy_load`, `heavy_parts`, `hot_factory`, `section_breakdown`, `small_buffers`) were never seen by either learned model, so they measure **generalisation**.
+
+### 2. Tooling
+- **`tools/ai/evaluate.py`** (rewritten):
+  - Parallel workers (3240 episodes in 62 s on 10 workers); test seeds from config.
+  - Seen/unseen tag per scenario; paired **Wilcoxon signed-rank** test of every policy against `--reference` (ns).
+  - 95 % bootstrap CI; `summary_<ts>.md` with pooled, seen, unseen and per-scenario tables.
+  - Decision latency is now measured in every episode (`run_episode` records it; the first, model-loading call is excluded).
+- **`tools/ai/plot_results.py`:** thesis figures. Score per scenario, with hatched bars and an "unsafe n/30" label for shifts with violations. Throughput vs Wh per unit. Violation share. Gazebo vs simulator.
+- **`tools/ai/run_gazebo_batch.py`:**
+  - Runs whole shifts through `run.sh --yes --headless`, waits for the mission summary, stops only its own run, and replays the same policy/scenario/seed/shift in the fast simulator.
+  - The score comes from the Gazebo logs with the simulator's rules: section CSVs for lost units, mission CSV for below-reserve, robot CSV for temperature and empty battery.
+  - Refuses to start next to a running simulation, and saves after every run (`--skip-done` resumes).
+- **`FactorySim(finish_last_action=True)`:** the real executor checks the clock only between actions, so it finishes the last one after the shift ends (a 3-min smoke run lasted 220 s). The comparison mode does the same. With it, the smoke run matched Gazebo: score 3.71 vs 3.71, energy 0.587 vs 0.582 Wh, distance 39.6 vs 39.1 m. Training and evaluation keep the exact cut-off.
+
+### 3. First full evaluation → the weakness it exposed
+7 policies × 12 scenarios × 30 seeds (`summary_20260917_150043.md`). NS (unbounded, the WP5 model) was the best or tied in most scenarios, with 0 violations. Pooled, however, it was **below its own symbolic layer** (51.1 vs 52.9, p = 0.005). Almost all of that came from one unseen scenario: **heavy_load 28.5 vs 53.2**.
+
+**Diagnosis** (trace, heavy_load seed 5000):
+- NS chose `WAIT:60` while carrying cargo, up to 8 times in a row (t = 1849–2329 s), while A, B and C were BLOCKED (1602 / 1056 / 1020 s blocked; symbolic-only 807 / 675 / 522).
+- The explanation string itself said "waiting away from the charger only spends energy". The symbolic estimate was right, but the learned correction (+20 on every action, differences of ~7) overruled it.
+- In the training scenarios production is half as fast, and waiting to collect bigger batches pays off. The network carried that habit into an overload it had never seen.
+
+**Tried and rejected:** an "unfamiliar input" guard (feature z-scores vs training statistics). Rare binary features (`target_fault`, `is_deliver`) give |z| ≈ 13 in every scenario, including the training ones, so it is no usable signal.
+
+### 4. Improvement: bounded neural correction (trust region)
+`NeuroSymbolicPolicy`: the network's correction is centred on the candidates' mean and clipped to ±`mission.neurosymbolic.max_correction` score units. The network can still decide close calls, but it cannot overrule clear symbolic evidence.
+
+**Chosen on training scenarios only, validation seeds 1000–1019** (never on the test seeds or unseen scenarios):
+
+| bound | none | 20 | 10 | 5 | 2 | **1** | 0 (estimate only) |
+|---|---|---|---|---|---|---|---|
+| mean score (6 seen × 20 seeds) | 57.75 | 57.75 | 58.06 | 58.15 | 58.15 | **58.70** | 57.41 |
+
+→ `max_correction: 1.0` (params.yaml). The live decision service picks it up automatically. New ablations: `ns_unbounded` (the WP5 model) and `ns_estimate_only` (bound 0: rules + symbolic estimate, network off).
+
+### 5. Final fast-simulator results (test seeds 5000–5029, 9 policies × 12 scenarios × 30 = 3240 shifts)
+`tools/ai/results/summary_20260917_150349.md`, `episodes_20260917_150349.csv`, figures `fig_*.png`. p = paired Wilcoxon vs ns.
+
+**All 12 scenarios pooled (360 shifts each):**
+
+| policy | score [95 % CI] | delivered | lost | Wh | Wh/unit | shifts with violation | Δ vs ns | p |
+|---|---|---|---|---|---|---|---|---|
+| **ns (bounded)** | **53.56 [51.6, 55.4]** | 59.7 | 1.96 | 8.41 | 0.150 | **0/360** | — | — |
+| ns_unbounded (WP5) | 51.12 [49.1, 53.2] | 57.8 | 2.63 | 8.08 | 0.148 | 0/360 | −2.44 | <0.001 |
+| ns_estimate_only | 52.56 [50.6, 54.5] | 59.1 | 2.17 | 8.76 | 0.159 | 0/360 | −1.00 | <0.001 |
+| ns_symbolic_only | 52.91 [50.9, 54.9] | 59.4 | 2.11 | 8.71 | 0.158 | 0/360 | −0.65 | 0.008 |
+| ns_neural_only | 51.81 [49.3, 54.2] | 60.7 | 0.21 | 8.56 | 0.152 | **57/360** | −1.75 | 0.144 |
+| rule | 41.66 [38.5, 44.7] | 51.6 | 7.47 | 4.97 | 0.099 | 0/360 | −11.90 | <0.001 |
+| ppo (retrained, 6 scenarios) | 52.35 [50.3, 54.4] | 61.9 | 0.13 | 10.21 | 0.180 | **53/360** | −1.20 | <0.001 |
+| ppo_unmasked | 28.19 [25.8, 30.5] | 44.6 | 8.83 | 7.66 | 0.192 | 42/360 | −25.37 | <0.001 |
+| ppo_wp6 (4 scenarios) | 53.75 [51.6, 55.8] | 62.1 | 0.35 | 9.95 | 0.175 | **51/360** | +0.20 | 0.175 |
+
+**Seen (180 shifts each) / unseen (180 each), score and shifts with a violation:**
+
+| policy | seen | unseen |
+|---|---|---|
+| ns | 60.35, 0 | **46.77, 0** |
+| ns_unbounded | 59.79 (p = 0.085), 0 | 42.44 (p < 0.001), 0 |
+| ns_symbolic_only | 60.16 (p = 0.97), 0 | 45.66 (p < 0.001), 0 |
+| ppo | 59.88 (p = 0.31), 4 | 44.83 (p < 0.001), **49** |
+| ppo_wp6 | 59.23, 11 | 48.28 (p = 0.28), **40** |
+| ns_neural_only | 52.77, 27 | 50.84, 30 |
+
+**Per scenario, ns vs the strongest alternatives** (Δ = other − ns):
+- **heavy_load (unseen):** ns 52.3 (unbounded 28.5, Δ −23.8). symbolic 53.2 (+0.9, p = 0.70). ppo 59.5, but 29/30 shifts unsafe. rule −17.5.
+- **Significantly better than symbolic-only:** balanced (+0.93, p = 0.004), heavy_parts (+1.79, p = 0.003), small_buffers (+3.40, p = 0.023).
+- **Worse than symbolic-only:** low_battery_start (−0.94, p = 0.045).
+- **worn_robot:** the rule policy is still slightly better (+0.93, p = 0.033); the bound fixed most of it (unbounded −2.37 → bounded −0.93).
+- **aged_battery:** unbounded is slightly better (+0.82, p = 0.010); ppo 34.3 with 20/30 unsafe.
+- **hot_factory:** bounded +2.57 over unbounded (p < 0.001).
+
+### 6. Findings for the thesis
+1. **Only the rule-based policies are safe by construction.** NS and symbolic-only had 0 violations in 1440 shifts combined. Without the symbolic layer, the same network (ns_neural_only) is unsafe in 15.8 % of shifts. Masked PPO is unsafe in 14.7 %, mostly in unseen scenarios (49 of 53).
+2. **The neural part helps only when it is bounded.** Unbounded, it is worse than the rules alone on unseen scenarios (−3.2). With the ±1 bound (chosen on training data), NS is the best safe policy overall and on unseen scenarios. The neural part adds +1.0 over the bare symbolic estimate (p < 0.001).
+3. **PPO's raw score matches NS** on seen scenarios (p = 0.31). It gets there by driving more (10.2 Wh vs 8.4 Wh, 0.180 vs 0.150 Wh/unit) and by accepting low batteries (mean minimum 45 % vs 59 %). Its apparent lead on heavy_load comes with a violation in almost every shift.
+4. **Training on all six scenarios did not make PPO better.** ppo_wp6 (4 scenarios) vs ppo (6): no significant difference, both around 15 % unsafe. The violations are a property of learning without rules, not of the missing scenarios.
+5. **Without its action mask, PPO does not learn the rules in 300k steps** (28.2, 11.7 % unsafe).
+6. **The rule policy is the most energy-efficient** (0.099 Wh/unit, charging 7 times per shift). It collapses when time is short: low_battery_start −7.0, heavy_load −17.5.
+
+### Tests
+- `pytest src/robofetch_core/test src/robofetch_factory/test src/robofetch_ai/test` → **161 passed** (after sourcing the workspace).
+
+### Tier 2 — Gazebo (running)
+`run_gazebo_batch.py --models ns ppo --scenarios balanced low_battery_start heavy_load --seeds 5000 5001 --shift-min 20` → `tools/ai/results/gazebo_20260917_150533.csv`, log `wp9_gazebo_batch.log`. Results to follow.
+
+### Tier 2 — Gazebo (done 2026-09-20; paused overnight on user request and resumed)
+12 shifts of 20 simulated minutes, headless, planner ThetaStar, `run_gazebo_batch.py`; each replayed in the fast simulator with the same policy, scenario, seed and shift length (`finish_last_action=True`). Results `tools/ai/results/gazebo_20260917_150533.csv`, logs `wp9_gazebo_batch.log` + `wp9_gazebo_batch2.log`, figure `fig_gazebo_vs_sim.png`.
+
+| model | scenario | seed | Gazebo score | sim score | Gazebo Wh | sim Wh | failed actions | shift s |
+|---|---|---|---|---|---|---|---|---|
+| ns | balanced | 5000 | 16.39 | 17.37 | 3.214 | 3.262 | 0 | 1209 |
+| ns | balanced | 5001 | 15.35 | 16.37 | 3.300 | 3.257 | 1 | 1229 |
+| ns | heavy_load | 5000 | 32.21 | 33.23 | 3.574 | 3.547 | 0 | 1229 |
+| ns | heavy_load | 5001 | 32.28 | 33.23 | 3.438 | 3.546 | 0 | 1202 |
+| ns | low_battery_start | 5000 | **8.61** | 15.91 | 0.776 | 3.025 | 1 | **266 (halted)** |
+| ns | low_battery_start | 5001 | 17.69 | 18.87 | 2.956 | 2.913 | 0 | 2070 |
+| ppo | balanced | 5000 | 13.09 | 17.16 | 3.822 | 3.672 | 0 | 1248 |
+| ppo | balanced | 5001 | 18.17 | 18.12 | 3.652 | 3.751 | 0 | 1225 |
+| ppo | heavy_load | 5000 | 30.03 | 31.09 | 3.948 | 3.829 | 0 | 1245 |
+| ppo | heavy_load | 5001 | 28.66 | 32.07 | 3.879 | 3.859 | 1 | 1213 |
+| ppo | low_battery_start | 5000 | 19.03 | 19.01 | 1.941 | 1.977 | 0 | 1223 |
+| ppo | low_battery_start | 5001 | 19.03 | 20.01 | 1.932 | 1.982 | 0 | 1216 |
+
+**Over the 11 shifts that ran to the end:**
+
+| metric | Gazebo | fast sim | gap |
+|---|---|---|---|
+| score | 21.99 | 23.32 | −5.7 % |
+| delivered units | 23.73 | 25.00 | −5.1 % |
+| energy Wh | 3.24 | 3.24 | **+0.2 %** |
+| safety violations | 0 | 0 | — |
+
+Per shift the score gap is −1.33 on average (worst −4.07, best +0.05). **Energy transfers almost exactly**; the small score gap is throughput: real driving loses a few seconds per leg (Nav2 recovery, acceleration, arrival tolerance), which costs about one delivered unit per 20-minute shift. The ranking is unchanged: ns ≥ ppo on `balanced` and `heavy_load` in Gazebo too, and no policy had a violation in a completed shift.
+
+The 20-minute shifts are too short for the low-battery differences of tier 1 to appear: both models simply work until the battery forces one charge. `ns / low_battery_start / 5001` needed 2070 s because the last action was a charge (the executor finishes a started action).
+
+### Navigation problems found in the Gazebo runs (not decision-layer problems)
+Three of 12 shifts hit a navigation fault. In each case the recovery ladder did its job; the decision models were never at fault.
+1. **`ns / balanced / 5001`, action 18: Theta\* refused to plan to C.** Three aborts, `GridBased plugin failed to plan from (4.18, -3.99) to (6.03, -3.42): "Either of the start or goal pose are an obstacle!"`. The robot gave up on C, returned to the charger (84 s, 0.24 Wh) and finished the shift. Theta\* has no goal tolerance; NavFn plans to the nearest free cell within 0.5 m instead. A momentarily occupied goal cell near machine C is therefore fatal for Theta\* only. WP8's 35 test legs never hit it.
+2. **`ns / low_battery_start / 5000`: the planner server stalled and the robot halted after 266 s.** B unreachable (3 attempts), then the charger unreachable as well → `navigation_stuck`, as designed. The cause is in Nav2, not in the maze: `Planner loop missed its desired rate of 20 Hz. Current loop rate is 1.87 Hz` and `bt_navigator: Timed out while waiting for action server to acknowledge goal request for compute_path_to_pose` (5×). The planner server was not answering in time.
+3. **`ppo / heavy_load / 5001`: one failed action**, same pattern, shift continued.
+
+### Planner check (2026-09-20): the default goes back to NavfnDijkstra
+The same shift (`ns / low_battery_start / seed 5000`, 20 min) was driven **5 times per planner, alternating** ThetaStar and NavfnDijkstra, so machine load hits both equally (`run_gazebo_batch.py --planner ...`, new flag; logs `plannercheck_<planner>_r<n>.log`, rows `plannercheck_<planner>_r<n>.csv`).
+
+| planner | planner-loop stalls | plan refusals | nav retries | clean shifts | score (n = 5) | delivered | Wh |
+|---|---|---|---|---|---|---|---|
+| ThetaStar | 6 (worst 1.11 Hz) | 3 | 6 | **2/5** | 18.07 ± 1.61 sd | 20.2 | 2.685 |
+| **NavfnDijkstra** | 0 | 0 | 0 | **5/5** | 17.75 ± 1.23 sd | 20.6 | 2.927 |
+
+- Every fault is on the ThetaStar side, in both directions of the alternation, so it is **not** CPU starvation.
+- The mechanism is in the message: `GridBased plugin failed to plan from (-5.54, 1.43) to (-5.97, 3.08): "Either of the start or goal pose are an obstacle!"`. Here the **start** was the problem: the robot's own pose next to section B was momentarily inside the inflation layer. Theta\* has no goal/start tolerance and refuses outright; NavFn plans from the nearest free cell within `tolerance: 0.5`. The 20 Hz → 1.1 Hz planner-loop stalls only ever appear together with those refusals, so they are a symptom, not a separate fault.
+- Over whole shifts ThetaStar's WP8 advantage disappears: 18.07 vs 17.75 with a run-to-run sd of ~1.4, i.e. no difference. WP8's ~3 % gain was measured on 7-leg tours where recovery and dwell time play no part.
+- **Across all Gazebo shifts: ThetaStar faulty in 6 of 17, NavfnDijkstra in 0 of 5.**
+
+**Changed:** `planner` default back to `NavfnDijkstra` in `navigation.launch.py` (argument + `params_with_initial_pose`), `mission.launch.py`, `config/run.yaml`, and the `GridBased` block of `nav2_params.yaml`; `run.sh`'s planner menu says which is reliable and which is fastest. ThetaStar is still one argument away (`planner:=ThetaStar`) and its WP8 numbers stand.
+
+**Thesis point:** a planner chosen on short benchmark tours (WP8) was the *worse* choice in operation. Only full-shift runs exposed it, because the failure needs a pose that is momentarily inside the inflation layer - a situation short, clean tours never produce.
+
+### Open issues after WP9
+- At the battery reserve, NS sometimes waits once or twice before charging (~1 % battery). Waiting sits within the ±1 bound of charging. Candidate: a symbolic rule "at the reserve and away from the charger: no WAIT".
+- `worn_robot`: the rule policy is still slightly ahead of NS (+0.93, p = 0.033).
+- `low_battery_start`: symbolic-only is slightly ahead of NS (+0.94, p = 0.045).
+- 20-minute Gazebo shifts are too short to reproduce the tier-1 low-battery differences; a full 60-minute shift per model would show them (about 1 h wall each).
+- The maze map with the robot's position is still not drawn on the dashboard.
+

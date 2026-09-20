@@ -34,10 +34,15 @@ class FactoryEnv(gym.Env):
     def __init__(self, scenario="balanced", seed=None, config_dir=None, overrides=None,
                  shift_duration_s=None, randomise_seed=True):
         super().__init__()
-        self.sim_kwargs = dict(scenario=scenario, config_dir=config_dir, overrides=overrides,
+        # A list of scenarios = a different, randomly drawn scenario at every reset, so a single
+        # environment covers all of them (a fixed scenario per parallel env left PPO seeing only
+        # as many scenarios as it had envs - found in WP9).
+        self.scenarios = [scenario] if isinstance(scenario, str) else list(scenario)
+        self.sim_kwargs = dict(config_dir=config_dir, overrides=overrides,
                                shift_duration_s=shift_duration_s)
         self.randomise_seed = randomise_seed
-        self.sim = FactorySim(seed=seed, **self.sim_kwargs)
+        self._rng = np.random.default_rng(seed)
+        self.sim = FactorySim(scenario=self.scenarios[0], seed=seed, **self.sim_kwargs)
         self.sections = list(self.sim.sections)
         self.actions = ([Action(PICKUP, sid) for sid in self.sections]
                         + [Action(DELIVER)]
@@ -46,14 +51,15 @@ class FactoryEnv(gym.Env):
         self.action_space = spaces.Discrete(len(self.actions))
         size = ROBOT_FEATURES + len(self.sections) * SECTION_FEATURES
         self.observation_space = spaces.Box(low=-1.0, high=2.0, shape=(size,), dtype=np.float32)
-        self._rng = np.random.default_rng(seed)
 
     # ---------------------------------------------------------------------------- gym API
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         if seed is None and self.randomise_seed:
             seed = int(self._rng.integers(0, 2**31 - 1))
-        self.sim = FactorySim(seed=seed, **self.sim_kwargs)
+        scenario = (self.scenarios[0] if len(self.scenarios) == 1
+                    else self.scenarios[int(self._rng.integers(len(self.scenarios)))])
+        self.sim = FactorySim(scenario=scenario, seed=seed, **self.sim_kwargs)
         return self._observation(), {}
 
     def step(self, action_index):

@@ -310,14 +310,16 @@ planner_server:
     # loaded side by side so WP8 can compare them on identical routes (tools/nav/compare_planners.py).
     planner_plugins: ["GridBased", "NavfnDijkstra", "NavfnAStar", "Smac2D", "ThetaStar", "SmacLattice"]
     costmap_update_timeout: 1.0
-    # Default = ThetaStar (WP8: fastest tour, least turning, lowest energy; paired p < 0.05).
+    # Default = NavfnDijkstra. ThetaStar won WP8's short tours (3 % faster, less turning) but
+    # WP9's full shifts showed it refusing to plan whenever the start or goal cell is momentarily
+    # occupied ("Either of the start or goal pose are an obstacle!"): faults in 6 of 17 shifts
+    # against 0 of 5 for NavFn, which plans from the nearest free cell within `tolerance` instead.
+    # Over whole shifts the speed advantage disappears (18.07 vs 17.75 score, sd ~1.4).
     # navigation.launch.py overwrites this block with the planner:= choice anyway.
     GridBased:
-      plugin: "nav2_theta_star_planner::ThetaStarPlanner"
-      how_many_corners: 8
-      w_euc_cost: 1.0
-      w_traversal_cost: 2.0
-      w_heuristic_cost: 1.0
+      plugin: "nav2_navfn_planner::NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
       allow_unknown: true
     # --- 1) NavFn, Dijkstra: wavefront over the whole costmap (the Nav2 default)
     NavfnDijkstra:

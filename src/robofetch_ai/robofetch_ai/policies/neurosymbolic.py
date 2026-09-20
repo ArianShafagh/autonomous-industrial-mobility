@@ -8,6 +8,8 @@
         │      tier 2 unblock a stopped line · tier 1 prevent one from stopping · tier 0 routine
         │
         └─ NEURAL scorer ──► ranks what is left by expected value
+                │     (symbolic estimate + a learnt correction that is BOUNDED: the network
+                │      may re-order close calls, never overrule clear symbolic evidence)
                 │
                 └─► decision + explanation ("B is BLOCKED ...; chosen over DELIVER by 0.42")
 
@@ -32,12 +34,16 @@ from robofetch_ai.policies.symbolic import TIER_NAMES, SymbolicLayer
 
 
 class NeuroSymbolicPolicy(Policy):
-    def __init__(self, cfg, mode="full", model_path=DEFAULT_MODEL, scorer=None):
+    def __init__(self, cfg, mode="full", model_path=DEFAULT_MODEL, scorer=None,
+                 max_correction="config"):
         if mode not in ("full", "neural", "symbolic"):
             raise ValueError(f"unknown mode '{mode}' (full, neural, symbolic)")
         self.cfg = cfg
         self.mode = mode
         self.rules = SymbolicLayer(cfg)
+        # None = unbounded correction (the WP5 model; kept as an ablation)
+        self.max_correction = (cfg["mission"]["neurosymbolic"]["max_correction"]
+                               if max_correction == "config" else max_correction)
         self.scorer = scorer
         self.model_note = ""
         if mode in ("full", "neural") and scorer is None:
@@ -51,9 +57,20 @@ class NeuroSymbolicPolicy(Policy):
 
     # ------------------------------------------------------------------------------ helpers
     def _neural_scores(self, state, actions, p, matrix):
-        """Symbolic estimate + the network's learnt correction (see features.symbolic_estimate)."""
+        """Symbolic estimate + the network's learnt correction (see features.symbolic_estimate).
+
+        The correction is centred on the candidates' mean (only its differences matter for the
+        ranking) and clipped to +-max_correction score units. Found in WP9: unbounded, the network
+        carried a habit from the training scenarios (wait to collect bigger batches) into an
+        overloaded factory it had never seen, and waited while lines stopped - overruling a
+        symbolic estimate that clearly said deliver. Bounded, it can only decide close calls.
+        """
         rows = [action_features(state, a, p, matrix) for a in actions]
         corrections = self.scorer.score(rows)
+        if self.max_correction is not None and corrections:
+            centre = sum(corrections) / len(corrections)
+            bound = float(self.max_correction)
+            corrections = [max(-bound, min(bound, c - centre)) for c in corrections]
         objective = self.cfg["mission"]["objective"]
         return {a: symbolic_estimate(state, a, p, matrix, objective) + c
                 for a, c in zip(actions, corrections)}

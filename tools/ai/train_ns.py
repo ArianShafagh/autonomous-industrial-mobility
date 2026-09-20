@@ -272,8 +272,7 @@ def main():
     if args.quick:
         t.update(episodes=min(t["episodes"], 6), rollout_horizon_s=300.0, epochs=10,
                  rollout_samples=1)
-    scenarios = args.scenarios or sorted(f[:-5] for f in
-                                         os.listdir(os.path.join(CONFIG_DIR, "scenarios")))
+    scenarios = args.scenarios or list(cfg["mission"]["evaluation"]["training_scenarios"])
 
     iterations = args.iterations or int(t.get("iterations", 1))
     reference = (RuleBasedPolicy() if args.rollout_policy == "rule"

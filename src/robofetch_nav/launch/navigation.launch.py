@@ -20,7 +20,7 @@ from launch_ros.substitutions import FindPackageShare
 PLANNERS = ("NavfnDijkstra", "NavfnAStar", "Smac2D", "ThetaStar", "SmacLattice")
 
 
-def params_with_initial_pose(params_path, planner="ThetaStar"):
+def params_with_initial_pose(params_path, planner="NavfnDijkstra"):
     """nav2_params.yaml with AMCL's initial pose set to the robot's spawn pose (poi.yaml).
 
     Nav2's planner/controller cannot ACTIVATE until the map->odom transform exists, and AMCL only
@@ -112,7 +112,7 @@ def generate_launch_description():
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         DeclareLaunchArgument("map", default_value=default_map),
         DeclareLaunchArgument("params_file", default_value=default_params),
-        DeclareLaunchArgument("planner", default_value="ThetaStar",
+        DeclareLaunchArgument("planner", default_value="NavfnDijkstra",
                               description="global planner used when driving: " + ", ".join(PLANNERS)),
         DeclareLaunchArgument("rviz", default_value="true",
                               description="Set false to run navigation headless."),
