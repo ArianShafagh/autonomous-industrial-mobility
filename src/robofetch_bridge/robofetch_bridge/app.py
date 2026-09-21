@@ -34,6 +34,16 @@ app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static"), foll
           name="static")
 
 _ros = None
+_maze = None
+
+
+def maze():
+    """The maze drawing, built once from the same layout.yaml the world is generated from."""
+    global _maze
+    if _maze is None:
+        from robofetch_bridge.maze import MazeView
+        _maze = MazeView()
+    return _maze
 
 
 def ros():
@@ -65,8 +75,10 @@ def dashboard(request: Request):
     version = int(os.path.getmtime(style)) if os.path.exists(style) else 0
     # Starlette's current signature is (request, name, context); passing the name first makes it
     # treat the context dict as the template name ("unhashable type: dict").
+    picture = maze().svg(robot_xy=snapshot.get("robot_xy"), trail=snapshot.get("trail", []))
     return templates.TemplateResponse(request, "dashboard.html", {
-        "s": snapshot, "run": RUN_INFO, "refresh_s": REFRESH_S, "style_version": version})
+        "s": snapshot, "run": RUN_INFO, "refresh_s": REFRESH_S, "style_version": version,
+        "maze": picture})
 
 
 def main():

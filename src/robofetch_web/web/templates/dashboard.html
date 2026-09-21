@@ -58,6 +58,13 @@
     </dl>
   </article>
 
+  <article class="card map">
+    <h2>Factory <span class="tag">live position</span></h2>
+    {{ maze|safe }}
+    <p class="hint">A red &middot; B yellow &middot; C purple &middot; delivery green &middot; charger blue.
+       The line is where the robot has driven this shift.</p>
+  </article>
+
   <article class="card totals">
     <h2>Shift</h2>
     <p class="big">{{ s.totals.delivered_units }} units delivered</p>

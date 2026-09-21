@@ -55,6 +55,7 @@ class RosLink(Node):
         self.sections = {}
         self.telemetry = {}
         self.robot_xy = None
+        self.trail = collections.deque(maxlen=400)     # where the robot has been, for the map
         self.decisions = collections.deque(maxlen=HISTORY)
         self.events = collections.deque(maxlen=HISTORY)
         self.delivered = {sid: 0 for sid in SECTIONS}
@@ -119,6 +120,11 @@ class RosLink(Node):
         with self.lock:
             self.robot_xy = (round(msg.pose.pose.position.x, 3),
                              round(msg.pose.pose.position.y, 3))
+            # One trail point per ~0.15 m of travel: 400 points then cover ~60 m, a whole shift's
+            # worth of route, without storing thousands of near-identical poses.
+            last = self.trail[-1] if self.trail else None
+            if last is None or abs(last[0] - self.robot_xy[0]) + abs(last[1] - self.robot_xy[1]) > 0.15:
+                self.trail.append(self.robot_xy)
 
     # --------------------------------------------------------------------- reading
     def snapshot(self):
@@ -135,6 +141,7 @@ class RosLink(Node):
                 "sections": [self.sections[s] for s in SECTIONS if s in self.sections],
                 "telemetry": dict(self.telemetry),
                 "robot_xy": self.robot_xy,
+                "trail": list(self.trail),
                 "decisions": list(self.decisions)[:25],
                 "events": list(self.events)[:25],
                 "totals": totals,

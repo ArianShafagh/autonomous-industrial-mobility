@@ -112,3 +112,28 @@ def test_allowed_by_tier_keeps_only_the_most_urgent():
     verdicts = rules.evaluate(sim.state(), sim.legal_actions(), sim.p, sim.matrix)
     top, tier = SymbolicLayer.allowed_by_tier(verdicts)
     assert tier == 2 and all(str(a) == "PICKUP:B" or v.tier == 2 for a, v in top.items())
+
+
+def test_waiting_away_from_the_charger_is_refused_when_only_charging_is_left():
+    """H5: with every pickup and delivery refused by the reserve, waiting only drains the pack.
+
+    WP9 found the robot waiting twice at a section before driving to the charger anyway, because
+    charging becomes urgent only just BELOW the battery level at which the pickups are refused.
+    """
+    sim, rules = make(**{"robot": {"battery": {"initial_percent": 18.0}}})
+    sim.step(Action(PICKUP, "A"))                      # drive away from the charger
+    assert sim.location != "charger"
+    verdicts = rules.evaluate(sim.state(), sim.legal_actions(), sim.p, sim.matrix)
+    productive = [v for a, v in verdicts.items() if a.kind in (PICKUP, DELIVER)]
+    assert productive and not any(v.allowed for v in productive), "setup: work must be refused"
+    waits = [v for a, v in verdicts.items() if a.kind == WAIT]
+    assert waits and all(not v.allowed for v in waits)
+    assert "drains the battery" in waits[0].why()
+    assert any(a.kind == CHARGE and v.allowed for a, v in verdicts.items())
+
+
+def test_waiting_stays_allowed_while_the_robot_can_still_work():
+    sim, rules = make()
+    sim.step(Action(PICKUP, "A"))
+    verdicts = rules.evaluate(sim.state(), sim.legal_actions(), sim.p, sim.matrix)
+    assert any(a.kind == WAIT and v.allowed for a, v in verdicts.items())

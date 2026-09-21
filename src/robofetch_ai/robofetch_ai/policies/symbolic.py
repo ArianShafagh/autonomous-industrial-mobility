@@ -117,8 +117,25 @@ class SymbolicLayer:
         return v
 
     def evaluate(self, state, legal_actions, p, matrix):
-        """{action: Verdict} for every legal action."""
-        return {action: self.check(state, action, p, matrix) for action in legal_actions}
+        """{action: Verdict} for every legal action, plus the rules that need the whole set."""
+        verdicts = {action: self.check(state, action, p, matrix) for action in legal_actions}
+
+        # H5 pointless waiting: away from the charger, with every pickup and delivery already
+        # forbidden (they all run into the reserve) and charging possible, waiting can only make
+        # things worse - it drains the battery and no line empties itself. Found in WP9: the robot
+        # waited twice at a section, ~1 % of the pack, before driving to the charger anyway,
+        # because charging only becomes urgent (tier 2) just BELOW the battery level at which the
+        # pickups are already refused, leaving a gap in which waiting looked as good as charging.
+        if state["location"] != CHARGER:
+            productive = [v for a, v in verdicts.items() if a.kind in (PICKUP, DELIVER)]
+            can_charge = any(a.kind == CHARGE and v.allowed for a, v in verdicts.items())
+            if productive and not any(v.allowed for v in productive) and can_charge:
+                for action, v in verdicts.items():
+                    if action.kind == WAIT:
+                        v.allowed = False
+                        v.refusals.append("waiting here only drains the battery: nothing can be "
+                                          "collected or delivered until the robot charges")
+        return verdicts
 
     @staticmethod
     def allowed_by_tier(verdicts):

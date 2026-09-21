@@ -884,10 +884,43 @@ The same shift (`ns / low_battery_start / seed 5000`, 20 min) was driven **5 tim
 
 **Thesis point:** a planner chosen on short benchmark tours (WP8) was the *worse* choice in operation. Only full-shift runs exposed it, because the failure needs a pose that is momentarily inside the inflation layer - a situation short, clean tours never produce.
 
-### Open issues after WP9
-- At the battery reserve, NS sometimes waits once or twice before charging (~1 % battery). Waiting sits within the ±1 bound of charging. Candidate: a symbolic rule "at the reserve and away from the charger: no WAIT".
-- `worn_robot`: the rule policy is still slightly ahead of NS (+0.93, p = 0.033).
-- `low_battery_start`: symbolic-only is slightly ahead of NS (+0.94, p = 0.045).
-- 20-minute Gazebo shifts are too short to reproduce the tier-1 low-battery differences; a full 60-minute shift per model would show them (about 1 h wall each).
-- The maze map with the robot's position is still not drawn on the dashboard.
+---
+
+## WP9 follow-up (2026-09-20): H5 rule, maze on the dashboard, remaining gaps explained
+
+### 1. H5 "pointless waiting" (symbolic layer)
+WP9 saw the robot waiting at a section, ~1 % of the pack at a time, before driving to the charger anyway. The cause was not the ±1 bound but a **gap between two thresholds**: pickups are refused as soon as the return trip would break the reserve, while charging only becomes urgent (tier 2) slightly *below* that battery level. In between, waiting and charging looked equally good.
+
+New hard rule in `SymbolicLayer.evaluate` (it needs the whole action set, so it is applied after the per-action checks): **away from the charger, with every PICKUP and DELIVER already forbidden and charging possible, WAIT is forbidden** — nothing can change except the battery draining.
+
+- Validation (training scenarios, seeds 1000–1019): 58.70 → **58.81**; `low_battery_start` 53.44 → 54.10; no scenario got worse.
+- Tests: two new ones in `test_symbolic.py` (the rule fires when only charging is left; waiting stays allowed while the robot can still work). **163 passed.**
+- Full test run (`summary_20260920_210847.md`, same 3240 shifts): pooled ns **53.56 → 53.81**, unseen **46.77 → 47.20**, still **0/360** violations. `low_battery_start`: ns 55.14 → 55.57, so symbolic-only's lead is no longer significant (+0.51, p = 0.100, was p = 0.045).
+
+### 2. The maze on the dashboard
+`robofetch_bridge/maze.py` (`MazeView`) draws the hall from the **same `layout.yaml`** the Gazebo world and the Nav2 map are generated from, so the picture cannot drift from what the robot drives in. Cells of a row are merged into runs (~40 rectangles instead of 580), section pads keep their layout colours, and the SVG is in metres, so it scales with the card. `ros_link` keeps a trail (one point per ~0.15 m, 400 points ≈ 60 m of route) and the page draws the robot on top. Dark mode is handled with CSS variables. Verified by rendering the page with a mock snapshot: map card, SVG and robot marker all present; geometry checked against `poi.yaml` (charger at world (−5.98, −4.0) → picture (1.27, 9.0), bottom-left, as in the world).
+
+### 3. The last two gaps, explained
+- **`low_battery_start`** — closed by H5 (see above).
+- **`worn_robot`** (rule 49.17 vs ns 48.24, p = 0.033): not a fault but a **batching trade-off**. Over 10 seeds: the rule policy makes **14 deliveries of 3.71 units** and drives **359 m**; NS makes **25 deliveries of 2.24 units** and drives **468 m**, for the same ~52 units delivered (battery energy 5.45 vs 7.77 Wh). The rule waits *on the charger*, where idling is free and the pack tops up, until buffers are worth a trip; NS reacts sooner, which wins in every other scenario but costs distance exactly where a worn drivetrain makes each metre expensive.
+  Candidates, none applied (each would be tuned on training scenarios first): a longer rollout horizon in NS training so batching is valued, or a soft rule "do not deliver a part-load while no section is near full". Deliberately not hacked for one scenario.
+- **Noted while investigating:** the objective charges only the energy *drawn from the battery*. Idling docked is paid by the charger, so a policy that parks on the charger looks cheaper than one that waits in the hall. Physically the factory pays for both. Changing it would mean re-training both models, so it is left as it is and stated here as a limitation.
+
+### 4. 60-minute Gazebo shifts: the safety difference, in the full simulation
+20-minute shifts are too short for the battery to become critical, so one full 60-minute shift per model was driven on `low_battery_start`, seed 5000 (`run_gazebo_batch.py --shift-min 60`, `tools/ai/results/gazebo_60min.csv`, log `wp9_longshift.log`), with NavfnDijkstra and the H5 rule.
+
+| model | Gazebo score | sim score | delivered | Wh | min battery | violations | failed actions |
+|---|---|---|---|---|---|---|---|
+| **ns** | **55.16** | 53.38 | 61 | 7.356 | **17.0 %** | **0** | 0 |
+| ppo | 37.79 | 57.20 | 62 | 8.421 | **9.4 %** | **1** | 0 |
+
+- **PPO ran the battery below the 15 % reserve and kept working**: after action 42 (DELIVER) 14.9 %, then PICKUP:B 14.2 %, DELIVER 13.5 %, PICKUP:A 12.9 %, bottoming out at 9.4 %. In a real hall that is a robot risking a strand in a corridor.
+- **NS never went below 17.0 %**: H3 refuses any trip it could not return from with the reserve, and H5 sends it to the charger instead of waiting. Same scenario and seed, almost the same output (61 vs 62 units), less energy, no violation. The score gap is that violation's penalty.
+- This is the tier-1 finding (PPO unsafe in 14.7 % of shifts) reproduced with real navigation and timing.
+- PPO's fast-simulator replay of the same seed happened to stay above the reserve (57.20, no violation): its policy runs close to the limit, and small timing differences decide on which side it lands. NS has the same kind of timing spread (55.16 Gazebo vs 53.38 sim) but a hard margin, so it lands on the safe side either way.
+
+### Open issues
+- The objective's energy accounting (above).
+- `worn_robot` batching (above).
+- One 60-minute shift per model is a demonstration, not a statistic; more seeds would turn it into one (~65 min wall per shift).
 

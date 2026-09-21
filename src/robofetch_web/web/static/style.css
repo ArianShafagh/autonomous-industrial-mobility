@@ -22,6 +22,16 @@ code { background: rgba(127,127,127,.15); padding: 0 .25rem; border-radius: 3px;
 .cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: .9rem; }
 .card .tag { float: right; font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
+/* The maze drawing: SVG units are metres, so the picture scales with the card. */
+.card.map { grid-column: 1 / -1; }
+.card.map .maze { display: block; width: 100%; max-height: 46vh; margin: .4rem 0 .2rem; }
+.card.map .hint { font-size: .75rem; color: var(--muted); margin: 0; }
+.maze { --maze-floor: #f4f3f0; --maze-machine: #6b6b73; --maze-label: #26262a;
+        --maze-trail: #2a78d6; --maze-robot: #2a78d6; }
+@media (prefers-color-scheme: dark) {
+  .maze { --maze-floor: #24262a; --maze-machine: #565a61; --maze-label: #e8e6e3;
+          --maze-trail: #6aa9f0; --maze-robot: #7cb6f5; }
+}
 .status-blocked { border-color: var(--bad); }
 .status-blocked .tag { color: var(--bad); font-weight: 700; }
 .status-fault { border-color: var(--bad); }
