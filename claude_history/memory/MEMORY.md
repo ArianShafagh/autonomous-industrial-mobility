@@ -1,0 +1,2 @@
+- [No Claude attribution](no-claude-attribution.md) — never add Co-Authored-By/Generated-with lines to commits or PRs
+- [Thesis project](thesis-project.md) — repo, WP approval gates, HANDOVER.md logging, scenario facts
