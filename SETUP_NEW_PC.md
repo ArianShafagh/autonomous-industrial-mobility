@@ -1,9 +1,10 @@
 # Setting the project up on a new PC
 
-Everything needed is in two places:
+**Everything is in this GitHub repo** (since 2026-09-21): code, configs, trained models, all results and figures, every Gazebo log, `docs/`, `HANDOVER.md` (the full work log) and `THESIS_DATA.md` (where each final number lives).
 
-1. **This GitHub repo** — all code, configs, trained models (`src/robofetch_ai/robofetch_ai/models/`), and `HANDOVER.md` (the full work log with every result).
-2. **The transfer archive** `thesis_transfer_<date>.tar.gz` — what git deliberately ignores: result CSVs and figures (`tools/ai/results/`), the WP6 PPO checkpoint (`tools/ai/checkpoints/`), planner results (`tools/nav/results/`), Gazebo run logs (`logs/`), the `docs/` folder, and the Claude Code memory notes.
+**Only for reading and writing** (e.g. on a Mac): just clone the repo, or browse it on GitHub. Nothing needs installing; start with `THESIS_DATA.md`. Steps 1–6 below are only for *running* the system.
+
+The transfer archive `thesis_transfer_<date>.tar.gz` is now only needed for the Claude Code memory notes (`claude_memory/`, step 5).
 
 The venv, `build/` and `install/` are **not** copied; they are rebuilt (steps 3–5).
 
