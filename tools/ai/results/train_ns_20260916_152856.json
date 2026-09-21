@@ -1,0 +1,166 @@
+{
+  "rounds": [
+    {
+      "val_mse": 38.864845275878906,
+      "val_r2": 0.3206613334618592,
+      "round": 1,
+      "samples": 1109,
+      "collect_seconds": 11.4,
+      "oracle_agreement": 0.55,
+      "rollout_policy": "ns_symbolic_only",
+      "training_config": {
+        "episodes": 6,
+        "rollout_horizon_s": 300.0,
+        "rollout_samples": 1,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 10,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 3,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "low_battery_start"
+      ],
+      "validation_score": 50.66625
+    },
+    {
+      "val_mse": 44.12881851196289,
+      "val_r2": 0.18010429489687152,
+      "round": 2,
+      "samples": 911,
+      "collect_seconds": 7.5,
+      "oracle_agreement": 0.14925373134328357,
+      "rollout_policy": "ns",
+      "training_config": {
+        "episodes": 6,
+        "rollout_horizon_s": 300.0,
+        "rollout_samples": 1,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 10,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 3,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "low_battery_start"
+      ],
+      "validation_score": 50.160000000000004
+    },
+    {
+      "val_mse": 39.2659912109375,
+      "val_r2": 0.16093140391922356,
+      "round": 3,
+      "samples": 888,
+      "collect_seconds": 8.3,
+      "oracle_agreement": 0.275,
+      "rollout_policy": "ns",
+      "training_config": {
+        "episodes": 6,
+        "rollout_horizon_s": 300.0,
+        "rollout_samples": 1,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 10,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 3,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "low_battery_start"
+      ],
+      "validation_score": 50.07625
+    }
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 53.749588479472614,
+      "val_mse": 47.486995697021484
+    },
+    {
+      "epoch": 2,
+      "train_mse": 53.09182248873382,
+      "val_mse": 46.90279769897461
+    },
+    {
+      "epoch": 3,
+      "train_mse": 52.48583973644487,
+      "val_mse": 46.293174743652344
+    },
+    {
+      "epoch": 4,
+      "train_mse": 51.829287479363074,
+      "val_mse": 45.625953674316406
+    },
+    {
+      "epoch": 5,
+      "train_mse": 51.095731587684945,
+      "val_mse": 44.880245208740234
+    },
+    {
+      "epoch": 6,
+      "train_mse": 50.27205490026461,
+      "val_mse": 44.0280647277832
+    },
+    {
+      "epoch": 7,
+      "train_mse": 49.31453976852482,
+      "val_mse": 43.0529899597168
+    },
+    {
+      "epoch": 8,
+      "train_mse": 48.23133947477059,
+      "val_mse": 41.93813705444336
+    },
+    {
+      "epoch": 9,
+      "train_mse": 46.96790370055895,
+      "val_mse": 40.68210220336914
+    },
+    {
+      "epoch": 10,
+      "train_mse": 45.55692510162225,
+      "val_mse": 39.2659912109375
+    }
+  ],
+  "features": [
+    "is_pickup",
+    "is_deliver",
+    "is_charge",
+    "is_wait",
+    "battery",
+    "temperature",
+    "condition",
+    "payload_full",
+    "cargo_units",
+    "time_left",
+    "distance",
+    "energy_cost_percent",
+    "battery_after",
+    "battery_after_home",
+    "target_fill",
+    "target_units_gain",
+    "target_mass_gain",
+    "target_time_to_full",
+    "target_rate",
+    "target_health",
+    "target_blocked",
+    "target_fault",
+    "worst_other_fill",
+    "worst_other_time_to_full",
+    "any_other_blocked",
+    "charge_target",
+    "charge_gain"
+  ]
+}

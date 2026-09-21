@@ -1,0 +1,295 @@
+{
+  "rounds": [
+    {
+      "val_mse": 6.238029956817627,
+      "val_r2": 0.9279822747473774,
+      "round": 1,
+      "samples": 21108,
+      "collect_seconds": 958.9,
+      "oracle_agreement": 0.3404739336492891,
+      "rollout_policy": "ns_symbolic_only",
+      "training_config": {
+        "episodes": 120,
+        "rollout_horizon_s": 900.0,
+        "rollout_samples": 3,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 40,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 2,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "fault_burst",
+        "high_demand",
+        "low_battery_start",
+        "one_hot_section",
+        "worn_robot"
+      ]
+    },
+    {
+      "val_mse": 12.219432830810547,
+      "val_r2": 0.8536197932365631,
+      "round": 2,
+      "samples": 20867,
+      "collect_seconds": 1528.9,
+      "oracle_agreement": 0.39646656534954405,
+      "rollout_policy": "ns",
+      "training_config": {
+        "episodes": 120,
+        "rollout_horizon_s": 900.0,
+        "rollout_samples": 3,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 40,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 2,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "fault_burst",
+        "high_demand",
+        "low_battery_start",
+        "one_hot_section",
+        "worn_robot"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 129.87307774447905,
+      "val_mse": 54.594852447509766
+    },
+    {
+      "epoch": 2,
+      "train_mse": 41.23237929179081,
+      "val_mse": 38.114418029785156
+    },
+    {
+      "epoch": 3,
+      "train_mse": 31.910697127868133,
+      "val_mse": 30.834182739257812
+    },
+    {
+      "epoch": 4,
+      "train_mse": 26.928836088316505,
+      "val_mse": 26.771465301513672
+    },
+    {
+      "epoch": 5,
+      "train_mse": 24.81933835464794,
+      "val_mse": 25.45840072631836
+    },
+    {
+      "epoch": 6,
+      "train_mse": 23.761299287314557,
+      "val_mse": 24.456588745117188
+    },
+    {
+      "epoch": 7,
+      "train_mse": 22.85392829679766,
+      "val_mse": 23.583181381225586
+    },
+    {
+      "epoch": 8,
+      "train_mse": 21.953730886991085,
+      "val_mse": 22.718408584594727
+    },
+    {
+      "epoch": 9,
+      "train_mse": 21.111848138914546,
+      "val_mse": 22.0177001953125
+    },
+    {
+      "epoch": 10,
+      "train_mse": 20.30527389487978,
+      "val_mse": 21.139930725097656
+    },
+    {
+      "epoch": 11,
+      "train_mse": 19.66830073480365,
+      "val_mse": 20.574460983276367
+    },
+    {
+      "epoch": 12,
+      "train_mse": 19.124688507140405,
+      "val_mse": 19.963285446166992
+    },
+    {
+      "epoch": 13,
+      "train_mse": 18.49329790092734,
+      "val_mse": 19.566476821899414
+    },
+    {
+      "epoch": 14,
+      "train_mse": 18.071906733944186,
+      "val_mse": 19.12936019897461
+    },
+    {
+      "epoch": 15,
+      "train_mse": 17.49422243396379,
+      "val_mse": 18.449796676635742
+    },
+    {
+      "epoch": 16,
+      "train_mse": 17.047373078034227,
+      "val_mse": 18.01491928100586
+    },
+    {
+      "epoch": 17,
+      "train_mse": 16.577642756135674,
+      "val_mse": 17.549665451049805
+    },
+    {
+      "epoch": 18,
+      "train_mse": 15.949729243966653,
+      "val_mse": 17.091434478759766
+    },
+    {
+      "epoch": 19,
+      "train_mse": 15.440756438577392,
+      "val_mse": 16.476865768432617
+    },
+    {
+      "epoch": 20,
+      "train_mse": 14.985176900939283,
+      "val_mse": 15.847101211547852
+    },
+    {
+      "epoch": 21,
+      "train_mse": 14.588741920259137,
+      "val_mse": 15.403669357299805
+    },
+    {
+      "epoch": 22,
+      "train_mse": 14.191291132358302,
+      "val_mse": 14.874822616577148
+    },
+    {
+      "epoch": 23,
+      "train_mse": 13.7901419537559,
+      "val_mse": 14.593977928161621
+    },
+    {
+      "epoch": 24,
+      "train_mse": 13.42107804452529,
+      "val_mse": 14.08571720123291
+    },
+    {
+      "epoch": 25,
+      "train_mse": 13.189062590625909,
+      "val_mse": 13.968680381774902
+    },
+    {
+      "epoch": 26,
+      "train_mse": 12.98254534846025,
+      "val_mse": 13.548043251037598
+    },
+    {
+      "epoch": 27,
+      "train_mse": 12.756452065021445,
+      "val_mse": 13.575593948364258
+    },
+    {
+      "epoch": 28,
+      "train_mse": 12.522007678388277,
+      "val_mse": 13.278072357177734
+    },
+    {
+      "epoch": 29,
+      "train_mse": 12.346963187727626,
+      "val_mse": 13.020362854003906
+    },
+    {
+      "epoch": 30,
+      "train_mse": 12.22151510824311,
+      "val_mse": 12.947946548461914
+    },
+    {
+      "epoch": 31,
+      "train_mse": 12.141477563130694,
+      "val_mse": 12.802513122558594
+    },
+    {
+      "epoch": 32,
+      "train_mse": 12.059967741846853,
+      "val_mse": 13.110871315002441
+    },
+    {
+      "epoch": 33,
+      "train_mse": 12.01960065731306,
+      "val_mse": 12.706392288208008
+    },
+    {
+      "epoch": 34,
+      "train_mse": 11.833046537481327,
+      "val_mse": 12.551068305969238
+    },
+    {
+      "epoch": 35,
+      "train_mse": 11.703940476031022,
+      "val_mse": 12.450541496276855
+    },
+    {
+      "epoch": 36,
+      "train_mse": 11.655106686968796,
+      "val_mse": 12.31705093383789
+    },
+    {
+      "epoch": 37,
+      "train_mse": 11.629486597097033,
+      "val_mse": 12.339963912963867
+    },
+    {
+      "epoch": 38,
+      "train_mse": 11.529902861962936,
+      "val_mse": 12.26644515991211
+    },
+    {
+      "epoch": 39,
+      "train_mse": 11.447160611713063,
+      "val_mse": 12.415557861328125
+    },
+    {
+      "epoch": 40,
+      "train_mse": 11.406989923991086,
+      "val_mse": 12.219432830810547
+    }
+  ],
+  "features": [
+    "is_pickup",
+    "is_deliver",
+    "is_charge",
+    "is_wait",
+    "battery",
+    "temperature",
+    "condition",
+    "payload_full",
+    "cargo_units",
+    "time_left",
+    "distance",
+    "energy_cost_percent",
+    "battery_after",
+    "battery_after_home",
+    "target_fill",
+    "target_units_gain",
+    "target_mass_gain",
+    "target_time_to_full",
+    "target_rate",
+    "target_health",
+    "target_blocked",
+    "target_fault",
+    "worst_other_fill",
+    "worst_other_time_to_full",
+    "any_other_blocked",
+    "charge_target",
+    "charge_gain"
+  ]
+}

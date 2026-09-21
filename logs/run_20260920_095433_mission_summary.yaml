@@ -1,0 +1,35 @@
+run_id: run_20260920_095433
+scenario: heavy_load
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 20
+succeeded: 19
+failed: 1
+sim_duration_s: 1213.3
+distance_m: 251.57
+energy_drawn_wh: 3.879
+energy_charged_wh: 0.0
+battery_end_percent: 32.32
+delivered_units:
+  A: 13
+  B: 17
+  C: 1
+model: ppo
+planner: ThetaStar
+decisions:
+  asked: 20
+  answered_by_model: 19
+  fallback: 1
+  mean_latency_ms: 16.0
+navigation:
+  drives: 21
+  drive_attempt_failures: 11
+  timeouts: 0
+  recovered_after_retry: 6
+  goals_abandoned: 1
+  returned_to_charger: 1
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -1.0
+  distance: 0.1
+  energy: -0.3

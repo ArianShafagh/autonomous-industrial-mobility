@@ -1,0 +1,13 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location
+1,PICKUP,B,SUCCEEDED,"took 5 units (2.00 kg), 0 left",12.98,62.44,68.92,14.977,15.18,0.1799,0.1908,0.0,0.0,29.936,29.118,29.069,2.0,5,B
+2,PICKUP,A,SUCCEEDED,"took 4 units (2.00 kg), 0 left",75.42,71.42,76.87,18.05,18.28,0.2505,0.2619,0.0,0.0,29.118,27.979,27.927,4.0,4,A
+3,DELIVER,delivery,SUCCEEDED,delivered 9 units,146.83,57.66,55.67,10.04,10.01,0.1935,0.1893,0.0,0.0,27.979,27.1,27.119,0.0,9,delivery
+4,CHARGE,charger,SUCCEEDED,charged to 40.0 %,204.49,565.49,559.76,5.257,5.1,0.053,0.0473,2.8975,2.8853,27.1,40.03,40.0,0.0,0,charger
+5,PICKUP,C,SUCCEEDED,"took 2 units (3.00 kg), 0 left",769.98,55.88,58.9,11.321,11.27,0.1499,0.1545,0.0,0.0,40.03,39.348,39.328,3.0,2,C
+6,PICKUP,B,SUCCEEDED,"took 5 units (2.00 kg), 2 left",825.86,52.84,53.69,9.287,9.24,0.1672,0.1678,0.0,0.0,39.348,38.588,38.585,5.0,5,B
+7,DELIVER,delivery,SUCCEEDED,delivered 7 units,878.7,57.04,56.31,10.323,10.26,0.2065,0.2047,0.0,0.0,38.588,37.65,37.658,0.0,7,delivery
+8,WAIT,,SUCCEEDED,waited 120 s at delivery,935.74,121.22,120.0,0.0,0.0,0.2016,0.2,0.0,0.0,37.65,36.733,36.741,0.0,0,delivery
+9,PICKUP,A,SUCCEEDED,"took 6 units (3.00 kg), 0 left",1056.96,53.78,55.67,10.01,10.01,0.1402,0.1428,0.0,0.0,36.733,36.096,36.084,3.0,6,A
+10,PICKUP,B,SUCCEEDED,"took 5 units (2.00 kg), 0 left",1110.74,75.94,76.87,18.764,18.28,0.2865,0.2833,0.0,0.0,36.096,34.794,34.808,5.0,5,B
+11,DELIVER,delivery,SUCCEEDED,delivered 11 units,1186.68,56.91,56.31,10.277,10.26,0.2068,0.2052,0.0,0.0,34.794,33.853,33.861,0.0,11,delivery
+12,CHARGE,charger,SUCCEEDED,charged to 45.0 %,1243.6,492.53,486.73,5.254,5.1,0.0548,0.0475,2.5122,2.4998,33.853,45.024,45.0,0.0,0,charger

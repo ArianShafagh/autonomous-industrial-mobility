@@ -1,0 +1,31 @@
+12 Gazebo shifts of 20 min -> tools/ai/results/gazebo_20260917_150533.csv
+[1/12] ns balanced 5000: already done
+[2/12] ppo balanced 5000: already done
+[3/12] ns low_battery_start seed 5000 ...
+    gazebo: score 8.61, delivered 9, lost 0.0, 0.776 Wh, violations 0, failed actions 1, 5.3 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+[4/12] ppo low_battery_start 5000: already done
+[5/12] ns heavy_load 5000: already done
+[6/12] ppo heavy_load 5000: already done
+[7/12] ns balanced 5001: already done
+[8/12] ppo balanced 5001: already done
+[9/12] ns low_battery_start seed 5001 ...
+    gazebo: score 17.69, delivered 20, lost 0.83, 2.956 Wh, violations 0, failed actions 0, 35.4 min wall
+    sim   : score 18.87, delivered 21, lost 0.67, 2.913 Wh, violations 0
+[10/12] ppo low_battery_start 5001: already done
+[11/12] ns heavy_load seed 5001 ...
+    gazebo: score 32.28, delivered 34, lost 0.0, 3.438 Wh, violations 0, failed actions 0, 20.6 min wall
+    sim   : score 33.23, delivered 35, lost 0.0, 3.546 Wh, violations 0
+[12/12] ppo heavy_load seed 5001 ...
+    gazebo: score 28.66, delivered 31, lost 0.4, 3.879 Wh, violations 0, failed actions 1, 23.1 min wall
+    sim   : score 32.07, delivered 34, lost 0.0, 3.859 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       balanced              2    15.87 /    16.87    -6%    17.50 /    18.50    -5%     0.00 /     0.00            3.26 /     3.26    -0%     0.00 /     0.00       
+ns       heavy_load            2    32.25 /    33.23    -3%    34.00 /    35.00    -3%     0.00 /     0.00            3.51 /     3.55    -1%     0.00 /     0.00       
+ns       low_battery_start     2    13.15 /    17.39   -24%    14.50 /    20.50   -29%     0.41 /     1.62   -74%     1.87 /     2.97   -37%     0.00 /     0.00       
+ppo      balanced              2    15.63 /    17.64   -11%    17.50 /    19.50   -10%     0.00 /     0.00            3.74 /     3.71    +1%     0.00 /     0.00       
+ppo      heavy_load            2    29.34 /    31.58    -7%    31.50 /    33.50    -6%     0.20 /     0.00            3.91 /     3.84    +2%     0.00 /     0.00       
+ppo      low_battery_start     2    19.03 /    19.51    -2%    20.00 /    20.50    -2%     0.00 /     0.00            1.94 /     1.98    -2%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)

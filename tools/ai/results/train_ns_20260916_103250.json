@@ -1,0 +1,103 @@
+{
+  "metrics": {
+    "val_mse": 77.14580535888672,
+    "val_r2": 0.09115886423979325,
+    "oracle_agreement": 0.6217616580310881,
+    "samples": 761,
+    "collect_seconds": 7.6,
+    "training_config": {
+      "episodes": 6,
+      "rollout_horizon_s": 300.0,
+      "discount_per_100s": 0.97,
+      "exploration": 0.25,
+      "epochs": 10,
+      "batch_size": 256,
+      "learning_rate": 0.001,
+      "validation_fraction": 0.2,
+      "seed": 12345
+    },
+    "scenarios": [
+      "balanced",
+      "low_battery_start"
+    ]
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 65.03969668559057,
+      "val_mse": 84.98419189453125
+    },
+    {
+      "epoch": 2,
+      "train_mse": 64.30682498324289,
+      "val_mse": 84.509033203125
+    },
+    {
+      "epoch": 3,
+      "train_mse": 63.58041792745856,
+      "val_mse": 83.98780822753906
+    },
+    {
+      "epoch": 4,
+      "train_mse": 62.78606122898547,
+      "val_mse": 83.39701080322266
+    },
+    {
+      "epoch": 5,
+      "train_mse": 61.98536098336156,
+      "val_mse": 82.74349212646484
+    },
+    {
+      "epoch": 6,
+      "train_mse": 61.09729809440024,
+      "val_mse": 81.9487533569336
+    },
+    {
+      "epoch": 7,
+      "train_mse": 60.05139372501467,
+      "val_mse": 80.9759750366211
+    },
+    {
+      "epoch": 8,
+      "train_mse": 58.86240733354941,
+      "val_mse": 79.85890197753906
+    },
+    {
+      "epoch": 9,
+      "train_mse": 57.53541180966131,
+      "val_mse": 78.56843566894531
+    },
+    {
+      "epoch": 10,
+      "train_mse": 56.14330376936689,
+      "val_mse": 77.14580535888672
+    }
+  ],
+  "features": [
+    "is_pickup",
+    "is_deliver",
+    "is_charge",
+    "is_wait",
+    "battery",
+    "temperature",
+    "condition",
+    "payload_full",
+    "cargo_units",
+    "time_left",
+    "distance",
+    "energy_cost_percent",
+    "battery_after",
+    "battery_after_home",
+    "target_fill",
+    "target_units_gain",
+    "target_mass_gain",
+    "target_time_to_full",
+    "target_rate",
+    "target_health",
+    "target_blocked",
+    "target_fault",
+    "worst_other_fill",
+    "worst_other_time_to_full",
+    "any_other_blocked"
+  ]
+}

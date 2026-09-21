@@ -1,0 +1,104 @@
+7 policies x 12 scenarios x 30 seeds = 2520 episodes on 10 workers
+  8/84 blocks done, 6 s
+  16/84 blocks done, 10 s
+  24/84 blocks done, 15 s
+  32/84 blocks done, 18 s
+  40/84 blocks done, 22 s
+  48/84 blocks done, 26 s
+  56/84 blocks done, 33 s
+  64/84 blocks done, 37 s
+  72/84 blocks done, 42 s
+  80/84 blocks done, 45 s
+/usr/lib/python3/dist-packages/scipy/stats/_morestats.py:4088: UserWarning: Exact p-value calculation does not work if there are zeros. Switching to normal approximation.
+  warnings.warn("Exact p-value calculation does not work if there are "
+
+2520 episodes in 48.3 s
+
+policy           scenario                 scoredelivered_un  lost_units   energy_wh wh_per_unitcharge_tripsmin_battery_violation_co decision_ms
+rule             aged_battery             48.25       50.53        0.00        4.56        0.09        7.13       91.95        0.00        0.00
+rule             balanced                 48.37       50.87        0.00        4.99        0.10        9.40       96.25        0.00        0.00
+rule             fault_burst              31.15       32.83        0.00        3.37        0.10        7.13       96.85        0.00        0.00
+rule             heavy_load              -17.51       42.43       58.07        3.74        0.09        1.67       44.23        0.00        0.00
+rule             heavy_parts              47.69       51.17        0.03        6.89        0.13        6.93       93.60        0.00        0.00
+rule             high_demand              95.90      100.00        0.54        7.11        0.07        6.13       92.12        0.00        0.00
+rule             hot_factory              48.71       51.33        0.00        5.24        0.10        9.80       96.21        0.00        0.00
+rule             low_battery_start        -6.97       23.63       29.68        1.85        0.08        1.00       27.10        0.00        0.00
+rule             one_hot_section          76.66       79.77        0.00        6.21        0.08        9.90       95.33        0.00        0.00
+rule             section_breakdown        32.83       34.67        0.00        3.67        0.11        7.77       96.40        0.00        0.00
+rule             small_buffers            45.65       50.27        1.32        6.60        0.13        8.63       94.81        0.00        0.00
+rule             worn_robot               49.17       51.87        0.00        5.39        0.10        9.23       95.94        0.00        0.00
+ns               aged_battery             50.08       53.87        0.00        7.57        0.14        1.80       48.20        0.00        1.78
+ns               balanced                 49.44       53.50        0.00        8.11        0.15        2.87       73.23        0.00        1.69
+ns               fault_burst              32.69       35.70        0.00        6.01        0.17        8.90       92.01        0.00        1.59
+ns               heavy_load               28.45       63.20       30.96        7.58        0.12        1.10       16.54        0.00        1.36
+ns               heavy_parts              49.07       53.40        0.06        8.54        0.16        2.57       71.71        0.00        1.68
+ns               high_demand             100.31      105.33        0.00       10.05        0.10        0.23       55.31        0.00        1.90
+ns               hot_factory              46.60       50.93        0.00        8.67        0.17        3.27       67.66        0.00        1.71
+ns               low_battery_start        52.90       56.30        0.06        6.67        0.12        2.67       20.23        0.00        1.83
+ns               one_hot_section          77.52       82.20        0.00        9.35        0.11        1.23       61.57        0.00        1.65
+ns               section_breakdown        33.79       37.13        0.00        6.70        0.18        9.57       90.44        0.00        1.57
+ns               small_buffers            46.67       52.37        0.48       10.44        0.20        0.00       52.54        0.00        1.44
+ns               worn_robot               45.88       49.50        0.00        7.25        0.15        1.40       69.16        0.00        1.83
+ns_neural_only   aged_battery             48.97       53.23        0.49        7.53        0.14        1.80       47.75        0.00        1.77
+ns_neural_only   balanced                 48.98       53.17        0.19        7.99        0.15        2.83       74.02        0.00        1.73
+ns_neural_only   fault_burst              32.24       35.33        0.24        5.71        0.16        9.23       93.73        0.00        1.65
+ns_neural_only   heavy_load               46.27       93.63        4.55       10.97        0.12        0.00        0.15        1.87        1.94
+ns_neural_only   heavy_parts              45.91       52.03        1.85        8.55        0.16        2.13       68.29        0.00        1.58
+ns_neural_only   high_demand             100.12      105.20        0.04       10.09        0.10        0.17       54.81        0.00        1.98
+ns_neural_only   hot_factory              46.60       50.93        0.00        8.67        0.17        3.27       67.66        0.00        1.73
+ns_neural_only   low_battery_start        44.74       59.77        0.04        7.31        0.12        2.00       15.88        0.57        1.79
+ns_neural_only   one_hot_section          77.57       82.23        0.00        9.33        0.11        1.23       61.68        0.00        1.74
+ns_neural_only   section_breakdown        33.54       36.97        0.18        6.50        0.18        9.73       91.47        0.00        1.65
+ns_neural_only   small_buffers            43.82       50.70        1.91        9.95        0.20        0.57       57.20        0.00        1.54
+ns_neural_only   worn_robot               44.33       48.57        0.69        7.08        0.15        1.53       70.02        0.00        1.91
+ns_symbolic_only aged_battery             48.35       52.93        0.00        9.17        0.17        0.43       26.48        0.00        1.18
+ns_symbolic_only balanced                 48.42       53.03        0.00        9.23        0.17        0.53       60.88        0.00        1.16
+ns_symbolic_only fault_burst              31.59       35.07        0.00        6.95        0.20        4.03       83.64        0.00        0.98
+ns_symbolic_only heavy_load               53.21       78.63       21.57        7.70        0.10        1.03       17.21        0.00        1.52
+ns_symbolic_only heavy_parts              47.44       52.73        0.56        9.47        0.18        0.50       59.96        0.00        1.12
+ns_symbolic_only high_demand              99.16      104.67        0.60        9.80        0.09        0.10       55.92        0.00        1.58
+ns_symbolic_only hot_factory              48.20       52.83        0.00        9.26        0.18        0.67       61.58        0.00        1.19
+ns_symbolic_only low_battery_start        56.08       59.90        0.27        7.10        0.12        1.20       17.38        0.00        1.34
+ns_symbolic_only one_hot_section          77.31       82.27        0.00        9.91        0.12        0.20       55.68        0.00        1.30
+ns_symbolic_only section_breakdown        33.27       36.77        0.00        6.99        0.19        3.73       82.56        0.00        0.94
+ns_symbolic_only small_buffers            43.51       50.30        2.26        9.05        0.18        0.70       62.86        0.00        1.15
+ns_symbolic_only worn_robot               48.37       53.30        0.00        9.86        0.19        0.50       57.95        0.00        1.21
+ppo              aged_battery             34.25       52.73        0.00       10.30        0.20        0.43       16.14        0.67        2.22
+ppo              balanced                 47.93       53.27        0.00       10.67        0.20        0.20       52.44        0.00        1.89
+ppo              fault_burst              31.79       35.97        0.00        8.36        0.23        2.97       74.42        0.00        1.92
+ppo              heavy_load               59.47      101.83        0.95       10.84        0.11        0.20        1.39        1.80        1.93
+ppo              heavy_parts              48.18       53.70        0.00       11.04        0.21        0.10       50.36        0.00        1.82
+ppo              high_demand             100.60      106.23        0.00       11.27        0.11        0.03       49.02        0.00        1.86
+ppo              hot_factory              47.58       53.03        0.00       10.92        0.21        0.17       51.15        0.00        1.88
+ppo              low_battery_start        53.76       60.20        0.02        7.51        0.12        2.43       20.21        0.13        1.84
+ppo              one_hot_section          77.03       82.57        0.00       11.08        0.13        0.07       49.96        0.00        1.86
+ppo              section_breakdown        33.65       37.97        0.00        8.63        0.23        2.53       72.07        0.00        1.88
+ppo              small_buffers            45.85       51.77        0.61       10.61        0.21        0.07       52.01        0.00        1.88
+ppo              worn_robot               48.15       53.80        0.00       11.30        0.21        0.30       50.68        0.00        1.89
+ppo_unmasked     aged_battery             36.43       41.60        1.42        7.51        0.18        0.00       37.46        0.00        1.27
+ppo_unmasked     balanced                 35.87       41.60        1.97        7.52        0.18        0.00       65.82        0.00        1.13
+ppo_unmasked     fault_burst              26.77       30.63        0.21        7.32        0.25        0.00       66.73        0.00        1.05
+ppo_unmasked     heavy_load               -2.93       53.30       42.29        7.88        0.15        0.00       14.18        0.50        1.06
+ppo_unmasked     heavy_parts               3.07       26.43       19.77        7.18        0.29        0.00       67.35        0.00        1.04
+ppo_unmasked     high_demand              63.47       81.60       13.79        8.69        0.11        0.00       60.51        0.00        1.18
+ppo_unmasked     hot_factory              35.37       41.53        2.36        7.59        0.19        0.00       65.48        0.00        1.10
+ppo_unmasked     low_battery_start        -3.13       38.87        4.08        6.49        0.17        0.10        1.80        1.73        1.18
+ppo_unmasked     one_hot_section          49.69       64.37       10.77        7.81        0.12        0.00       64.49        0.00        1.06
+ppo_unmasked     section_breakdown        26.69       30.80        0.47        7.28        0.25        0.00       66.89        0.00        0.98
+ppo_unmasked     small_buffers            29.64       41.97        7.97        8.71        0.21        0.00       60.38        0.00        1.31
+ppo_unmasked     worn_robot               37.32       42.07        0.81        7.88        0.20        0.00       64.19        0.00        1.03
+ppo_wp6          aged_battery             41.65       53.37        0.00       10.10        0.19        0.17       16.15        0.33        1.77
+ppo_wp6          balanced                 48.69       53.80        0.00       10.22        0.19        0.00       53.55        0.00        1.72
+ppo_wp6          fault_burst              32.52       36.43        0.00        7.83        0.22        4.87       78.11        0.00        1.78
+ppo_wp6          heavy_load               72.30      102.63        3.12       10.43        0.10        1.00        7.73        1.10        1.81
+ppo_wp6          heavy_parts              48.47       53.83        0.00       10.73        0.20        0.00       51.26        0.00        1.79
+ppo_wp6          high_demand             100.24      105.70        0.01       10.91        0.10        0.00       50.41        0.00        1.75
+ppo_wp6          hot_factory              48.22       53.47        0.00       10.49        0.20        0.00       52.34        0.00        1.59
+ppo_wp6          low_battery_start        48.13       59.63        0.37        7.59        0.13        2.60       18.03        0.37        1.63
+ppo_wp6          one_hot_section          77.50       82.77        0.00       10.53        0.13        0.00       52.12        0.00        1.47
+ppo_wp6          section_breakdown        33.04       37.67        0.00        9.25        0.25        0.10       58.09        0.00        1.46
+ppo_wp6          small_buffers            45.98       51.90        0.72       10.41        0.20        0.00       52.68        0.00        1.28
+ppo_wp6          worn_robot               48.32       53.77        0.00       10.90        0.20        0.00       50.45        0.00        1.27
+
+episodes -> tools/ai/results/episodes_20260917_150043.csv
+summary  -> tools/ai/results/summary_20260917_150043.md

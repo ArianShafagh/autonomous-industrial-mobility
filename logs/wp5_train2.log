@@ -1,0 +1,24 @@
+collecting look-ahead values: 120 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s
+  10/120 shifts, 1574 samples, 42 s
+  20/120 shifts, 3406 samples, 81 s
+  30/120 shifts, 5094 samples, 118 s
+  40/120 shifts, 6775 samples, 156 s
+  50/120 shifts, 8505 samples, 195 s
+  60/120 shifts, 10208 samples, 236 s
+  70/120 shifts, 11891 samples, 279 s
+  80/120 shifts, 13528 samples, 315 s
+  90/120 shifts, 15329 samples, 363 s
+  100/120 shifts, 16934 samples, 403 s
+  110/120 shifts, 18657 samples, 450 s
+  120/120 shifts, 20432 samples, 495 s
+20432 samples from 6 scenarios in 495 s
+training the scorer
+  epoch   1  train MSE 160.679  val MSE 55.487
+  epoch  10  train MSE 15.198  val MSE 14.781
+  epoch  20  train MSE 8.866  val MSE 8.726
+  epoch  30  train MSE 7.341  val MSE 7.371
+  epoch  40  train MSE 6.720  val MSE 6.977
+
+val MSE 6.977, val R2 0.917, agrees with the look-ahead oracle on 38.1 % of decisions
+model  -> src/robofetch_ai/robofetch_ai/models/ns_scorer.pt
+report -> tools/ai/results/train_ns_20260916_104749.json

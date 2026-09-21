@@ -1,0 +1,3 @@
+actions,blocked_time_s,charge_trips,condition_percent,decision_ms,delivered_by_section,delivered_units,distance_m,end_battery_percent,energy_wh,lost_by_section,lost_units,min_battery_percent,policy,produced_units,scenario,score,seed,shift_s,violation_count,violations,wh_per_unit
+61,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0,99.9,0.0,"{'A': 16, 'B': 28, 'C': 4}",48,675.3,53.7,10.175,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,53.7,ppo,48,balanced,42.91,0,3600.6,0,,0.212
+62,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0,99.9,0.0,"{'A': 20, 'B': 33, 'C': 5}",58,690.6,53.4,10.262,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,53.4,ppo,56,balanced,52.87,1,3600.7,0,,0.1769

@@ -1,0 +1,2 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location
+1,PICKUP,B,FAILED,could not reach B,9.95,19.46,68.92,8.294,15.18,0.0748,0.1908,0.0,0.0,99.959,99.619,99.092,0.0,0,charger

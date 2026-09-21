@@ -1,0 +1,144 @@
+waiting for Nav2 to be active ...
+
+phase 2: driving the tour with each planner, 5 repeat(s)
+  [repeat 1] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.16 m, driven  8.69 m,  20.0 s, 0.077 Wh
+           A -> delivery ok  planned 10.38 m, driven 10.33 m,  28.6 s, 0.098 Wh
+    delivery -> B        ok  planned 10.50 m, driven 10.12 m,  24.0 s, 0.091 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.09 m,  26.9 s, 0.096 Wh
+    delivery -> C        ok  planned  6.45 m, driven  6.31 m,  17.8 s, 0.062 Wh
+           C -> delivery ok  planned  6.38 m, driven  6.45 m,  18.1 s, 0.062 Wh
+    delivery -> charger  ok  planned  5.30 m, driven  5.28 m,  15.8 s, 0.053 Wh
+  [repeat 1] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.70 m, driven  8.85 m,  22.3 s, 0.081 Wh
+           A -> delivery ok  planned 10.67 m, driven 10.61 m,  29.7 s, 0.103 Wh
+    delivery -> B        ok  planned 11.64 m, driven 10.80 m,  26.7 s, 0.100 Wh
+           B -> delivery ok  planned 10.26 m, driven 10.16 m,  26.9 s, 0.096 Wh
+    delivery -> C        ok  planned  6.99 m, driven  6.37 m,  20.1 s, 0.066 Wh
+           C -> delivery ok  planned  6.40 m, driven  6.42 m,  18.1 s, 0.063 Wh
+    delivery -> charger  ok  planned  5.23 m, driven  5.23 m,  15.6 s, 0.052 Wh
+  [repeat 1] driving the tour with Smac2D ...
+     charger -> A        ok  planned  8.91 m, driven  9.01 m,  22.0 s, 0.083 Wh
+           A -> delivery ok  planned 10.53 m, driven 10.51 m,  27.1 s, 0.100 Wh
+    delivery -> B        ok  planned 10.51 m, driven 10.34 m,  24.4 s, 0.093 Wh
+           B -> delivery ok  planned 10.18 m, driven 10.30 m,  26.5 s, 0.098 Wh
+    delivery -> C        ok  planned  6.43 m, driven  6.46 m,  18.7 s, 0.063 Wh
+           C -> delivery ok  planned  6.33 m, driven  6.50 m,  17.8 s, 0.063 Wh
+    delivery -> charger  ok  planned  5.23 m, driven  5.28 m,  15.7 s, 0.054 Wh
+  [repeat 1] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  8.85 m, driven  8.64 m,  20.0 s, 0.078 Wh
+           A -> delivery ok  planned 10.16 m, driven 10.18 m,  25.9 s, 0.096 Wh
+    delivery -> B        ok  planned 10.45 m, driven 10.12 m,  23.5 s, 0.091 Wh
+           B -> delivery ok  planned 10.12 m, driven 10.19 m,  26.1 s, 0.096 Wh
+    delivery -> C        ok  planned  6.31 m, driven  6.26 m,  17.2 s, 0.061 Wh
+           C -> delivery ok  planned  6.33 m, driven  6.48 m,  17.7 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.20 m, driven  5.31 m,  15.5 s, 0.054 Wh
+  [repeat 1] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.87 m, driven  9.00 m,  21.1 s, 0.082 Wh
+           A -> delivery ok  planned 10.61 m, driven 10.60 m,  26.7 s, 0.100 Wh
+    delivery -> B        ok  planned 10.46 m, driven 10.08 m,  23.5 s, 0.093 Wh
+           B -> delivery ok  planned 10.31 m, driven 10.47 m,  26.1 s, 0.098 Wh
+    delivery -> C        ok  planned  6.66 m, driven  6.46 m,  16.8 s, 0.062 Wh
+           C -> delivery ok  planned  6.24 m, driven  6.46 m,  17.6 s, 0.064 Wh
+    delivery -> charger  ok  planned  7.15 m, driven  6.13 m,  27.4 s, 0.077 Wh
+  [repeat 2] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.64 m, driven  9.30 m,  22.7 s, 0.087 Wh
+           A -> delivery ok  planned 10.60 m, driven 10.57 m,  28.4 s, 0.102 Wh
+    delivery -> B        ok  planned 11.21 m, driven 10.43 m,  26.4 s, 0.100 Wh
+           B -> delivery ok  planned 10.14 m, driven 10.05 m,  27.5 s, 0.098 Wh
+    delivery -> C        ok  planned  6.37 m, driven  6.34 m,  18.0 s, 0.063 Wh
+           C -> delivery ok  planned  6.29 m, driven  6.42 m,  17.9 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.23 m, driven  5.26 m,  15.6 s, 0.054 Wh
+  [repeat 2] driving the tour with Smac2D ...
+     charger -> A        ok  planned  8.99 m, driven  9.02 m,  22.1 s, 0.084 Wh
+           A -> delivery ok  planned 10.52 m, driven 10.53 m,  27.4 s, 0.100 Wh
+    delivery -> B        ok  planned 10.46 m, driven 10.18 m,  25.1 s, 0.095 Wh
+           B -> delivery ok  planned 10.08 m, driven 10.28 m,  26.2 s, 0.099 Wh
+    delivery -> C        ok  planned  6.39 m, driven  6.47 m,  18.6 s, 0.064 Wh
+           C -> delivery ok  planned  6.28 m, driven  6.40 m,  17.7 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.25 m, driven  5.34 m,  16.0 s, 0.055 Wh
+  [repeat 2] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  9.01 m, driven  8.74 m,  20.4 s, 0.080 Wh
+           A -> delivery ok  planned 10.01 m, driven 10.16 m,  26.3 s, 0.099 Wh
+    delivery -> B        ok  planned 10.49 m, driven 10.11 m,  23.3 s, 0.092 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.21 m,  26.5 s, 0.097 Wh
+    delivery -> C        ok  planned  6.31 m, driven  6.32 m,  17.4 s, 0.063 Wh
+           C -> delivery ok  planned  6.35 m, driven  6.54 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.15 m, driven  5.34 m,  15.5 s, 0.053 Wh
+  [repeat 2] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.22 m, driven  8.93 m,  20.5 s, 0.083 Wh
+           A -> delivery ok  planned 10.69 m, driven 10.55 m,  26.7 s, 0.099 Wh
+    delivery -> B        ok  planned 10.45 m, driven 10.14 m,  23.5 s, 0.094 Wh
+           B -> delivery ok  planned 10.24 m, driven 10.46 m,  25.6 s, 0.097 Wh
+    delivery -> C        ok  planned  6.65 m, driven  6.37 m,  16.4 s, 0.062 Wh
+           C -> delivery ok  planned  6.34 m, driven  6.45 m,  17.6 s, 0.063 Wh
+    delivery -> charger  ok  planned  7.21 m, driven  6.77 m,  36.0 s, 0.096 Wh
+  [repeat 2] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.49 m, driven  8.75 m,  20.5 s, 0.082 Wh
+           A -> delivery ok  planned 10.36 m, driven 10.30 m,  28.9 s, 0.103 Wh
+    delivery -> B        ok  planned 10.50 m, driven 10.13 m,  24.1 s, 0.094 Wh
+           B -> delivery ok  planned 10.10 m, driven 10.16 m,  26.4 s, 0.097 Wh
+    delivery -> C        ok  planned  6.37 m, driven  6.20 m,  17.3 s, 0.063 Wh
+           C -> delivery ok  planned  6.40 m, driven  6.41 m,  18.0 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.28 m, driven  5.30 m,  16.0 s, 0.055 Wh
+  [repeat 3] driving the tour with Smac2D ...
+     charger -> A        ok  planned  8.96 m, driven  8.95 m,  21.6 s, 0.083 Wh
+           A -> delivery ok  planned 10.53 m, driven 10.65 m,  27.4 s, 0.103 Wh
+    delivery -> B        ok  planned 10.64 m, driven 10.36 m,  24.5 s, 0.096 Wh
+           B -> delivery ok  planned 10.17 m, driven 10.33 m,  27.5 s, 0.102 Wh
+    delivery -> C        ok  planned  6.44 m, driven  6.36 m,  18.7 s, 0.064 Wh
+           C -> delivery ok  planned  6.22 m, driven  6.53 m,  18.1 s, 0.067 Wh
+    delivery -> charger  ok  planned  5.19 m, driven  5.31 m,  15.8 s, 0.053 Wh
+  [repeat 3] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  8.86 m, driven  8.64 m,  20.0 s, 0.080 Wh
+           A -> delivery ok  planned 10.05 m, driven  9.98 m,  25.7 s, 0.097 Wh
+    delivery -> B        ok  planned 10.52 m, driven 10.20 m,  23.7 s, 0.095 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.18 m,  26.2 s, 0.098 Wh
+    delivery -> C        ok  planned  6.29 m, driven  6.27 m,  17.3 s, 0.062 Wh
+           C -> delivery ok  planned  6.35 m, driven  6.50 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.20 m, driven  5.32 m,  15.8 s, 0.055 Wh
+  [repeat 3] driving the tour with SmacLattice ...
+     charger -> A        ok  planned 10.02 m, driven  9.32 m,  21.8 s, 0.087 Wh
+           A -> delivery ok  planned 10.67 m, driven 10.61 m,  27.1 s, 0.103 Wh
+    delivery -> B        ok  planned 10.38 m, driven 10.11 m,  23.6 s, 0.093 Wh
+           B -> delivery ok  planned 10.31 m, driven 10.48 m,  26.4 s, 0.099 Wh
+    delivery -> C        ok  planned  6.68 m, driven  6.39 m,  16.4 s, 0.063 Wh
+           C -> delivery ok  planned  6.28 m, driven  6.45 m,  17.8 s, 0.065 Wh
+    delivery -> charger  ok  planned  7.13 m, driven  6.58 m,  33.1 s, 0.090 Wh
+  [repeat 3] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.43 m, driven  9.04 m,  21.9 s, 0.085 Wh
+           A -> delivery ok  planned 10.32 m, driven 10.25 m,  27.1 s, 0.100 Wh
+    delivery -> B        ok  planned 10.54 m, driven 10.20 m,  24.0 s, 0.095 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.07 m,  26.9 s, 0.099 Wh
+    delivery -> C        ok  planned  6.34 m, driven  6.24 m,  17.1 s, 0.062 Wh
+           C -> delivery ok  planned  6.43 m, driven  6.42 m,  18.1 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.27 m, driven  5.28 m,  15.9 s, 0.055 Wh
+  [repeat 3] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.64 m, driven  9.09 m,  21.8 s, 0.084 Wh
+           A -> delivery ok  planned 10.80 m, driven 10.53 m,  28.5 s, 0.105 Wh
+    delivery -> B        ok  planned 11.29 m, driven 10.47 m,  25.5 s, 0.098 Wh
+Traceback (most recent call last):
+  File "/home/robojazzy/robofetch_ws_copy/robofetch_ws/tools/nav/compare_planners.py", line 411, in <module>
+    main()
+  File "/home/robojazzy/robofetch_ws_copy/robofetch_ws/tools/nav/compare_planners.py", line 394, in main
+    drive_rows += phase_drive(bench, clearance, repeat)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robojazzy/robofetch_ws_copy/robofetch_ws/tools/nav/compare_planners.py", line 223, in phase_drive
+    ok, detail, driven = bench.follow(path)
+                         ^^^^^^^^^^^^^^^^^^
+  File "/home/robojazzy/robofetch_ws_copy/robofetch_ws/tools/nav/compare_planners.py", line 170, in follow
+    rclpy.spin_once(self, timeout_sec=0.05)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 226, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 926, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 757, in _wait_for_ready_callbacks
+    wait_set = _rclpy.WaitSet(
+               ^^^^^^^^^^^^^^^
+rclpy._rclpy_pybind11.RCLError: failed to initialize wait set: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/wait.c:130

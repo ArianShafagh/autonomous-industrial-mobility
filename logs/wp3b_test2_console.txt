@@ -1,0 +1,22 @@
+=== test 2: unreachable charger  plan: PICKUP:A;CHARGE:100  obstacle on: charger
+[run_mission] FAILED after 210s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260916_101650_launch.log)
+[1] PICKUP:A done: took 1 units (0.50 kg), 0 left | measured 8.9 m, 51 s, 0.13 Wh, battery 99.9 -> 99.3 %
+drive to charger failed (timeout after 70 s), attempt 1
+drive to charger failed (Nav2 aborted), attempt 2
+drive to charger failed (timeout after 70 s), attempt 3
+NAVIGATION STUCK: the robot cannot reach the charger. Halting and ending the mission - needs a human.
+[2] CHARGE:100 FAILED: could not reach charger - charger unreachable, robot HALTED (navigation_stuck) | measured 21.0 m, 144 s, 0.36 Wh, battery 99.3 -> 97.7 %
+MISSION ENDED: NAVIGATION STUCK
+ended_by: navigation_stuck
+navigation:
+  drives: 2
+  drive_attempt_failures: 3
+  timeouts: 2
+  recovered_after_retry: 0
+  goals_abandoned: 1
+  returned_to_charger: 0
+recovery column:
+action,target,phase,recovery
+PICKUP,A,SUCCEEDED,A,
+CHARGE,charger,FAILED,charger,attempt 1: timeout after 70 s | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up) | attempt 3: timeout after 70 s
+

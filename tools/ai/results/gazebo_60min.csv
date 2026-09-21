@@ -1,0 +1,5 @@
+model,scenario,seed,source,score,delivered_units,lost_units,energy_wh,wh_per_unit,distance_m,charge_trips,min_battery_percent,violation_count,actions,failed_actions,fallback_decisions,nav_failures,shift_s,wall_s,run_id
+ns,low_battery_start,5000,gazebo,55.16,61,2.16,7.356,0.1206,485.54,1,17.0,0,49,0,0,0,3648.6,3804,run_20260920_211023
+ns,low_battery_start,5000,sim,53.38,59,1.96,7.326,0.1242,485.0,1,17.2,0,48,,,,3606.6,,
+ppo,low_battery_start,5000,gazebo,37.79,62,0.0,8.421,0.1358,562.67,2,9.4,1,50,0,0,0,3603.4,3778,run_20260920_221349
+ppo,low_battery_start,5000,sim,57.2,61,0.0,7.602,0.1246,507.6,3,20.4,0,45,,,,3600.6,,

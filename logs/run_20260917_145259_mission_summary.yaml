@@ -1,0 +1,35 @@
+run_id: run_20260917_145259
+scenario: balanced
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 4
+succeeded: 4
+failed: 0
+sim_duration_s: 219.8
+distance_m: 39.07
+energy_drawn_wh: 0.582
+energy_charged_wh: 0.0
+battery_end_percent: 97.29
+delivered_units:
+  A: 1
+  B: 3
+  C: 0
+model: ns
+planner: ThetaStar
+decisions:
+  asked: 4
+  answered_by_model: 4
+  fallback: 0
+  mean_latency_ms: 696.2
+navigation:
+  drives: 4
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -2.0
+  distance: -1.3
+  energy: -1.7

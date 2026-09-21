@@ -1,0 +1,17 @@
+run_id: run_20260915_172619
+actions: 1
+succeeded: 0
+failed: 1
+sim_duration_s: 19.5
+distance_m: 8.29
+energy_drawn_wh: 0.075
+energy_charged_wh: 0.0
+battery_end_percent: 99.62
+delivered_units:
+  A: 0
+  B: 0
+  C: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: null
+  distance: null
+  energy: null

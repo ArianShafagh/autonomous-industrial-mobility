@@ -1,0 +1,35 @@
+run_id: run_20260920_211023
+scenario: low_battery_start
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 49
+succeeded: 49
+failed: 0
+sim_duration_s: 3648.6
+distance_m: 485.54
+energy_drawn_wh: 7.356
+energy_charged_wh: 5.067
+battery_end_percent: 19.52
+delivered_units:
+  A: 23
+  B: 33
+  C: 5
+model: ns
+planner: NavfnDijkstra
+decisions:
+  asked: 49
+  answered_by_model: 49
+  fallback: 0
+  mean_latency_ms: 53.2
+navigation:
+  drives: 49
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: 0.0
+  distance: 0.1
+  energy: 0.2

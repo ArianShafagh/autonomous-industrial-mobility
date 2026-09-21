@@ -1,0 +1,59 @@
+
+=== round 1/3: look-ahead continues with 'ns_symbolic_only'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1640 samples from 408 decisions (21 had only one option), 76 s
+  20/80 shifts, 3347 samples from 848 decisions (34 had only one option), 155 s
+  30/80 shifts, 5005 samples from 1255 decisions (52 had only one option), 232 s
+  40/80 shifts, 6741 samples from 1691 decisions (74 had only one option), 313 s
+  50/80 shifts, 8408 samples from 2108 decisions (84 had only one option), 393 s
+  60/80 shifts, 10056 samples from 2507 decisions (106 had only one option), 473 s
+  70/80 shifts, 11746 samples from 2917 decisions (144 had only one option), 558 s
+  80/80 shifts, 13536 samples from 3371 decisions (166 had only one option), 641 s
+13536 samples in 641 s; training the scorer
+  epoch   1  train MSE 159.820  val MSE 110.700
+  epoch  10  train MSE 17.110  val MSE 17.428
+  epoch  20  train MSE 10.596  val MSE 11.015
+  epoch  30  train MSE 6.941  val MSE 7.460
+  epoch  40  train MSE 5.566  val MSE 5.829
+round 1: val MSE 5.829, val R2 0.916, agrees with the oracle on 59.8 % of decisions, validation score 56.84
+  -> best so far, saved
+
+=== round 2/3: look-ahead continues with 'ns'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1775 samples from 415 decisions (41 had only one option), 109 s
+  20/80 shifts, 3576 samples from 843 decisions (69 had only one option), 218 s
+  30/80 shifts, 5416 samples from 1272 decisions (106 had only one option), 323 s
+  40/80 shifts, 7082 samples from 1667 decisions (149 had only one option), 424 s
+  50/80 shifts, 9114 samples from 2130 decisions (183 had only one option), 542 s
+  60/80 shifts, 10785 samples from 2519 decisions (218 had only one option), 642 s
+  70/80 shifts, 12509 samples from 2925 decisions (245 had only one option), 746 s
+  80/80 shifts, 14376 samples from 3371 decisions (288 had only one option), 855 s
+14376 samples in 855 s; training the scorer
+  epoch   1  train MSE 124.350  val MSE 82.996
+  epoch  10  train MSE 15.749  val MSE 16.540
+  epoch  20  train MSE 11.361  val MSE 12.322
+  epoch  30  train MSE 8.931  val MSE 9.991
+  epoch  40  train MSE 7.765  val MSE 8.699
+round 2: val MSE 8.699, val R2 0.874, agrees with the oracle on 47.0 % of decisions, validation score 54.63
+
+=== round 3/3: look-ahead continues with 'ns'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1671 samples from 414 decisions (44 had only one option), 87 s
+  20/80 shifts, 3335 samples from 827 decisions (75 had only one option), 192 s
+  30/80 shifts, 4857 samples from 1215 decisions (110 had only one option), 285 s
+  40/80 shifts, 6485 samples from 1621 decisions (144 had only one option), 386 s
+  50/80 shifts, 8267 samples from 2060 decisions (179 had only one option), 501 s
+  60/80 shifts, 9748 samples from 2420 decisions (219 had only one option), 599 s
+  70/80 shifts, 11311 samples from 2806 decisions (256 had only one option), 697 s
+  80/80 shifts, 13045 samples from 3246 decisions (284 had only one option), 809 s
+13045 samples in 809 s; training the scorer
+  epoch   1  train MSE 120.125  val MSE 77.805
+  epoch  10  train MSE 14.911  val MSE 14.475
+  epoch  20  train MSE 11.585  val MSE 11.800
+  epoch  30  train MSE 8.969  val MSE 9.698
+  epoch  40  train MSE 7.872  val MSE 8.697
+round 3: val MSE 8.697, val R2 0.870, agrees with the oracle on 51.4 % of decisions, validation score 56.64
+
+best round: 1 (validation score 56.84)
+model  -> src/robofetch_ai/robofetch_ai/models/ns_scorer.pt
+report -> tools/ai/results/train_ns_20260916_160755.json

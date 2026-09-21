@@ -1,0 +1,29 @@
+{
+  "config": {
+    "total_timesteps": 300000,
+    "n_envs": 4,
+    "n_steps": 512,
+    "batch_size": 256,
+    "learning_rate": 0.0003,
+    "gamma": 0.995,
+    "gae_lambda": 0.95,
+    "ent_coef": 0.01,
+    "net_arch": [
+      64,
+      64
+    ],
+    "use_action_masks": true,
+    "eval_seeds": 4,
+    "seed": 4242
+  },
+  "scenarios": [
+    "balanced",
+    "fault_burst",
+    "high_demand",
+    "low_battery_start",
+    "one_hot_section",
+    "worn_robot"
+  ],
+  "training_seconds": 475.7,
+  "timesteps": 300000
+}

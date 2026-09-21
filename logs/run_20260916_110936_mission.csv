@@ -1,0 +1,6 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location,recovery
+1,PICKUP,B,SUCCEEDED,"took 2 units (0.80 kg), 0 left",12.03,62.25,68.92,14.948,15.18,0.1781,0.1908,0.0,0.0,99.924,99.115,99.057,0.8,2,B,attempt 1: Nav2 aborted | recovery: clear costmaps
+2,PICKUP,A,SUCCEEDED,"took 1 units (0.50 kg), 0 left",74.29,71.18,76.87,18.046,18.28,0.2254,0.2365,0.0,0.0,99.115,98.09,98.04,1.3,1,A,
+3,DELIVER,delivery,SUCCEEDED,delivered 3 units,145.47,57.19,55.67,10.145,10.01,0.161,0.1579,0.0,0.0,98.09,97.358,97.372,0.0,3,delivery,
+4,PICKUP,C,SUCCEEDED,"nothing taken, 0 left",202.66,47.94,46.15,6.412,6.3,0.1121,0.1084,0.0,0.0,97.358,96.849,96.865,0.0,0,C,
+5,DELIVER,delivery,SUCCEEDED,delivered 0 units,250.6,48.17,46.15,6.421,6.3,0.1122,0.1084,0.0,0.0,96.849,96.339,96.356,0.0,0,delivery,

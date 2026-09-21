@@ -1,0 +1,2 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location,recovery
+1,PICKUP,B,SUCCEEDED,"took 2 units (0.80 kg), 0 left",14.77,62.94,68.92,15.009,15.18,0.18,0.1908,0.0,0.0,99.917,99.099,99.05,0.8,2,B,

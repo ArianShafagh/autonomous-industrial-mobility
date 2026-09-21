@@ -1,0 +1,10 @@
+[INFO] [launch]: All log files can be found below /home/robojazzy/.ros/log/2026-09-15-12-02-55-432685-DESKTOP-NOCCT0U-150006
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [section_node-1]: process started with pid [150009]
+[INFO] [section_node-2]: process started with pid [150010]
+[INFO] [section_node-3]: process started with pid [150011]
+[section_node-2] [INFO] [1789466575.957408101] [section_B]: section B [balanced, seed 1]: 30 units/h, buffer 15, 0.3 kg/unit, time_scale 20 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_120255_section_B.csv
+[section_node-3] [INFO] [1789466575.957587801] [section_C]: section C [balanced, seed 1]: 5 units/h, buffer 4, 1.2 kg/unit, time_scale 20 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_120255_section_C.csv
+[section_node-1] [INFO] [1789466576.032614240] [section_A]: section A [balanced, seed 1]: 20 units/h, buffer 12, 0.4 kg/unit, time_scale 20 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_120255_section_A.csv
+[section_node-2] [INFO] [1789466638.947517651] [section_B]: pickup: took 6 units (1.80 kg), 7 left
+[section_node-3] [INFO] [1789466639.960136253] [section_C]: pickup: took 1 units (1.20 kg), 0 left

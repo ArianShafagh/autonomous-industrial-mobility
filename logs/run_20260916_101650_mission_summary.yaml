@@ -1,0 +1,25 @@
+run_id: run_20260916_101650
+ended_by: navigation_stuck
+actions: 2
+succeeded: 1
+failed: 1
+sim_duration_s: 195.0
+distance_m: 29.86
+energy_drawn_wh: 0.487
+energy_charged_wh: 0.0
+battery_end_percent: 97.72
+delivered_units:
+  A: 0
+  B: 0
+  C: 0
+navigation:
+  drives: 2
+  drive_attempt_failures: 3
+  timeouts: 2
+  recovered_after_retry: 0
+  goals_abandoned: 1
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -4.4
+  distance: -1.8
+  energy: -3.3

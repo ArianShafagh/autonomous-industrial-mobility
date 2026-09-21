@@ -1,0 +1,35 @@
+run_id: run_20260920_221349
+scenario: low_battery_start
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 50
+succeeded: 50
+failed: 0
+sim_duration_s: 3603.4
+distance_m: 562.67
+energy_drawn_wh: 8.421
+energy_charged_wh: 3.911
+battery_end_percent: 9.46
+delivered_units:
+  A: 21
+  B: 35
+  C: 6
+model: ppo
+planner: NavfnDijkstra
+decisions:
+  asked: 50
+  answered_by_model: 50
+  fallback: 0
+  mean_latency_ms: 107.9
+navigation:
+  drives: 50
+  drive_attempt_failures: 1
+  timeouts: 0
+  recovered_after_retry: 1
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -0.8
+  distance: 0.6
+  energy: -0.1

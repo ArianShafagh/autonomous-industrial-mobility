@@ -1,0 +1,15 @@
+[run_mission] COMPLETE in 205s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260915_164343_launch.log)
+localised; starting mission
+[1] PICKUP:C done: nothing taken, 0 left | measured 11.3 m, 57 s, 0.15 Wh, battery 99.9 -> 99.3 %
+[2] DELIVER done: delivered 0 units | measured 6.4 m, 48 s, 0.11 Wh, battery 99.3 -> 98.8 %
+[3] CHARGE:100 done: charged to 100.0 % | measured 5.3 m, 78 s, 0.05 Wh, battery 98.8 -> 100.0 %
+[run_mission] COMPLETE in 200s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260915_164716_launch.log)
+localised; starting mission
+[1] PICKUP:C done: nothing taken, 0 left | measured 11.3 m, 56 s, 0.15 Wh, battery 100.0 -> 99.3 %
+[2] DELIVER done: delivered 0 units | measured 6.4 m, 48 s, 0.11 Wh, battery 99.3 -> 98.8 %
+[3] CHARGE:100 done: charged to 100.0 % | measured 5.2 m, 76 s, 0.05 Wh, battery 98.8 -> 100.0 %
+[run_mission] COMPLETE in 205s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260915_165041_launch.log)
+localised; starting mission
+[1] PICKUP:C done: nothing taken, 0 left | measured 11.3 m, 56 s, 0.15 Wh, battery 99.9 -> 99.3 %
+[2] DELIVER done: delivered 0 units | measured 6.4 m, 48 s, 0.11 Wh, battery 99.3 -> 98.7 %
+[3] CHARGE:100 done: charged to 100.0 % | measured 5.2 m, 78 s, 0.05 Wh, battery 98.7 -> 100.0 %

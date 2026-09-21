@@ -1,0 +1,6 @@
+actions,blocked_time_s,charge_trips,condition_percent,delivered_by_section,delivered_units,distance_m,end_battery_percent,energy_wh,lost_by_section,lost_units,min_battery_percent,policy,produced_units,scenario,score,seed,shift_s,violation_count,violations,wh_per_unit
+67,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",8,99.95,"{'A': 15, 'B': 28, 'C': 4}",47,346.2,96.0,4.84,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,96.0,rule,47,balanced,44.58,0,3600.7,0,,0.103
+66,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",8,99.95,"{'A': 21, 'B': 31, 'C': 4}",56,362.9,98.9,5.151,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,96.0,rule,55,balanced,53.42,1,3600.6,0,,0.092
+69,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",10,99.95,"{'A': 18, 'B': 29, 'C': 4}",51,374.4,98.9,5.253,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,94.9,rule,54,balanced,48.37,2,3600.0,0,,0.103
+68,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",9,99.95,"{'A': 18, 'B': 30, 'C': 4}",52,343.8,100.0,4.938,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,95.9,rule,54,balanced,49.53,3,3600.5,0,,0.095
+68,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",9,99.96,"{'A': 9, 'B': 29, 'C': 4}",42,292.7,100.0,4.074,"{'A': 0.0, 'B': 0.0, 'C': 0.0}",0.0,96.8,rule,43,balanced,39.96,4,3600.4,0,,0.097

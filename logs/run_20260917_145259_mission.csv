@@ -1,0 +1,5 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location,recovery
+1,PICKUP,A,SUCCEEDED,"took 1 units (0.50 kg), 0 left",14.61,50.43,53.18,8.763,9.04,0.1288,0.1338,0.0,0.0,99.913,99.328,99.305,0.5,1,A,
+2,DELIVER,delivery,SUCCEEDED,delivered 1 units,65.04,56.4,55.67,9.899,10.01,0.1486,0.1486,0.0,0.0,99.328,98.652,98.652,0.0,1,delivery,
+3,PICKUP,B,SUCCEEDED,"took 3 units (1.20 kg), 0 left",121.47,53.41,56.31,10.142,10.26,0.1391,0.1451,0.0,0.0,98.652,98.02,97.992,1.2,3,B,
+4,DELIVER,delivery,SUCCEEDED,delivered 3 units,174.88,56.75,56.31,10.262,10.26,0.1606,0.1594,0.0,0.0,98.02,97.29,97.295,0.0,3,delivery,

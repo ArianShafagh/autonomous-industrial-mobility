@@ -1,0 +1,61 @@
+===== repeat 3, planner ThetaStar =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_ThetaStar_r3.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 18.06, delivered 21, lost 1.49, 2.906 Wh, violations 0, failed actions 0, 35.9 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    18.06 /    15.91   +14%    21.00 /    20.00    +5%     1.49 /     2.58   -42%     2.91 /     3.02    -4%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== repeat 3, planner NavfnDijkstra =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_NavfnDijkstra_r3.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 18.99, delivered 21, lost 0.59, 2.852 Wh, violations 0, failed actions 0, 34.5 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    18.99 /    15.91   +19%    21.00 /    20.00    +5%     0.59 /     2.58   -77%     2.85 /     3.02    -6%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== repeat 4, planner ThetaStar =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_ThetaStar_r4.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 20.52, delivered 22, lost 0.0, 2.966 Wh, violations 0, failed actions 0, 35.7 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    20.52 /    15.91   +29%    22.00 /    20.00   +10%     0.00 /     2.58  -100%     2.97 /     3.02    -2%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== repeat 4, planner NavfnDijkstra =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_NavfnDijkstra_r4.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 18.89, delivered 21, lost 0.64, 2.942 Wh, violations 0, failed actions 0, 35.8 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    18.89 /    15.91   +19%    21.00 /    20.00    +5%     0.64 /     2.58   -75%     2.94 /     3.02    -3%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== repeat 5, planner ThetaStar =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_ThetaStar_r5.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 17.46, delivered 20, lost 1.15, 2.793 Wh, violations 0, failed actions 0, 33.9 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    17.46 /    15.91   +10%    20.00 /    20.00    +0%     1.15 /     2.58   -55%     2.79 /     3.02    -8%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== repeat 5, planner NavfnDijkstra =====
+1 Gazebo shifts of 20 min -> tools/ai/results/plannercheck_NavfnDijkstra_r5.csv
+[1/1] ns low_battery_start seed 5000 ...
+    gazebo: score 17.87, delivered 21, lost 1.65, 2.948 Wh, violations 0, failed actions 0, 35.7 min wall
+    sim   : score 15.91, delivered 20, lost 2.58, 3.025 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    17.87 /    15.91   +12%    21.00 /    20.00    +5%     1.65 /     2.58   -36%     2.95 /     3.02    -3%     0.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== planner check plan B done =====

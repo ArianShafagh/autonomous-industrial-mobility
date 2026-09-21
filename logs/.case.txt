@@ -1,0 +1,1 @@
+[run_mission] FAILED after 210s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260916_101650_launch.log)

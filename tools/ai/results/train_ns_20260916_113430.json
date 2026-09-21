@@ -1,0 +1,139 @@
+{
+  "rounds": [
+    {
+      "val_mse": 36.865596771240234,
+      "val_r2": 0.27711646086504593,
+      "round": 1,
+      "samples": 1137,
+      "collect_seconds": 8.2,
+      "oracle_agreement": 0.40239043824701193,
+      "rollout_policy": "ns_symbolic_only",
+      "training_config": {
+        "episodes": 6,
+        "rollout_horizon_s": 300.0,
+        "rollout_samples": 1,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 10,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 2,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "low_battery_start"
+      ],
+      "validation_score": 50.0025
+    },
+    {
+      "val_mse": 67.63191986083984,
+      "val_r2": 0.16855635069993646,
+      "round": 2,
+      "samples": 837,
+      "collect_seconds": 7.6,
+      "oracle_agreement": 0.30319148936170215,
+      "rollout_policy": "ns",
+      "training_config": {
+        "episodes": 6,
+        "rollout_horizon_s": 300.0,
+        "rollout_samples": 1,
+        "discount_per_100s": 0.97,
+        "exploration": 0.25,
+        "epochs": 10,
+        "batch_size": 256,
+        "learning_rate": 0.001,
+        "validation_fraction": 0.2,
+        "iterations": 2,
+        "seed": 12345
+      },
+      "scenarios": [
+        "balanced",
+        "low_battery_start"
+      ],
+      "validation_score": 50.25125
+    }
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "train_mse": 87.68189836188928,
+      "val_mse": 81.68660736083984
+    },
+    {
+      "epoch": 2,
+      "train_mse": 86.55606985519181,
+      "val_mse": 80.65340423583984
+    },
+    {
+      "epoch": 3,
+      "train_mse": 85.42344483332847,
+      "val_mse": 79.5558853149414
+    },
+    {
+      "epoch": 4,
+      "train_mse": 84.18026539816785,
+      "val_mse": 78.35371398925781
+    },
+    {
+      "epoch": 5,
+      "train_mse": 82.86003272213154,
+      "val_mse": 77.00980377197266
+    },
+    {
+      "epoch": 6,
+      "train_mse": 81.33892050216447,
+      "val_mse": 75.5119400024414
+    },
+    {
+      "epoch": 7,
+      "train_mse": 79.67828448850717,
+      "val_mse": 73.82759857177734
+    },
+    {
+      "epoch": 8,
+      "train_mse": 77.77863339096753,
+      "val_mse": 71.9538803100586
+    },
+    {
+      "epoch": 9,
+      "train_mse": 75.72887873863107,
+      "val_mse": 69.88546752929688
+    },
+    {
+      "epoch": 10,
+      "train_mse": 73.37143759656308,
+      "val_mse": 67.63191986083984
+    }
+  ],
+  "features": [
+    "is_pickup",
+    "is_deliver",
+    "is_charge",
+    "is_wait",
+    "battery",
+    "temperature",
+    "condition",
+    "payload_full",
+    "cargo_units",
+    "time_left",
+    "distance",
+    "energy_cost_percent",
+    "battery_after",
+    "battery_after_home",
+    "target_fill",
+    "target_units_gain",
+    "target_mass_gain",
+    "target_time_to_full",
+    "target_rate",
+    "target_health",
+    "target_blocked",
+    "target_fault",
+    "worst_other_fill",
+    "worst_other_time_to_full",
+    "any_other_blocked",
+    "charge_target",
+    "charge_gain"
+  ]
+}

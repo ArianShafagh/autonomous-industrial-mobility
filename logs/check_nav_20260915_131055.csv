@@ -1,0 +1,12 @@
+detail,diff_pct,from,goal,kind,matrix_m,planned_m,success
+,-34.2,,A->B,plan,18.28,12.04,True
+,-12.0,,A->C,plan,15.56,13.7,True
+,-8.7,,A->delivery,plan,10.01,9.14,True
+,-32.0,,A->charger,plan,9.04,6.15,True
+,-29.8,,B->C,plan,9.24,6.49,True
+,-8.5,,B->delivery,plan,10.26,9.39,True
+,-16.0,,B->charger,plan,15.18,12.75,True
+,-0.7,,C->delivery,plan,6.3,6.26,True
+,0.4,,C->charger,plan,11.27,11.32,True
+,1.1,,delivery->charger,plan,5.1,5.15,True
+goal rejected,,charger,A,drive,9.04,,False

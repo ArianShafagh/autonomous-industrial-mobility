@@ -1,0 +1,18 @@
+amcl_error_m,detail,diff_pct,driven_m,from,goal,goal_error_m,kind,matrix_m,planned_m,sim_time_s,success
+,,1.0,,,A->B,,plan,18.28,18.47,,True
+,,1.4,,,A->C,,plan,15.57,15.79,,True
+,,1.4,,,A->delivery,,plan,10.01,10.15,,True
+,,0.9,,,A->charger,,plan,9.04,9.12,,True
+,,-54.3,,,B->C,,plan,22.89,10.47,,True
+,,-35.5,,,B->delivery,,plan,18.02,11.61,,True
+,,-14.0,,,B->charger,,plan,17.27,14.85,,True
+,,-0.0,,,C->delivery,,plan,6.3,6.3,,True
+,,0.8,,,C->charger,,plan,11.27,11.36,,True
+,,2.0,,,delivery->charger,,plan,5.1,5.2,,True
+0.058,status 4,,8.86,charger,A,0.187,drive,9.04,,19.9,True
+0.067,status 4,,10.18,A,delivery,0.131,drive,10.01,,26.3,True
+0.004,status 4,,24.43,delivery,B,0.225,drive,18.02,,65.4,True
+0.051,status 4,,20.45,B,delivery,0.167,drive,18.02,,52.7,True
+0.082,status 4,,6.33,delivery,C,0.092,drive,6.3,,16.2,True
+0.053,status 4,,6.38,C,delivery,0.169,drive,6.3,,17.3,True
+0.02,status 4,,5.2,delivery,charger,0.071,drive,5.1,,14.8,True

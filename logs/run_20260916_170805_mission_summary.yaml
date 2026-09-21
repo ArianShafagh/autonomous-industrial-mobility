@@ -1,0 +1,34 @@
+run_id: run_20260916_170805
+scenario: balanced
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 17
+succeeded: 17
+failed: 0
+sim_duration_s: 945.1
+distance_m: 170.08
+energy_drawn_wh: 2.505
+energy_charged_wh: 0.0
+battery_end_percent: 88.55
+delivered_units:
+  A: 4
+  B: 8
+  C: 1
+model: ns
+decisions:
+  asked: 17
+  answered_by_model: 17
+  fallback: 0
+  mean_latency_ms: 178.6
+navigation:
+  drives: 17
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -0.5
+  distance: -0.1
+  energy: -0.2

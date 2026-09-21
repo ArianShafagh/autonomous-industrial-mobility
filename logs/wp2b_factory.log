@@ -1,0 +1,8 @@
+[INFO] [launch]: All log files can be found below /home/robojazzy/.ros/log/2026-09-15-12-25-08-493261-DESKTOP-NOCCT0U-152995
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [section_node-1]: process started with pid [152998]
+[INFO] [section_node-2]: process started with pid [152999]
+[INFO] [section_node-3]: process started with pid [153000]
+[section_node-1] [INFO] [1789467909.148285240] [section_A]: section A [high_demand, seed 1]: 40 units/h, buffer 8, 0.5 kg/unit, time_scale 1 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_122508_section_A.csv
+[section_node-2] [INFO] [1789467909.155024768] [section_B]: section B [high_demand, seed 1]: 60 units/h, buffer 10, 0.4 kg/unit, time_scale 1 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_122508_section_B.csv
+[section_node-3] [INFO] [1789467909.203942444] [section_C]: section C [high_demand, seed 1]: 10 units/h, buffer 3, 1.5 kg/unit, time_scale 1 -> logging /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/run_20260915_122508_section_C.csv

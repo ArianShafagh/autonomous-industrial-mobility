@@ -1,0 +1,21 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location,recovery
+1,PICKUP,B,SUCCEEDED,"took 3 units (1.80 kg), 0 left",17.58,62.89,68.92,15.024,15.18,0.1801,0.1908,0.0,0.0,49.912,49.093,49.045,1.8,3,B,
+2,PICKUP,A,SUCCEEDED,"took 2 units (1.60 kg), 0 left",80.52,72.6,76.87,17.74,18.28,0.2475,0.2577,0.0,0.0,49.093,47.968,47.922,3.4,2,A,
+3,PICKUP,B,SUCCEEDED,"took 2 units (1.20 kg), 0 left",153.14,92.35,76.87,20.989,18.28,0.3414,0.2916,0.0,0.0,47.968,46.416,46.642,4.6,2,B,
+4,DELIVER,delivery,SUCCEEDED,delivered 7 units,245.51,56.12,56.31,10.049,10.26,0.1976,0.2001,0.0,0.0,46.416,45.518,45.507,0.0,7,delivery,
+5,PICKUP,B,SUCCEEDED,"took 2 units (1.20 kg), 0 left",301.64,53.47,56.31,10.001,10.26,0.1403,0.1454,0.0,0.0,45.518,44.88,44.857,1.2,2,B,
+6,PICKUP,A,SUCCEEDED,"took 3 units (2.40 kg), 0 left",355.12,70.86,76.87,17.781,18.28,0.2312,0.2456,0.0,0.0,44.88,43.829,43.764,3.6,3,A,
+7,PICKUP,B,SUCCEEDED,"took 2 units (1.20 kg), 1 left",425.99,76.12,76.87,18.397,18.28,0.2993,0.2974,0.0,0.0,43.829,42.469,42.477,4.8,2,B,
+8,DELIVER,delivery,SUCCEEDED,delivered 7 units,502.12,56.15,56.31,10.094,10.26,0.2015,0.2037,0.0,0.0,42.469,41.553,41.543,0.0,7,delivery,
+9,PICKUP,C,SUCCEEDED,"took 1 units (2.00 kg), 0 left",558.27,47.28,46.15,6.248,6.3,0.1101,0.1089,0.0,0.0,41.553,41.052,41.058,2.0,1,C,
+10,PICKUP,B,SUCCEEDED,"took 3 units (1.80 kg), 0 left",605.56,52.25,53.69,9.232,9.24,0.1554,0.1581,0.0,0.0,41.052,40.346,40.333,3.8,3,B,
+11,DELIVER,delivery,SUCCEEDED,delivered 4 units,657.83,56.29,56.31,10.145,10.26,0.1921,0.1919,0.0,0.0,40.346,39.473,39.474,0.0,4,delivery,attempt 1: Nav2 aborted | recovery: clear costmaps
+12,PICKUP,A,SUCCEEDED,"took 4 units (3.20 kg), 0 left",714.13,53.37,55.67,9.816,10.01,0.1383,0.1437,0.0,0.0,39.473,38.844,38.82,3.2,4,A,
+13,PICKUP,B,SUCCEEDED,"took 2 units (1.20 kg), 0 left",767.5,74.7,76.87,18.041,18.28,0.2855,0.2903,0.0,0.0,38.844,37.546,37.525,4.4,2,B,attempt 1: Nav2 aborted | recovery: clear costmaps
+14,DELIVER,delivery,SUCCEEDED,delivered 6 units,842.22,55.26,56.31,10.047,10.26,0.1955,0.1997,0.0,0.0,37.546,36.658,36.638,0.0,6,delivery,
+15,PICKUP,C,FAILED,could not reach C; returned to the charger,897.51,46.44,46.15,16.18,6.3,0.1596,0.1091,0.0,0.0,36.658,35.932,36.162,0.0,0,charger,attempt 1: Nav2 aborted | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up) | attempt 3: Nav2 aborted | return to charger | attempt 1: Nav2 aborted | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up)
+16,PICKUP,B,SUCCEEDED,"took 3 units (1.80 kg), 0 left",943.96,67.12,68.92,15.7,15.18,0.1939,0.1927,0.0,0.0,35.932,35.051,35.056,1.8,3,B,attempt 1: Nav2 aborted | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up)
+17,DELIVER,delivery,SUCCEEDED,delivered 3 units,1011.14,55.94,56.31,10.12,10.26,0.167,0.1685,0.0,0.0,35.051,34.292,34.285,0.0,3,delivery,attempt 1: Nav2 aborted | recovery: clear costmaps
+18,PICKUP,A,SUCCEEDED,"took 4 units (3.20 kg), 0 left",1067.1,53.42,55.67,9.78,10.01,0.1386,0.1442,0.0,0.0,34.292,33.662,33.637,3.2,4,A,
+19,DELIVER,delivery,SUCCEEDED,delivered 4 units,1120.53,56.65,55.67,9.81,10.01,0.183,0.1823,0.0,0.0,33.662,32.83,32.833,0.0,4,delivery,attempt 1: Nav2 aborted | recovery: clear costmaps
+20,PICKUP,C,SUCCEEDED,"took 2 units (4.00 kg), 0 left",1177.2,48.68,46.15,6.376,6.3,0.1128,0.1093,0.0,0.0,32.83,32.317,32.333,4.0,2,C,

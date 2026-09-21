@@ -1,0 +1,33 @@
+INFO:     Started server process [294467]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+[INFO] [1789572173.451474428] [robofetch_monitor]: monitor listening (read-only)
+INFO:     127.0.0.1:48616 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51010 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51014 - "GET /api/state HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43552 - "GET /api/state HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43568 - "GET /api/state HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42318 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42334 - "GET /static/style.css HTTP/1.1" 200 OK
+Exception in thread Thread-1 (spin):
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 359, in spin
+    self._spin_once_impl()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 907, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 877, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 785, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [294467]

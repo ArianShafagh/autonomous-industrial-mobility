@@ -1,0 +1,6 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location,recovery
+1,PICKUP,B,SUCCEEDED,"took 5 units (2.00 kg), 0 left",15.63,62.82,68.92,14.981,15.18,0.1799,0.1908,0.0,0.0,29.908,29.09,29.041,2.0,5,B,
+2,DELIVER,delivery,SUCCEEDED,delivered 5 units,78.46,56.52,56.31,10.141,10.26,0.1676,0.1689,0.0,0.0,29.09,28.328,28.322,0.0,5,delivery,
+3,PICKUP,A,SUCCEEDED,"took 4 units (2.00 kg), 0 left",134.99,53.15,55.67,9.755,10.01,0.1389,0.1428,0.0,0.0,28.328,27.697,27.679,2.0,4,A,
+4,DELIVER,delivery,SUCCEEDED,delivered 4 units,188.14,56.02,55.67,9.859,10.01,0.1655,0.1661,0.0,0.0,27.697,26.945,26.942,0.0,4,delivery,
+5,PICKUP,B,FAILED,"could not reach B; charger unreachable too, robot HALTED (navigation_stuck)",244.18,34.3,56.31,12.418,10.26,0.1189,0.1451,0.0,0.0,26.945,26.404,26.285,0.0,0,delivery,attempt 1: Nav2 aborted | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up) | attempt 3: Nav2 aborted | return to charger | attempt 1: Nav2 aborted | recovery: clear costmaps | attempt 2: Nav2 aborted | recovery: back up (backed up) | attempt 3: Nav2 aborted

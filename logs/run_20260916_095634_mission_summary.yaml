@@ -1,0 +1,25 @@
+run_id: run_20260916_095634
+ended_by: plan_finished
+actions: 6
+succeeded: 6
+failed: 0
+sim_duration_s: 468.8
+distance_m: 61.12
+energy_drawn_wh: 0.846
+energy_charged_wh: 0.855
+battery_end_percent: 99.99
+delivered_units:
+  A: 1
+  B: 2
+  C: 0
+navigation:
+  drives: 6
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -1.6
+  distance: -0.4
+  energy: -1.1

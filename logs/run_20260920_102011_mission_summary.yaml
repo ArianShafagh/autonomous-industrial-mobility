@@ -1,0 +1,35 @@
+run_id: run_20260920_102011
+scenario: low_battery_start
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 21
+succeeded: 20
+failed: 1
+sim_duration_s: 2059.7
+distance_m: 190.5
+energy_drawn_wh: 2.929
+energy_charged_wh: 5.151
+battery_end_percent: 40.04
+delivered_units:
+  A: 7
+  B: 12
+  C: 2
+model: ns
+planner: ThetaStar
+decisions:
+  asked: 21
+  answered_by_model: 20
+  fallback: 1
+  mean_latency_ms: 12.6
+navigation:
+  drives: 21
+  drive_attempt_failures: 4
+  timeouts: 0
+  recovered_after_retry: 1
+  goals_abandoned: 1
+  returned_to_charger: 1
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -2.4
+  distance: -1.4
+  energy: -1.9

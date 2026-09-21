@@ -1,0 +1,31 @@
+
+480 episodes in 34.2 s -> tools/ai/results/episodes_20260916_152453.csv
+
+policy           scenario                     score delivered_units      lost_units       energy_wh     wh_per_unit      distance_m    charge_tripsmin_battery_percent         actions     decision_ms
+rule             balanced                     46.77           49.20            0.00            4.87            0.10          343.66            9.30           96.31           53.20            0.00  CI [44.3, 48.8]
+rule             fault_burst                  30.96           32.65            0.00            3.38            0.10          241.89            7.40           96.86           56.40            0.00  CI [29.1, 32.6]
+rule             high_demand                  93.23           97.05            0.31            7.02            0.07          448.91            6.25           92.22           46.40            0.00  CI [88.4, 97.1]
+rule             low_battery_start            -4.92           23.75           27.75            1.84            0.08          113.59            1.00           27.10           11.00            0.00  CI [-7.0, -2.3]
+rule             one_hot_section              72.79           75.80            0.00            6.01            0.08          413.94            9.65           95.30           49.60            0.00  CI [69.4, 75.6]
+rule             worn_robot                   46.55           49.15            0.00            5.20            0.11          340.83            8.80           95.84           51.90            0.00  CI [44.2, 48.6]
+ns               balanced                     45.31           49.80            0.12            8.74            0.18          422.69            1.90           64.87           57.15            0.00  CI [42.7, 47.5]
+ns               fault_burst                  29.56           32.20            0.00            5.28            0.18          158.63            0.55           77.14           60.80            0.00  CI [26.1, 32.5]
+ns               high_demand                  94.78           99.70            0.00            9.85            0.10          518.10            0.00           55.23           62.85            0.00  CI [89.8, 98.7]
+ns               low_battery_start            45.88           53.25            4.08            6.59            0.12          297.83            1.40           16.26           44.45            0.00  CI [42.9, 48.7]
+ns               one_hot_section              73.48           77.80            0.00            8.65            0.11          382.50            0.50           61.39           61.30            0.00  CI [69.1, 77.1]
+ns               worn_robot                   45.77           49.80            0.05            7.96            0.17          304.82            0.70           64.84           61.45            0.00  CI [42.0, 48.4]
+ns_neural_only   balanced                     43.20           48.20            0.81            8.39            0.18          381.80            2.05           66.55           57.75            0.00  CI [40.0, 46.0]
+ns_neural_only   fault_burst                  22.46           28.00            3.35            4.37            0.16          136.49            0.50           81.23           60.55            0.00  CI [18.7, 26.1]
+ns_neural_only   high_demand                  93.22           99.00            0.86            9.84            0.10          511.79            0.10           55.25           62.55            0.00  CI [87.5, 97.8]
+ns_neural_only   low_battery_start            -2.14           41.20            0.04            6.60            0.16          260.88            0.00            0.00           47.40            0.00  CI [-5.0, 0.1]
+                                      SAFETY VIOLATIONS in 20 of 20 episodes
+ns_neural_only   one_hot_section              68.88           75.55            2.48            8.38            0.11          361.75            0.75           63.65           60.95            0.00  CI [62.8, 74.5]
+ns_neural_only   worn_robot                   34.75           42.50            4.02            7.45            0.19          237.83            0.80           67.39           61.00            0.00  CI [27.6, 41.2]
+ns_symbolic_only balanced                     46.28           50.50            0.05            8.35            0.17          562.33            1.00           67.07           57.00            0.00  CI [43.7, 48.4]
+ns_symbolic_only fault_burst                  30.66           34.10            0.00            6.87            0.20          474.44            3.85           82.08           51.85            0.00  CI [28.5, 32.7]
+ns_symbolic_only high_demand                  96.69          101.85            0.35            9.62            0.09          618.15            0.20           58.55           63.95            0.00  CI [92.3, 100.5]
+ns_symbolic_only low_battery_start            54.01           57.80            0.29            7.01            0.12          461.34            1.35           17.12           47.95            0.00  CI [51.4, 56.2]
+ns_symbolic_only one_hot_section              72.85           78.10            0.52            9.46            0.12          633.38            0.35           60.00           60.55            0.00  CI [68.1, 76.6]
+ns_symbolic_only worn_robot                   45.35           49.95            0.10            9.00            0.18          569.73            0.85           64.08           57.70            0.00  CI [42.2, 48.0]
+
+(score = delivered units - lost production - 0.5 x Wh - 20 x safety violations)

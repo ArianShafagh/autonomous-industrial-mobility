@@ -1,0 +1,4 @@
+seq,action,target,phase,detail,sim_start_s,duration_s,predicted_duration_s,distance_m,predicted_distance_m,energy_wh,predicted_energy_wh,charged_wh,predicted_charged_wh,battery_start_percent,battery_end_percent,predicted_battery_end_percent,payload_kg,units,location
+1,PICKUP,C,SUCCEEDED,"nothing taken, 0 left",13.51,56.25,58.9,11.308,11.27,0.1499,0.1545,0.0,0.0,99.925,99.244,99.223,0.0,0,C
+2,DELIVER,delivery,SUCCEEDED,delivered 0 units,69.77,48.35,46.15,6.471,6.3,0.114,0.1084,0.0,0.0,99.244,98.726,98.751,0.0,0,delivery
+3,CHARGE,charger,SUCCEEDED,charged to 100.0 %,118.12,79.78,75.14,5.219,5.1,0.051,0.0473,0.3296,0.3276,98.726,99.992,100.0,0.0,0,charger

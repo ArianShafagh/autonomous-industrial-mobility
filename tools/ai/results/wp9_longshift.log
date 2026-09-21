@@ -1,0 +1,14 @@
+2 Gazebo shifts of 60 min -> tools/ai/results/gazebo_60min.csv
+[1/2] ns low_battery_start seed 5000 ...
+    gazebo: score 55.16, delivered 61, lost 2.16, 7.356 Wh, violations 0, failed actions 0, 63.4 min wall
+    sim   : score 53.38, delivered 59, lost 1.96, 7.326 Wh, violations 0
+[2/2] ppo low_battery_start seed 5000 ...
+    gazebo: score 37.79, delivered 62, lost 0.0, 8.421 Wh, violations 1, failed actions 0, 63.0 min wall
+    sim   : score 57.2, delivered 61, lost 0.0, 7.602 Wh, violations 0
+
+Gazebo vs fast simulator (mean over seeds; gap = (gazebo - sim) / |sim|)
+model    scenario           runs                      score            delivered_units                 lost_units                  energy_wh            violation_count
+ns       low_battery_start     1    55.16 /    53.38    +3%    61.00 /    59.00    +3%     2.16 /     1.96   +10%     7.36 /     7.33    +0%     0.00 /     0.00       
+ppo      low_battery_start     1    37.79 /    57.20   -34%    62.00 /    61.00    +2%     0.00 /     0.00            8.42 /     7.60   +11%     1.00 /     0.00       
+(each cell: gazebo / fast sim  gap)
+===== 60-minute shifts done =====

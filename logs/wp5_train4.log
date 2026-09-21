@@ -1,0 +1,50 @@
+
+=== round 1/2: look-ahead continues with 'ns_symbolic_only'
+collecting: 120 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/120 shifts, 1891 samples, 87 s
+  20/120 shifts, 3617 samples, 166 s
+  30/120 shifts, 5331 samples, 248 s
+  40/120 shifts, 6947 samples, 321 s
+  50/120 shifts, 8857 samples, 411 s
+  60/120 shifts, 10661 samples, 497 s
+  70/120 shifts, 12345 samples, 574 s
+  80/120 shifts, 14207 samples, 673 s
+  90/120 shifts, 15943 samples, 764 s
+  100/120 shifts, 17697 samples, 860 s
+  110/120 shifts, 19444 samples, 953 s
+  120/120 shifts, 21108 samples, 1044 s
+21108 samples in 1044 s; training the scorer
+  epoch   1  train MSE 183.651  val MSE 71.741
+  epoch  10  train MSE 14.898  val MSE 14.738
+  epoch  20  train MSE 7.520  val MSE 7.555
+  epoch  30  train MSE 6.021  val MSE 6.463
+  epoch  40  train MSE 5.438  val MSE 5.944
+round 1: val MSE 5.944, val R2 0.925, agrees with the oracle on 58.3 % of decisions, validation score 53.86
+  -> best so far, saved
+
+=== round 2/2: look-ahead continues with 'ns'
+collecting: 120 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/120 shifts, 1646 samples, 106 s
+  20/120 shifts, 3385 samples, 225 s
+  30/120 shifts, 4962 samples, 310 s
+  40/120 shifts, 6509 samples, 388 s
+  50/120 shifts, 8221 samples, 519 s
+  60/120 shifts, 9984 samples, 625 s
+  70/120 shifts, 11769 samples, 721 s
+  80/120 shifts, 13589 samples, 834 s
+  90/120 shifts, 15378 samples, 983 s
+  100/120 shifts, 17209 samples, 1093 s
+  110/120 shifts, 19027 samples, 12662 s
+  120/120 shifts, 20719 samples, 12753 s
+20719 samples in 12753 s; training the scorer
+  epoch   1  train MSE 113.126  val MSE 54.445
+  epoch  10  train MSE 22.178  val MSE 23.202
+  epoch  20  train MSE 15.905  val MSE 16.808
+  epoch  30  train MSE 13.928  val MSE 15.117
+  epoch  40  train MSE 13.173  val MSE 14.171
+round 2: val MSE 14.171, val R2 0.797, agrees with the oracle on 60.2 % of decisions, validation score 58.32
+  -> best so far, saved
+
+best round: 2 (validation score 58.32)
+model  -> src/robofetch_ai/robofetch_ai/models/ns_scorer.pt
+report -> tools/ai/results/train_ns_20260916_152450.json

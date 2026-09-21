@@ -1,0 +1,31 @@
+=== test 1: unreachable section  plan: PICKUP:C;DELIVER  obstacle on: C
+[run_mission] COMPLETE in 160s wall  (log /home/robojazzy/robofetch_ws_copy/robofetch_ws/logs/20260915_195746_launch.log)
+drive to C failed (Nav2 reported success but the robot is 0.62 m from C (goal blocked?)), attempt 1
+reached C after recovery: ['attempt 1: Nav2 reported success but the robot is 0.62 m from C (goal blocked?)', 'recovery: clear costmaps']
+[1] PICKUP:C done: nothing taken, 0 left | measured 13.8 m, 87 s, 0.21 Wh, battery 99.9 -> 99.0 %
+[2] DELIVER done: delivered 0 units | measured 6.7 m, 51 s, 0.12 Wh, battery 99.0 -> 98.4 %
+MISSION COMPLETE
+ended_by: plan_finished
+navigation:
+  drives: 2
+  drive_attempt_failures: 1
+  timeouts: 0
+  recovered_after_retry: 1
+  goals_abandoned: 0
+  returned_to_charger: 0
+recovery column:
+action,target,phase,recovery
+PICKUP,C,SUCCEEDED,C,attempt 1: Nav2 reported success but the robot is 0.62 m from C (goal blocked?) | recovery: clear costmaps
+DELIVER,delivery,SUCCEEDED,
+
+=== test 2: unreachable charger  plan: PICKUP:A;CHARGE:100  obstacle on: charger
+ended_by: plan_finished
+navigation:
+  drives: 6
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+recovery column:
+

@@ -1,0 +1,71 @@
+
+=== round 1/3: look-ahead continues with 'ns_symbolic_only'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1640 samples from 408 decisions (21 had only one option), 73 s
+  20/80 shifts, 3347 samples from 848 decisions (34 had only one option), 146 s
+  30/80 shifts, 5005 samples from 1255 decisions (52 had only one option), 219 s
+  40/80 shifts, 6741 samples from 1691 decisions (74 had only one option), 295 s
+  50/80 shifts, 8408 samples from 2108 decisions (84 had only one option), 371 s
+  60/80 shifts, 10056 samples from 2507 decisions (106 had only one option), 444 s
+  70/80 shifts, 11746 samples from 2917 decisions (144 had only one option), 519 s
+  80/80 shifts, 13536 samples from 3371 decisions (166 had only one option), 596 s
+13536 samples in 596 s; training the scorer
+  epoch   1  loss 7.018  picks the look-ahead's best action 29.8 % of the time
+  epoch   5  loss 3.425  picks the look-ahead's best action 33.2 % of the time
+  epoch  10  loss 2.657  picks the look-ahead's best action 35.5 % of the time
+  epoch  15  loss 2.514  picks the look-ahead's best action 36.8 % of the time
+  epoch  20  loss 2.406  picks the look-ahead's best action 30.3 % of the time
+  epoch  25  loss 2.359  picks the look-ahead's best action 35.8 % of the time
+  epoch  30  loss 2.307  picks the look-ahead's best action 33.8 % of the time
+  epoch  35  loss 2.262  picks the look-ahead's best action 32.3 % of the time
+  epoch  40  loss 2.207  picks the look-ahead's best action 35.0 % of the time
+round 1: picks the look-ahead's best action 35.0 % of the time (validation), validation score 59.68
+  -> best so far, saved
+
+=== round 2/3: look-ahead continues with 'ns'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1670 samples from 412 decisions (14 had only one option), 89 s
+  20/80 shifts, 3533 samples from 885 decisions (38 had only one option), 185 s
+  30/80 shifts, 5252 samples from 1312 decisions (72 had only one option), 276 s
+  40/80 shifts, 7005 samples from 1743 decisions (94 had only one option), 367 s
+  50/80 shifts, 8764 samples from 2173 decisions (112 had only one option), 467 s
+  60/80 shifts, 10624 samples from 2613 decisions (135 had only one option), 572 s
+  70/80 shifts, 12152 samples from 2980 decisions (171 had only one option), 671 s
+  80/80 shifts, 13973 samples from 3441 decisions (185 had only one option), 791 s
+13973 samples in 791 s; training the scorer
+  epoch   1  loss 6.570  picks the look-ahead's best action 30.7 % of the time
+  epoch   5  loss 3.498  picks the look-ahead's best action 39.7 % of the time
+  epoch  10  loss 2.823  picks the look-ahead's best action 35.6 % of the time
+  epoch  15  loss 2.625  picks the look-ahead's best action 41.4 % of the time
+  epoch  20  loss 2.532  picks the look-ahead's best action 37.6 % of the time
+  epoch  25  loss 2.453  picks the look-ahead's best action 34.7 % of the time
+  epoch  30  loss 2.397  picks the look-ahead's best action 38.8 % of the time
+  epoch  35  loss 2.341  picks the look-ahead's best action 35.8 % of the time
+  epoch  40  loss 2.284  picks the look-ahead's best action 35.3 % of the time
+round 2: picks the look-ahead's best action 35.3 % of the time (validation), validation score 58.05
+
+=== round 3/3: look-ahead continues with 'ns'
+collecting: 80 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/80 shifts, 1528 samples from 378 decisions (30 had only one option), 74 s
+  20/80 shifts, 3240 samples from 805 decisions (50 had only one option), 157 s
+  30/80 shifts, 4615 samples from 1170 decisions (73 had only one option), 222 s
+  40/80 shifts, 6088 samples from 1550 decisions (105 had only one option), 293 s
+  50/80 shifts, 7689 samples from 1957 decisions (129 had only one option), 372 s
+  60/80 shifts, 9093 samples from 2309 decisions (159 had only one option), 439 s
+  70/80 shifts, 10604 samples from 2692 decisions (197 had only one option), 508 s
+  80/80 shifts, 12177 samples from 3107 decisions (212 had only one option), 583 s
+12177 samples in 583 s; training the scorer
+  epoch   1  loss 6.257  picks the look-ahead's best action 34.9 % of the time
+  epoch   5  loss 3.168  picks the look-ahead's best action 34.1 % of the time
+  epoch  10  loss 2.730  picks the look-ahead's best action 34.1 % of the time
+  epoch  15  loss 2.582  picks the look-ahead's best action 34.9 % of the time
+  epoch  20  loss 2.473  picks the look-ahead's best action 35.7 % of the time
+  epoch  25  loss 2.401  picks the look-ahead's best action 35.1 % of the time
+  epoch  30  loss 2.317  picks the look-ahead's best action 34.5 % of the time
+  epoch  35  loss 2.269  picks the look-ahead's best action 37.8 % of the time
+  epoch  40  loss 2.209  picks the look-ahead's best action 34.9 % of the time
+round 3: picks the look-ahead's best action 34.9 % of the time (validation), validation score 56.10
+
+best round: 1 (validation score 59.68)
+model  -> src/robofetch_ai/robofetch_ai/models/ns_scorer.pt
+report -> tools/ai/results/train_ns_20260916_165028.json

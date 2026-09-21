@@ -1,0 +1,47 @@
+
+=== round 1/2: look-ahead continues with 'ns_symbolic_only'
+collecting: 120 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/120 shifts, 1891 samples, 91 s
+  20/120 shifts, 3617 samples, 162 s
+  30/120 shifts, 5331 samples, 238 s
+  40/120 shifts, 6947 samples, 310 s
+  50/120 shifts, 8857 samples, 401 s
+  60/120 shifts, 10661 samples, 481 s
+  70/120 shifts, 12345 samples, 557 s
+  80/120 shifts, 14207 samples, 645 s
+  90/120 shifts, 15943 samples, 726 s
+  100/120 shifts, 17697 samples, 804 s
+  110/120 shifts, 19444 samples, 881 s
+  120/120 shifts, 21108 samples, 959 s
+21108 samples in 959 s; training the scorer
+  epoch   1  train MSE 215.714  val MSE 77.500
+  epoch  10  train MSE 14.220  val MSE 14.288
+  epoch  20  train MSE 8.332  val MSE 8.460
+  epoch  30  train MSE 6.495  val MSE 6.948
+  epoch  40  train MSE 5.753  val MSE 6.238
+round 1: val MSE 6.238, val R2 0.928, agrees with the oracle on 34.0 % of decisions
+
+=== round 2/2: look-ahead continues with 'ns'
+collecting: 120 shifts over ['balanced', 'fault_burst', 'high_demand', 'low_battery_start', 'one_hot_section', 'worn_robot'], horizon 900 s, 3 futures each
+  10/120 shifts, 1575 samples, 91 s
+  20/120 shifts, 3331 samples, 212 s
+  30/120 shifts, 4990 samples, 504 s
+  40/120 shifts, 6581 samples, 672 s
+  50/120 shifts, 8448 samples, 804 s
+  60/120 shifts, 10382 samples, 926 s
+  70/120 shifts, 12096 samples, 1035 s
+  80/120 shifts, 13905 samples, 1140 s
+  90/120 shifts, 15771 samples, 1245 s
+  100/120 shifts, 17321 samples, 1333 s
+  110/120 shifts, 19147 samples, 1432 s
+  120/120 shifts, 20867 samples, 1529 s
+20867 samples in 1529 s; training the scorer
+  epoch   1  train MSE 129.873  val MSE 54.595
+  epoch  10  train MSE 20.305  val MSE 21.140
+  epoch  20  train MSE 14.985  val MSE 15.847
+  epoch  30  train MSE 12.222  val MSE 12.948
+  epoch  40  train MSE 11.407  val MSE 12.219
+round 2: val MSE 12.219, val R2 0.854, agrees with the oracle on 39.6 % of decisions
+
+model  -> src/robofetch_ai/robofetch_ai/models/ns_scorer.pt
+report -> tools/ai/results/train_ns_20260916_113134.json

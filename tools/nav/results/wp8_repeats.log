@@ -1,0 +1,219 @@
+waiting for Nav2 to be active ...
+
+phase 2: driving the tour with each planner, 5 repeat(s)
+  [repeat 1] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.16 m, driven  8.65 m,  19.9 s, 0.077 Wh
+           A -> delivery ok  planned 10.53 m, driven 10.50 m,  28.4 s, 0.101 Wh
+    delivery -> B        ok  planned 10.46 m, driven 10.06 m,  23.8 s, 0.091 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.07 m,  26.6 s, 0.094 Wh
+    delivery -> C        ok  planned  6.37 m, driven  6.28 m,  17.5 s, 0.062 Wh
+           C -> delivery ok  planned  6.42 m, driven  6.48 m,  18.4 s, 0.062 Wh
+    delivery -> charger  ok  planned  5.25 m, driven  5.25 m,  15.5 s, 0.053 Wh
+  [repeat 1] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.75 m, driven  8.83 m,  21.6 s, 0.080 Wh
+           A -> delivery ok  planned 10.55 m, driven 10.56 m,  28.4 s, 0.102 Wh
+    delivery -> B        ok  planned 11.07 m, driven 10.28 m,  25.2 s, 0.094 Wh
+           B -> delivery ok  planned 10.17 m, driven 10.12 m,  26.4 s, 0.095 Wh
+    delivery -> C        ok  planned  6.43 m, driven  6.37 m,  18.3 s, 0.062 Wh
+           C -> delivery ok  planned  6.65 m, driven  6.47 m,  18.6 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.20 m, driven  5.30 m,  15.8 s, 0.054 Wh
+  [repeat 1] driving the tour with Smac2D ...
+     charger -> A        ok  planned  8.87 m, driven  9.01 m,  21.4 s, 0.081 Wh
+           A -> delivery ok  planned 10.59 m, driven 10.64 m,  27.6 s, 0.101 Wh
+    delivery -> B        ok  planned 10.57 m, driven 10.45 m,  25.1 s, 0.095 Wh
+           B -> delivery ok  planned 10.25 m, driven 10.28 m,  26.6 s, 0.098 Wh
+    delivery -> C        ok  planned  6.38 m, driven  6.41 m,  18.5 s, 0.063 Wh
+           C -> delivery ok  planned  6.36 m, driven  6.42 m,  17.8 s, 0.063 Wh
+    delivery -> charger  ok  planned  5.22 m, driven  5.35 m,  16.0 s, 0.054 Wh
+  [repeat 1] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  8.88 m, driven  8.75 m,  20.2 s, 0.078 Wh
+           A -> delivery ok  planned 10.04 m, driven 10.15 m,  26.3 s, 0.096 Wh
+    delivery -> B        ok  planned 10.48 m, driven 10.16 m,  23.9 s, 0.093 Wh
+           B -> delivery ok  planned 10.10 m, driven 10.14 m,  26.0 s, 0.096 Wh
+    delivery -> C        ok  planned  6.26 m, driven  6.22 m,  17.1 s, 0.060 Wh
+           C -> delivery ok  planned  6.27 m, driven  6.33 m,  17.5 s, 0.063 Wh
+    delivery -> charger  ok  planned  5.21 m, driven  5.33 m,  16.0 s, 0.054 Wh
+  [repeat 1] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.39 m, driven  9.16 m,  21.0 s, 0.083 Wh
+           A -> delivery ok  planned 10.64 m, driven 10.64 m,  26.8 s, 0.100 Wh
+    delivery -> B        ok  planned 10.43 m, driven 10.07 m,  23.3 s, 0.093 Wh
+           B -> delivery ok  planned 10.29 m, driven 10.43 m,  26.2 s, 0.098 Wh
+    delivery -> C        ok  planned  6.61 m, driven  6.43 m,  16.6 s, 0.062 Wh
+           C -> delivery ok  planned  6.28 m, driven  6.40 m,  17.5 s, 0.063 Wh
+    delivery -> charger  ok  planned  7.18 m, driven  6.58 m,  32.4 s, 0.088 Wh
+  [repeat 2] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.58 m, driven  8.99 m,  22.0 s, 0.084 Wh
+           A -> delivery ok  planned 10.50 m, driven 10.32 m,  28.1 s, 0.101 Wh
+    delivery -> B        ok  planned 11.14 m, driven 10.23 m,  25.0 s, 0.095 Wh
+           B -> delivery ok  planned 10.35 m, driven 10.14 m,  27.4 s, 0.100 Wh
+    delivery -> C        ok  planned  6.65 m, driven  6.37 m,  17.8 s, 0.062 Wh
+           C -> delivery ok  planned  6.44 m, driven  6.44 m,  18.2 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.29 m, driven  5.31 m,  15.8 s, 0.053 Wh
+  [repeat 2] driving the tour with Smac2D ...
+     charger -> A        ok  planned  9.14 m, driven  9.14 m,  21.8 s, 0.085 Wh
+           A -> delivery ok  planned 10.57 m, driven 10.72 m,  28.1 s, 0.103 Wh
+    delivery -> B        ok  planned 10.59 m, driven 10.38 m,  24.8 s, 0.096 Wh
+           B -> delivery ok  planned 10.17 m, driven 10.27 m,  26.4 s, 0.099 Wh
+    delivery -> C        ok  planned  6.39 m, driven  6.40 m,  18.2 s, 0.064 Wh
+           C -> delivery ok  planned  6.38 m, driven  6.50 m,  18.3 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.18 m, driven  5.31 m,  15.6 s, 0.055 Wh
+  [repeat 2] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  9.00 m, driven  8.73 m,  20.4 s, 0.080 Wh
+           A -> delivery ok  planned  9.95 m, driven 10.06 m,  26.0 s, 0.096 Wh
+    delivery -> B        ok  planned 10.38 m, driven 10.10 m,  23.6 s, 0.093 Wh
+           B -> delivery ok  planned 10.12 m, driven 10.20 m,  26.7 s, 0.097 Wh
+    delivery -> C        ok  planned  6.30 m, driven  6.29 m,  17.2 s, 0.063 Wh
+           C -> delivery ok  planned  6.27 m, driven  6.36 m,  17.5 s, 0.062 Wh
+    delivery -> charger  ok  planned  5.16 m, driven  5.31 m,  15.9 s, 0.055 Wh
+  [repeat 2] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.73 m, driven  9.00 m,  21.0 s, 0.083 Wh
+           A -> delivery ok  planned 10.81 m, driven 10.78 m,  26.6 s, 0.102 Wh
+    delivery -> B        ok  planned 10.47 m, driven 10.19 m,  23.6 s, 0.094 Wh
+           B -> delivery ok  planned 10.31 m, driven 10.42 m,  26.4 s, 0.100 Wh
+    delivery -> C        ok  planned  6.70 m, driven  6.41 m,  16.8 s, 0.061 Wh
+           C -> delivery ok  planned  6.34 m, driven  6.36 m,  17.7 s, 0.064 Wh
+    delivery -> charger  ok  planned  7.22 m, driven  6.27 m,  25.2 s, 0.075 Wh
+  [repeat 2] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.44 m, driven  9.36 m,  23.2 s, 0.090 Wh
+           A -> delivery ok  planned 10.54 m, driven 10.53 m,  28.0 s, 0.103 Wh
+    delivery -> B        ok  planned 10.55 m, driven 10.21 m,  24.0 s, 0.094 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.11 m,  27.5 s, 0.099 Wh
+    delivery -> C        ok  planned  6.34 m, driven  6.30 m,  17.5 s, 0.064 Wh
+           C -> delivery ok  planned  6.42 m, driven  6.46 m,  18.1 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.31 m, driven  5.35 m,  15.8 s, 0.055 Wh
+  [repeat 3] driving the tour with Smac2D ...
+     charger -> A        ok  planned  9.04 m, driven  8.91 m,  21.1 s, 0.083 Wh
+           A -> delivery ok  planned 10.53 m, driven 10.56 m,  27.6 s, 0.101 Wh
+    delivery -> B        ok  planned 10.45 m, driven 10.38 m,  24.8 s, 0.097 Wh
+           B -> delivery ok  planned 10.26 m, driven 10.33 m,  26.4 s, 0.100 Wh
+    delivery -> C        ok  planned  6.38 m, driven  6.35 m,  18.5 s, 0.064 Wh
+           C -> delivery ok  planned  6.38 m, driven  6.57 m,  18.5 s, 0.067 Wh
+    delivery -> charger  ok  planned  5.18 m, driven  5.33 m,  15.8 s, 0.054 Wh
+  [repeat 3] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  8.99 m, driven  8.87 m,  20.7 s, 0.082 Wh
+           A -> delivery ok  planned 10.04 m, driven 10.07 m,  26.3 s, 0.097 Wh
+    delivery -> B        ok  planned 10.44 m, driven 10.15 m,  23.6 s, 0.095 Wh
+           B -> delivery ok  planned 10.13 m, driven 10.20 m,  26.1 s, 0.098 Wh
+    delivery -> C        ok  planned  6.26 m, driven  6.25 m,  17.2 s, 0.062 Wh
+           C -> delivery ok  planned  6.33 m, driven  6.51 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.21 m, driven  5.29 m,  15.7 s, 0.055 Wh
+  [repeat 3] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.89 m, driven  9.10 m,  21.0 s, 0.084 Wh
+           A -> delivery ok  planned 10.96 m, driven 10.83 m,  27.0 s, 0.103 Wh
+    delivery -> B        ok  planned 10.46 m, driven 10.18 m,  23.7 s, 0.095 Wh
+           B -> delivery ok  planned 10.29 m, driven 10.40 m,  26.3 s, 0.099 Wh
+    delivery -> C        ok  planned  6.72 m, driven  6.36 m,  16.7 s, 0.062 Wh
+           C -> delivery ok  planned  6.27 m, driven  6.45 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  7.05 m, driven  6.65 m,  34.0 s, 0.092 Wh
+  [repeat 3] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.42 m, driven  9.14 m,  22.2 s, 0.086 Wh
+           A -> delivery ok  planned 10.38 m, driven 10.33 m,  27.8 s, 0.102 Wh
+    delivery -> B        ok  planned 10.58 m, driven 10.18 m,  24.1 s, 0.095 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.10 m,  27.4 s, 0.099 Wh
+    delivery -> C        ok  planned  6.31 m, driven  6.33 m,  17.6 s, 0.064 Wh
+           C -> delivery ok  planned  6.38 m, driven  6.37 m,  17.8 s, 0.064 Wh
+    delivery -> charger  ok  planned  5.31 m, driven  5.28 m,  16.0 s, 0.055 Wh
+  [repeat 3] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.88 m, driven  9.04 m,  24.2 s, 0.089 Wh
+           A -> delivery ok  planned 10.61 m, driven 10.50 m,  28.3 s, 0.103 Wh
+    delivery -> B        ok  planned 11.39 m, driven 10.50 m,  25.6 s, 0.100 Wh
+           B -> delivery ok  planned 10.15 m, driven 10.18 m,  27.3 s, 0.100 Wh
+    delivery -> C        ok  planned  6.75 m, driven  6.36 m,  19.1 s, 0.066 Wh
+           C -> delivery ok  planned  6.34 m, driven  6.51 m,  18.1 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.24 m, driven  5.23 m,  15.5 s, 0.055 Wh
+  [repeat 4] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  9.13 m, driven  8.87 m,  21.0 s, 0.083 Wh
+           A -> delivery ok  planned 10.11 m, driven 10.30 m,  26.9 s, 0.100 Wh
+    delivery -> B        ok  planned 10.55 m, driven 10.14 m,  23.7 s, 0.095 Wh
+           B -> delivery ok  planned 10.11 m, driven 10.18 m,  26.1 s, 0.098 Wh
+    delivery -> C        ok  planned  6.23 m, driven  6.20 m,  17.2 s, 0.062 Wh
+           C -> delivery ok  planned  6.37 m, driven  6.46 m,  18.2 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.17 m, driven  5.30 m,  15.8 s, 0.055 Wh
+  [repeat 4] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.25 m, driven  9.17 m,  21.3 s, 0.085 Wh
+           A -> delivery ok  planned 10.62 m, driven 10.56 m,  26.8 s, 0.102 Wh
+    delivery -> B        ok  planned 10.40 m, driven 10.15 m,  23.6 s, 0.093 Wh
+           B -> delivery ok  planned 10.36 m, driven 10.45 m,  25.9 s, 0.100 Wh
+    delivery -> C        ok  planned  6.62 m, driven  6.35 m,  16.5 s, 0.061 Wh
+           C -> delivery ok  planned  6.41 m, driven  6.38 m,  17.6 s, 0.064 Wh
+    delivery -> charger  FAIL planned  7.78 m, driven  5.94 m,  48.8 s, 0.114 Wh
+  [repeat 4] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.90 m, driven  9.00 m,  24.3 s, 0.089 Wh
+           A -> delivery ok  planned 10.36 m, driven 10.19 m,  27.8 s, 0.101 Wh
+    delivery -> B        ok  planned 10.52 m, driven 10.14 m,  23.9 s, 0.095 Wh
+           B -> delivery ok  planned 10.12 m, driven 10.05 m,  26.6 s, 0.097 Wh
+    delivery -> C        ok  planned  6.29 m, driven  6.23 m,  17.2 s, 0.064 Wh
+           C -> delivery ok  planned  6.43 m, driven  6.48 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.26 m, driven  5.21 m,  15.5 s, 0.053 Wh
+  [repeat 4] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.65 m, driven  8.89 m,  21.6 s, 0.085 Wh
+           A -> delivery ok  planned 10.65 m, driven 10.56 m,  28.7 s, 0.103 Wh
+    delivery -> B        ok  planned 11.21 m, driven 10.43 m,  25.2 s, 0.100 Wh
+           B -> delivery ok  planned 10.45 m, driven 10.13 m,  27.3 s, 0.100 Wh
+    delivery -> C        ok  planned  6.71 m, driven  6.43 m,  18.4 s, 0.065 Wh
+           C -> delivery ok  planned  6.38 m, driven  6.46 m,  18.0 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.18 m, driven  5.27 m,  15.5 s, 0.055 Wh
+  [repeat 4] driving the tour with Smac2D ...
+     charger -> A        ok  planned  9.00 m, driven  9.07 m,  21.8 s, 0.086 Wh
+           A -> delivery ok  planned 10.61 m, driven 10.76 m,  27.6 s, 0.103 Wh
+    delivery -> B        ok  planned 10.65 m, driven 10.43 m,  25.2 s, 0.098 Wh
+           B -> delivery ok  planned 10.25 m, driven 10.38 m,  26.4 s, 0.101 Wh
+    delivery -> C        ok  planned  6.35 m, driven  6.41 m,  19.2 s, 0.066 Wh
+           C -> delivery ok  planned  6.33 m, driven  6.44 m,  17.8 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.26 m, driven  5.28 m,  15.8 s, 0.055 Wh
+  [repeat 5] driving the tour with SmacLattice ...
+     charger -> A        ok  planned  9.07 m, driven  8.85 m,  20.3 s, 0.081 Wh
+           A -> delivery ok  planned 10.56 m, driven 10.56 m,  26.3 s, 0.102 Wh
+    delivery -> B        ok  planned 10.34 m, driven 10.14 m,  23.8 s, 0.093 Wh
+           B -> delivery ok  planned 10.32 m, driven 10.27 m,  25.9 s, 0.099 Wh
+    delivery -> C        ok  planned  6.70 m, driven  6.39 m,  16.5 s, 0.061 Wh
+           C -> delivery ok  planned  6.34 m, driven  6.38 m,  17.6 s, 0.063 Wh
+    delivery -> charger  ok  planned  7.18 m, driven  6.39 m,  25.2 s, 0.076 Wh
+  [repeat 5] driving the tour with NavfnDijkstra ...
+     charger -> A        ok  planned  9.52 m, driven  9.18 m,  22.8 s, 0.088 Wh
+           A -> delivery ok  planned 10.55 m, driven 10.38 m,  28.2 s, 0.103 Wh
+    delivery -> B        ok  planned 10.58 m, driven 10.23 m,  24.1 s, 0.095 Wh
+           B -> delivery ok  planned 10.15 m, driven 10.06 m,  27.1 s, 0.101 Wh
+    delivery -> C        ok  planned  6.27 m, driven  6.21 m,  17.2 s, 0.062 Wh
+           C -> delivery ok  planned  6.39 m, driven  6.44 m,  17.9 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.28 m, driven  5.30 m,  15.7 s, 0.054 Wh
+  [repeat 5] driving the tour with NavfnAStar ...
+     charger -> A        ok  planned  9.55 m, driven  8.99 m,  21.6 s, 0.085 Wh
+           A -> delivery ok  planned 10.64 m, driven 10.56 m,  28.3 s, 0.104 Wh
+    delivery -> B        ok  planned 10.85 m, driven 10.27 m,  24.9 s, 0.097 Wh
+           B -> delivery ok  planned 10.15 m, driven 10.15 m,  27.1 s, 0.100 Wh
+    delivery -> C        ok  planned  6.38 m, driven  6.32 m,  17.3 s, 0.064 Wh
+           C -> delivery ok  planned  6.34 m, driven  6.40 m,  17.8 s, 0.063 Wh
+    delivery -> charger  ok  planned  5.25 m, driven  5.34 m,  16.0 s, 0.056 Wh
+  [repeat 5] driving the tour with Smac2D ...
+     charger -> A        ok  planned  9.01 m, driven  8.95 m,  21.2 s, 0.085 Wh
+           A -> delivery ok  planned 10.58 m, driven 10.70 m,  27.6 s, 0.103 Wh
+    delivery -> B        ok  planned 10.54 m, driven 10.35 m,  24.8 s, 0.098 Wh
+           B -> delivery ok  planned 10.17 m, driven 10.31 m,  27.3 s, 0.101 Wh
+    delivery -> C        ok  planned  6.43 m, driven  6.35 m,  18.3 s, 0.066 Wh
+           C -> delivery ok  planned  6.33 m, driven  6.43 m,  18.2 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.21 m, driven  5.32 m,  16.0 s, 0.056 Wh
+  [repeat 5] driving the tour with ThetaStar ...
+     charger -> A        ok  planned  8.94 m, driven  8.76 m,  20.7 s, 0.081 Wh
+           A -> delivery ok  planned 10.06 m, driven 10.13 m,  26.1 s, 0.098 Wh
+    delivery -> B        ok  planned 10.49 m, driven 10.14 m,  23.5 s, 0.093 Wh
+           B -> delivery ok  planned 10.15 m, driven 10.22 m,  26.3 s, 0.099 Wh
+    delivery -> C        ok  planned  6.31 m, driven  6.25 m,  17.3 s, 0.064 Wh
+           C -> delivery ok  planned  6.30 m, driven  6.53 m,  18.3 s, 0.065 Wh
+    delivery -> charger  ok  planned  5.15 m, driven  5.34 m,  15.6 s, 0.056 Wh
+
+PHASE 2 - driving the tour, 5 repeats per planner (mean +- 95 % CI of the tour totals)
+planner         tours ok          time s       driven m        energy Wh    turning rad     goal err m
+NavfnDijkstra      5/5      152.7 +- 1.9   57.69 +- 0.53  0.561 +- 0.015     45.2 +- 3.8  0.167 +- 0.009
+NavfnAStar         5/5      155.0 +- 2.4   58.05 +- 0.25  0.565 +- 0.013    73.0 +- 12.8  0.139 +- 0.007
+Smac2D             5/5      153.3 +- 0.5   58.58 +- 0.19  0.566 +- 0.010     26.1 +- 0.2  0.111 +- 0.005
+ThetaStar          5/5      147.8 +- 0.9   57.26 +- 0.23  0.551 +- 0.009     24.1 +- 2.5  0.153 +- 0.006
+SmacLattice        4/5      160.9 +- 8.4   59.53 +- 0.69  0.585 +- 0.018     33.5 +- 2.0  0.191 +- 0.009
+
+paired against the current default (NavfnDijkstra), same repeat = same session conditions:
+planner               time diff s  p (time)       energy diff Wh  p (energy)
+NavfnAStar        +2.2 +-   2.9     0.099   +0.0043 +-  0.0110       0.339
+Smac2D            +0.5 +-   1.8     0.443   +0.0052 +-  0.0091       0.186
+ThetaStar         -5.0 +-   1.7     0.001   -0.0104 +-  0.0103       0.049
+SmacLattice       +8.3 +-  10.0     0.076   +0.0248 +-  0.0304       0.081
+-> tools/nav/results/planners_drive_20260917_103512.csv
