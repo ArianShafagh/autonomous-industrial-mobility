@@ -52,18 +52,54 @@ The model separates the two. A symbolic layer decides what is \emph{allowed} and
 \emph{urgent}; a neural scorer chooses among the candidates that survive. \Cref{fig:ns-pipeline}
 shows the pipeline.
 
-% TODO(figure): draw the pipeline as a diagram. Suggested shape, left to right:
-%   legal actions -> [hard rules: forbid] -> [priority tiers: keep the top tier]
-%   -> [symbolic estimate + bounded neural correction: rank] -> action + explanation
-% Keep it plain (boxes and arrows, no colour gradients); tikz is already available via thesis.sty.
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.9\textwidth}{\centering\vspace{2em}\textit{<pipeline diagram: legal actions
-    $\rightarrow$ hard rules $\rightarrow$ priority tiers $\rightarrow$ bounded neural ranking
-    $\rightarrow$ action + explanation>}\vspace{2em}}}
+    \begin{tikzpicture}[
+        font=\small,
+        stage/.style={draw, rounded corners=2pt, align=center, minimum height=1.25cm,
+                      text width=2.6cm, inner sep=4pt},
+        symb/.style={stage, fill=black!6},
+        neur/.style={stage, fill=black!12},
+        io/.style={align=center, text width=2.3cm, inner sep=2pt},
+        note/.style={font=\scriptsize, align=center, text width=2.8cm, text=black!65,
+                     inner sep=2pt},
+        flow/.style={-{Stealth[length=2mm]}, thick},
+        drop/.style={-{Stealth[length=1.6mm]}, draw=black!55}]
+
+        \node[io] (in) {legal\\actions};
+        \node[symb, right=0.8cm of in]    (rules) {\textbf{hard rules}\\forbid};
+        \node[symb, right=0.8cm of rules] (tiers) {\textbf{priority tiers}\\keep top tier};
+        \node[neur, right=1.35cm of tiers] (rank)  {\textbf{ranking}\\estimate $+$\\bounded correction};
+        \node[io, right=0.8cm of rank]    (out)   {action $+$\\explanation};
+
+        \draw[flow] (in) -- (rules);
+        \draw[flow] (rules) -- (tiers);
+        \draw[flow] (tiers) -- (rank);
+        \draw[flow] (rank) -- (out);
+
+        % what each stage does, drawn downwards so the main flow stays a straight line
+        \node[note, below=0.7cm of rules] (n1)
+            {H1--H5: unsafe or\\impossible actions};
+        \node[note, below=0.7cm of tiers] (n2)
+            {tier 2 blocked line\\tier 1 about to block\\tier 0 routine};
+        \node[note, below=0.7cm of rank]  (n3)
+            {network may move an\\action by at most $\beta$};
+        \draw[drop] (rules) -- (n1);
+        \draw[drop] (tiers) -- (n2);
+        \draw[drop] (rank)  -- (n3);
+
+        \begin{scope}[on background layer]
+            \node[draw, dashed, rounded corners, fit=(rules)(tiers)(n1)(n2),
+                  inner sep=9pt,
+                  label={[font=\scriptsize, text=black!65, inner sep=1pt, yshift=1pt]above:symbolic}] {};
+            \node[draw, dashed, rounded corners, fit=(rank)(n3),
+                  inner sep=9pt,
+                  label={[font=\scriptsize, text=black!65, inner sep=1pt, yshift=1pt]above:neural}] {};
+        \end{scope}
+    \end{tikzpicture}
     \caption{The neuro-symbolic decision pipeline. The symbolic layer removes actions and ranks
              what remains into urgency tiers; the neural scorer only ever chooses \emph{within}
-             the most urgent tier.}
+             the most urgent tier, and only by at most $\beta$ score units.}
     \label{fig:ns-pipeline}
 \end{figure}
 

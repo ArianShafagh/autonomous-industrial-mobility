@@ -26,3 +26,17 @@ __pycache__/
 
 # Phantom entry created by the Claude Code Bash sandbox for the deleted old venv
 robofetch_venv/
+
+# LaTeX build artefacts (the thesis is compiled by Overleaf or locally on demand)
+thesis/*.aux
+thesis/*.log
+thesis/*.out
+thesis/*.toc
+thesis/*.lof
+thesis/*.lot
+thesis/*.bbl
+thesis/*.blg
+thesis/*.pdf
+thesis/*.fls
+thesis/*.fdb_latexmk
+thesis/*.synctex.gz

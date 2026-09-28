@@ -24,18 +24,70 @@ a separate process (\cref{fig:architecture}). Four elements matter for the rest 
         be stopped, replaced or upgraded without touching the robot.
 \end{itemize}
 
-% TODO(figure): draw the architecture. Suggested: layout.yaml at the top feeding the generator,
-% whose four outputs fan out to Gazebo, Nav2, the executor and the models; below, the ROS nodes
-% (factory, robot state, mission executor) with their topics; to the right, the decision service
-% and the dashboard as separate processes. tikz is available via thesis.sty.
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{2.2em}\textit{<architecture diagram:
-    layout.yaml $\rightarrow$ generator $\rightarrow$ \{world, map, poses, distances\};
-    factory node, robot state node, mission executor, Nav2, Gazebo; decision service and
-    dashboard as separate processes>}\vspace{2.2em}}}
-    \caption{System architecture. Everything geometric derives from one file; the decision service
-             is a separate process, and the dashboard only observes.}
+    \begin{tikzpicture}[
+        x=1.05cm, y=1.05cm, font=\small,
+        box/.style={draw, rounded corners=2pt, align=center, inner sep=4pt,
+                    minimum height=1.0cm, text width=2.5cm},
+        src/.style={box, fill=black!5},
+        gen/.style={box, fill=black!10},
+        art/.style={box, fill=black!3, minimum height=0.6cm, font=\footnotesize,
+                    text width=2.5cm},
+        ros/.style={box, fill=black!8},
+        ext/.style={box, dashed, fill=white},
+        link/.style={-{Stealth[length=2mm]}, thick},
+        thin/.style={-{Stealth[length=1.7mm]}, draw=black!60},
+        obs/.style={-{Stealth[length=1.7mm]}, draw=black!60, dotted, thick},
+        lbl/.style={font=\scriptsize, text=black!65, inner sep=1.5pt}]
+
+        % ------------------------------------------------ generated once, before a run
+        \node[src] (layout)    at (0,7)   {\texttt{layout.yaml}\\\footnotesize the hall as a grid};
+        \node[gen] (generator) at (3.7,7) {\textbf{generator}};
+        \node[art] (poses)     at (7.6,7.8) {poses $+$ distances};
+        \node[art] (world)     at (7.6,7.0) {simulated world};
+        \node[art] (map)       at (7.6,6.2) {navigation map};
+        \draw[link] (layout) -- (generator);
+        \draw[thin] (generator.east) -- (poses.west);
+        \draw[thin] (generator.east) -- (world.west);
+        \draw[thin] (generator.east) -- (map.west);
+
+        % ---------------------------------------------------------- the running system
+        \node[ros] (factory)  at (0,3.6)   {\textbf{factory node}\\\footnotesize sections A, B, C};
+        \node[ros] (executor) at (3.7,3.6) {\textbf{mission}\\\textbf{executor}};
+        \node[ext] (service)  at (11.6,3.6) {\textbf{decision service}\\\footnotesize the policy of Ch.~\ref{ch:models}};
+        \node[ros] (state)    at (0,1.4)   {\textbf{robot state}\\\footnotesize battery, heat, wear};
+        \node[ros] (nav)      at (3.7,1.4) {\textbf{Nav2}\\\footnotesize plan, follow, recover};
+        \node[ros] (gazebo)   at (7.6,1.4) {\textbf{Gazebo}\\\footnotesize physics, sensors};
+        \node[ext] (dash)     at (12.1,1.4) {\textbf{dashboard}\\\footnotesize read-only};
+
+        \draw[thin] ([yshift=3pt]factory.east) -- node[lbl, above] {status}
+                    ([yshift=3pt]executor.west);
+        \draw[thin] ([yshift=-5pt]executor.west) -- node[lbl, below] {pickup}
+                    ([yshift=-5pt]factory.east);
+        \draw[link] ([yshift=3pt]executor.east) -- node[lbl, above] {state}
+                    ([yshift=3pt]service.west);
+        \draw[link] ([yshift=-5pt]service.west) -- node[lbl, below] {action}
+                    ([yshift=-5pt]executor.east);
+        \draw[link] (executor) -- node[lbl, right] {goal} (nav);
+        \draw[link] (nav) -- node[lbl, above] {drive} (gazebo);
+        \draw[thin] (state.north) -- node[lbl, left] {telemetry} (factory.south);
+        \draw[thin] (gazebo.south) to[out=250, in=290, looseness=0.55]
+                    node[lbl, below, pos=0.5] {odometry, lidar} (state.south);
+
+        \begin{scope}[on background layer]
+            \node[draw, dashed, rounded corners, fit=(layout)(generator)(poses)(map),
+                  inner sep=9pt, label={[lbl]above:generated once, before a run}] (gbox) {};
+            \node[draw, dashed, rounded corners, fit=(factory)(state)(executor)(nav)(gazebo),
+                  inner sep=11pt, label={[lbl]below:ROS 2 nodes and the simulator}] (rbox) {};
+        \end{scope}
+        \draw[obs] (rbox.east |- dash) -- node[lbl, above, pos=0.45] {observes} (dash.west);
+        \draw[thin, dotted] (gbox.south) -- node[lbl, right]
+              {world, map, poses and distances} (rbox.north);
+    \end{tikzpicture}
+    \caption{System architecture. Everything geometric derives from one file (top); the decision
+             service is a separate process that exchanges plain data with the executor, and the
+             dashboard only observes.}
     \label{fig:architecture}
 \end{figure}
 
