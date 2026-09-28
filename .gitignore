@@ -40,3 +40,4 @@ thesis/*.pdf
 thesis/*.fls
 thesis/*.fdb_latexmk
 thesis/*.synctex.gz
+thesis/log.txt
