@@ -1,0 +1,289 @@
+[11:57:04.854][Logger] New log placeholder %WS1% registered for /home/robojazzy/robofetch_ws_copy/robofetch_ws/thesis .
+[11:57:04.854][Extension] Initializing LaTeX Workshop.
+[11:57:05.472][Build][Executor] Set $LATEXWORKSHOP_DOCKER_LATEX: ""
+[11:57:05.473][Build][Executor] Set $LATEXWORKSHOP_DOCKER_PATH: "docker"
+[11:57:05.588][Server] Creating LaTeX Workshop http and websocket server.
+[11:57:05.965][Format][Bib] Bibtex format config: {"tab":"  ","case":{"field":"lowercase","type":"lowercase"},"left":"{","right":"}","trailingComma":false,"sort":["key"],"alignOnEqual":true,"sortFields":false,"fieldsOrder":[],"firstEntries":["string","xdata"]}
+[11:57:06.188][Server] Server successfully started: {"address":"127.0.0.1","family":"IPv4","port":41775} .
+[11:57:06.520][Extension] Extension root: /home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0
+[11:57:06.521][Extension] $PATH: /home/robojazzy/.vscode-server/bin/7debcd0e2acdea1c52de81bf9ee1620444407dda/bin/remote-cli:/home/robojazzy/.local/bin:/home/robojazzy/.opencode/bin:/home/robojazzy/.local/bin:/opt/ros/jazzy/opt/gz_msgs_vendor/bin:/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/opt/gz_ogre_next_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.8/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.8/libnvvp:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2022.3.0/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/xampp/php:/mnt/c/ProgramData/ComposerSetup/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Users/Arian/.local/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python313/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python313/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python314/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python314/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/Arian/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Arian/AppData/Local/Python/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Arian/flutter/flutter/bin:/mnt/c/Users/Arian/AppData/Roaming/Composer/vendor/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Ollama:/mnt/c/Users/Arian/AppData/Local/Microsoft/WinGet/Packages/astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe:/mnt/c/Users/Arian/AppData/Local/Programs/MiKTeX/miktex/bin/x64/:/snap/bin
+[11:57:06.522][Extension] $SHELL: /bin/bash
+[11:57:06.522][Extension] $LANG: en_US.UTF-8
+[11:57:06.523][Extension] $LC_ALL: undefined
+[11:57:06.524][Extension] process.platform: linux
+[11:57:06.524][Extension] process.arch: x64
+[11:57:06.525][Extension] vscode.env.appName: Visual Studio Code
+[11:57:06.525][Extension] vscode.env.remoteName: wsl
+[11:57:06.525][Extension] vscode.env.uiKind: 1
+[11:57:06.829][Extension] Trigger characters for intellisense of LaTeX documents: ["\\",",","{","}"]
+[11:57:06.835][Root] Current workspace folders: ["file://%WS1%"]
+[11:57:06.836][Root] Try finding root from magic comment.
+[11:57:06.838][Extension] LaTeX Workshop initialized.
+[11:57:06.839][Root] Try finding root from active editor.
+[11:57:06.842][Root] Found root file from active editor: %WS1%/main.tex
+[11:57:06.842][Root] Root file changed: from %WS1%/main.tex to %WS1%/main.tex, langID latex . Refresh dependencies
+[11:57:06.843][Event] ROOT_FILE_CHANGED: "%WS1%/main.tex"
+[11:57:06.844][Cacher][Watcher] Reset.
+[11:57:06.844][Cacher][Watcher] Reset.
+[11:57:06.845][Cacher][Watcher] Reset.
+[11:57:06.861][Cacher] Adding %WS1%/main.tex .
+[11:57:06.864][Cacher][Watcher] Watched file://%WS1%/main.tex with a new .* watcher on %WS1% .
+[11:57:06.865][Event] FILE_WATCHED: "file://%WS1%/main.tex"
+[11:57:06.869][Cacher] Caching %WS1%/main.tex .
+[11:57:06.870][Event] ROOT_FILE_SEARCHED
+[11:57:07.253][Server] validOrigin is http://127.0.0.1:41775
+[11:57:09.451][Cacher] Input %WS1%/extras.tex from %WS1%/main.tex .
+[11:57:09.457][Cacher] Adding %WS1%/extras.tex .
+[11:57:09.458][Cacher][Watcher] Watched file://%WS1%/extras.tex by the .* watcher.
+[11:57:09.458][Event] FILE_WATCHED: "file://%WS1%/extras.tex"
+[11:57:09.463][Cacher] Caching %WS1%/extras.tex .
+[11:57:09.669][Cacher] Updated inputs of %WS1%/extras.tex .
+[11:57:09.669][Cacher] Parse LaTeX AST: %WS1%/extras.tex .
+[11:57:10.061][Cacher] Parsed LaTeX AST in 391.52 ms: %WS1%/extras.tex .
+[11:57:10.069][Cacher] Updated elements in 6.74 ms: %WS1%/extras.tex .
+[11:57:10.072][Event] FILE_PARSED: "%WS1%/extras.tex"
+[11:57:10.397][Cacher] Input %WS1%/macros.tex from %WS1%/main.tex .
+[11:57:10.399][Cacher] Adding %WS1%/macros.tex .
+[11:57:10.400][Cacher][Watcher] Watched file://%WS1%/macros.tex by the .* watcher.
+[11:57:10.401][Event] FILE_WATCHED: "file://%WS1%/macros.tex"
+[11:57:10.404][Cacher] Caching %WS1%/macros.tex .
+[11:57:11.391][Cacher] Updated inputs of %WS1%/macros.tex .
+[11:57:11.396][Cacher] Parse LaTeX AST: %WS1%/macros.tex .
+[11:57:11.471][Cacher] Input %WS1%/front/frontCover.tex from %WS1%/main.tex .
+[11:57:11.474][Cacher] Adding %WS1%/front/frontCover.tex .
+[11:57:11.475][Cacher][Watcher] Watched file://%WS1%/front/frontCover.tex with a new .* watcher on %WS1%/front .
+[11:57:11.476][Event] FILE_WATCHED: "file://%WS1%/front/frontCover.tex"
+[11:57:11.483][Cacher] Caching %WS1%/front/frontCover.tex .
+[11:57:11.573][Cacher] Parsed LaTeX AST in 176.76 ms: %WS1%/macros.tex .
+[11:57:11.578][Cacher] Updated elements in 3.38 ms: %WS1%/macros.tex .
+[11:57:11.579][Event] FILE_PARSED: "%WS1%/macros.tex"
+[11:57:11.934][Cacher] Updated inputs of %WS1%/front/frontCover.tex .
+[11:57:11.934][Cacher] Parse LaTeX AST: %WS1%/front/frontCover.tex .
+[11:57:11.987][Cacher] Input %WS1%/front/abstract.tex from %WS1%/main.tex .
+[11:57:11.996][Cacher] Adding %WS1%/front/abstract.tex .
+[11:57:11.997][Cacher][Watcher] Watched file://%WS1%/front/abstract.tex by the .* watcher.
+[11:57:11.998][Event] FILE_WATCHED: "file://%WS1%/front/abstract.tex"
+[11:57:12.001][Cacher] Caching %WS1%/front/abstract.tex .
+[11:57:12.405][Cacher] Parsed LaTeX AST in 470.39 ms: %WS1%/front/frontCover.tex .
+[11:57:12.409][Cacher] Updated elements in 2.55 ms: %WS1%/front/frontCover.tex .
+[11:57:12.410][Event] FILE_PARSED: "%WS1%/front/frontCover.tex"
+[11:57:12.622][Commander] BUILD command invoked.
+[11:57:12.626][Build][Executor] The document of the active editor: file://%WS1%/main.tex
+[11:57:12.626][Build][Executor] The languageId of the document: latex
+[11:57:12.627][Root] Current workspace folders: ["file://%WS1%"]
+[11:57:12.628][Root] Try finding root from magic comment.
+[11:57:12.631][Root] Try finding root from active editor.
+[11:57:12.633][Root] Found root file from active editor: %WS1%/main.tex
+[11:57:12.634][Root] Keep using the same root file: %WS1%/main.tex
+[11:57:12.636][Event] ROOT_FILE_SEARCHED
+[11:57:12.641][Build][Executor] Building root file: %WS1%/main.tex
+[11:57:12.902][Cacher] Updated inputs of %WS1%/front/abstract.tex .
+[11:57:12.903][Cacher] Parse LaTeX AST: %WS1%/front/abstract.tex .
+[11:57:12.943][Cacher] Parsed LaTeX AST in 39.78 ms: %WS1%/front/abstract.tex .
+[11:57:12.945][Cacher] Updated elements in 0.67 ms: %WS1%/front/abstract.tex .
+[11:57:12.946][Event] FILE_PARSED: "%WS1%/front/abstract.tex"
+[11:57:12.950][Build][Recipe] Build root file %WS1%/main.tex
+[11:57:12.967][Cacher] Input %WS1%/front/index.tex from %WS1%/main.tex .
+[11:57:12.969][Cacher] Adding %WS1%/front/index.tex .
+[11:57:12.970][Cacher][Watcher] Watched file://%WS1%/front/index.tex by the .* watcher.
+[11:57:12.970][Event] FILE_WATCHED: "file://%WS1%/front/index.tex"
+[11:57:12.976][Cacher] Caching %WS1%/front/index.tex .
+[11:57:13.185][Build][Recipe] Preparing to run recipe: latexmk.
+[11:57:13.338][Build][Plan] Cannot run `pdflatex` to determine if we are using MiKTeX. TypeError: Cannot read properties of undefined (reading 'toString')
+[11:57:13.339]TypeError: Cannot read properties of undefined (reading 'toString')
+	at Plan.isMikTeX (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/plan.js:191:83)
+	at Plan.configureMaxPrintLine (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/plan.js:174:69)
+	at Plan.populateTools (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/plan.js:131:18)
+	at Plan.create (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/plan.js:88:14)
+	at Executor.preparePlan (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/executor.js:179:38)
+	at async Executor.run (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/compile/executor.js:96:26)
+	at async Object.build (/home/robojazzy/.vscode-server/extensions/james-yu.latex-workshop-10.19.0/out/src/core/commands.js:96:5)
+	at async pf._executeContributedCommand (file:///home/robojazzy/.vscode-server/bin/7debcd0e2acdea1c52de81bf9ee1620444407dda/out/vs/workbench/api/node/extensionHostProcess.js:555:48874)
+[11:57:13.356][Build][Executor] RootFile auxDir: %WS1% .
+[11:57:13.362][Build][Step] Recipe step 1 The command is latexmk:["-synctex=1","-interaction=nonstopmode","-file-line-error","-pdf","-outdir=%WS1%","-auxdir=%WS1%","%WS1%/main"].
+[11:57:13.363][Build][Step] env: undefined
+[11:57:13.363][Build][Step] root: %WS1%/main.tex
+[11:57:13.364][Build][Step] cwd: %WS1%
+[11:57:13.552][Build][Step] LaTeX build process spawned with PID undefined.
+[11:57:13.555][Build][Step] LaTeX fatal error on PID undefined. Error: spawn latexmk ENOENT
+[11:57:13.556]Error: spawn latexmk ENOENT
+	at ChildProcess._handle.onexit (node:internal/child_process:287:19)
+	at onErrorNT (node:internal/child_process:508:16)
+	at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[11:57:13.557][Build][Step] Does the executable exist? $PATH: /home/robojazzy/.vscode-server/bin/7debcd0e2acdea1c52de81bf9ee1620444407dda/bin/remote-cli:/home/robojazzy/.local/bin:/home/robojazzy/.opencode/bin:/home/robojazzy/.local/bin:/opt/ros/jazzy/opt/gz_msgs_vendor/bin:/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/opt/gz_ogre_next_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.8/bin:/mnt/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.8/libnvvp:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/Nsight Compute 2022.3.0/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/mnt/c/xampp/php:/mnt/c/ProgramData/ComposerSetup/bin:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Users/Arian/.local/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python39/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python39/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python313/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python313/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python314/Scripts/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Python314/:/mnt/c/Users/Arian/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/Arian/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Arian/AppData/Local/Python/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/Arian/flutter/flutter/bin:/mnt/c/Users/Arian/AppData/Roaming/Composer/vendor/bin:/mnt/c/Users/Arian/AppData/Local/Programs/Ollama:/mnt/c/Users/Arian/AppData/Local/Microsoft/WinGet/Packages/astral-sh.uv_Microsoft.Winget.Source_8wekyb3d8bbwe:/mnt/c/Users/Arian/AppData/Local/Programs/MiKTeX/miktex/bin/x64/:/snap/bin, $Path: undefined, $SHELL: /bin/bash
+[11:57:13.557][Build][Step] 
+[11:57:13.645][Cacher] Updated inputs of %WS1%/front/index.tex .
+[11:57:13.645][Cacher] Parse LaTeX AST: %WS1%/front/index.tex .
+[11:57:13.967][Cacher] Parsed LaTeX AST in 321.58 ms: %WS1%/front/index.tex .
+[11:57:13.968][Cacher] Updated elements in 0.22 ms: %WS1%/front/index.tex .
+[11:57:13.969][Event] FILE_PARSED: "%WS1%/front/index.tex"
+[11:57:14.457][Cacher] Input %WS1%/front/indexfigures.tex from %WS1%/main.tex .
+[11:57:14.462][Cacher] Adding %WS1%/front/indexfigures.tex .
+[11:57:14.464][Cacher][Watcher] Watched file://%WS1%/front/indexfigures.tex by the .* watcher.
+[11:57:14.464][Event] FILE_WATCHED: "file://%WS1%/front/indexfigures.tex"
+[11:57:14.466][Cacher] Caching %WS1%/front/indexfigures.tex .
+[11:57:15.065][Cacher] Updated inputs of %WS1%/front/indexfigures.tex .
+[11:57:15.066][Cacher] Parse LaTeX AST: %WS1%/front/indexfigures.tex .
+[11:57:15.068][Cacher] Parsed LaTeX AST in 1.59 ms: %WS1%/front/indexfigures.tex .
+[11:57:15.069][Cacher] Updated elements in 0.36 ms: %WS1%/front/indexfigures.tex .
+[11:57:15.070][Event] FILE_PARSED: "%WS1%/front/indexfigures.tex"
+[11:57:15.152][Cacher] Input %WS1%/front/indextables.tex from %WS1%/main.tex .
+[11:57:15.154][Cacher] Adding %WS1%/front/indextables.tex .
+[11:57:15.154][Cacher][Watcher] Watched file://%WS1%/front/indextables.tex by the .* watcher.
+[11:57:15.155][Event] FILE_WATCHED: "file://%WS1%/front/indextables.tex"
+[11:57:15.157][Cacher] Caching %WS1%/front/indextables.tex .
+[11:57:15.213][Cacher] Updated inputs of %WS1%/front/indextables.tex .
+[11:57:15.214][Cacher] Parse LaTeX AST: %WS1%/front/indextables.tex .
+[11:57:15.231][Cacher] Parsed LaTeX AST in 16.89 ms: %WS1%/front/indextables.tex .
+[11:57:15.232][Cacher] Updated elements in 0.18 ms: %WS1%/front/indextables.tex .
+[11:57:15.233][Event] FILE_PARSED: "%WS1%/front/indextables.tex"
+[11:57:15.252][Cacher] Input %WS1%/front/acknowledgement.tex from %WS1%/main.tex .
+[11:57:15.253][Cacher] Adding %WS1%/front/acknowledgement.tex .
+[11:57:15.253][Cacher][Watcher] Watched file://%WS1%/front/acknowledgement.tex by the .* watcher.
+[11:57:15.253][Event] FILE_WATCHED: "file://%WS1%/front/acknowledgement.tex"
+[11:57:15.258][Cacher] Caching %WS1%/front/acknowledgement.tex .
+[11:57:15.277][Cacher] Updated inputs of %WS1%/front/acknowledgement.tex .
+[11:57:15.279][Cacher] Parse LaTeX AST: %WS1%/front/acknowledgement.tex .
+[11:57:15.351][Cacher] Parsed LaTeX AST in 71.24 ms: %WS1%/front/acknowledgement.tex .
+[11:57:15.353][Cacher] Updated elements in 0.29 ms: %WS1%/front/acknowledgement.tex .
+[11:57:15.355][Event] FILE_PARSED: "%WS1%/front/acknowledgement.tex"
+[11:57:15.430][Cacher] Input %WS1%/body/01_introduction.tex from %WS1%/main.tex .
+[11:57:15.435][Cacher] Adding %WS1%/body/01_introduction.tex .
+[11:57:15.439][Cacher][Watcher] Watched file://%WS1%/body/01_introduction.tex with a new .* watcher on %WS1%/body .
+[11:57:15.439][Event] FILE_WATCHED: "file://%WS1%/body/01_introduction.tex"
+[11:57:15.441][Cacher] Caching %WS1%/body/01_introduction.tex .
+[11:57:15.465][Cacher] Updated inputs of %WS1%/body/01_introduction.tex .
+[11:57:15.466][Cacher] Parse LaTeX AST: %WS1%/body/01_introduction.tex .
+[11:57:15.488][Cacher] Input %WS1%/body/02_background.tex from %WS1%/main.tex .
+[11:57:15.490][Cacher] Adding %WS1%/body/02_background.tex .
+[11:57:15.490][Cacher][Watcher] Watched file://%WS1%/body/02_background.tex by the .* watcher.
+[11:57:15.491][Event] FILE_WATCHED: "file://%WS1%/body/02_background.tex"
+[11:57:15.492][Cacher] Caching %WS1%/body/02_background.tex .
+[11:57:15.519][Cacher] Updated inputs of %WS1%/body/02_background.tex .
+[11:57:15.519][Cacher] Parse LaTeX AST: %WS1%/body/02_background.tex .
+[11:57:15.616][Cacher] Parsed LaTeX AST in 149.32 ms: %WS1%/body/01_introduction.tex .
+[11:57:15.632][Cacher] Updated elements in 16.28 ms: %WS1%/body/01_introduction.tex .
+[11:57:15.636][Event] FILE_PARSED: "%WS1%/body/01_introduction.tex"
+[11:57:15.771][Cacher] Parsed LaTeX AST in 251.28 ms: %WS1%/body/02_background.tex .
+[11:57:15.774][Cacher] Updated elements in 2.67 ms: %WS1%/body/02_background.tex .
+[11:57:15.776][Event] FILE_PARSED: "%WS1%/body/02_background.tex"
+[11:57:15.795][Cacher] Input %WS1%/body/03_problem.tex from %WS1%/main.tex .
+[11:57:15.800][Cacher] Adding %WS1%/body/03_problem.tex .
+[11:57:15.802][Cacher][Watcher] Watched file://%WS1%/body/03_problem.tex by the .* watcher.
+[11:57:15.803][Event] FILE_WATCHED: "file://%WS1%/body/03_problem.tex"
+[11:57:15.804][Cacher] Caching %WS1%/body/03_problem.tex .
+[11:57:15.962][Cacher] Updated inputs of %WS1%/body/03_problem.tex .
+[11:57:15.962][Cacher] Parse LaTeX AST: %WS1%/body/03_problem.tex .
+[11:57:15.979][Cacher] Input %WS1%/body/04_system.tex from %WS1%/main.tex .
+[11:57:15.980][Cacher] Adding %WS1%/body/04_system.tex .
+[11:57:15.980][Cacher][Watcher] Watched file://%WS1%/body/04_system.tex by the .* watcher.
+[11:57:15.980][Event] FILE_WATCHED: "file://%WS1%/body/04_system.tex"
+[11:57:15.981][Cacher] Caching %WS1%/body/04_system.tex .
+[11:57:15.999][Cacher] Updated inputs of %WS1%/body/04_system.tex .
+[11:57:15.999][Cacher] Parse LaTeX AST: %WS1%/body/04_system.tex .
+[11:57:16.007][Cacher] Input %WS1%/body/05_decision_models.tex from %WS1%/main.tex .
+[11:57:16.009][Cacher] Adding %WS1%/body/05_decision_models.tex .
+[11:57:16.010][Cacher][Watcher] Watched file://%WS1%/body/05_decision_models.tex by the .* watcher.
+[11:57:16.010][Event] FILE_WATCHED: "file://%WS1%/body/05_decision_models.tex"
+[11:57:16.011][Cacher] Caching %WS1%/body/05_decision_models.tex .
+[11:57:16.023][Cacher] Updated inputs of %WS1%/body/05_decision_models.tex .
+[11:57:16.024][Cacher] Parse LaTeX AST: %WS1%/body/05_decision_models.tex .
+[11:57:16.040][Cacher] Input %WS1%/body/06_experimental_setup.tex from %WS1%/main.tex .
+[11:57:16.044][Cacher] Adding %WS1%/body/06_experimental_setup.tex .
+[11:57:16.045][Cacher][Watcher] Watched file://%WS1%/body/06_experimental_setup.tex by the .* watcher.
+[11:57:16.046][Event] FILE_WATCHED: "file://%WS1%/body/06_experimental_setup.tex"
+[11:57:16.055][Cacher] Caching %WS1%/body/06_experimental_setup.tex .
+[11:57:16.071][Cacher] Updated inputs of %WS1%/body/06_experimental_setup.tex .
+[11:57:16.072][Cacher] Parse LaTeX AST: %WS1%/body/06_experimental_setup.tex .
+[11:57:16.091][Cacher] Input %WS1%/body/07_results.tex from %WS1%/main.tex .
+[11:57:16.093][Cacher] Adding %WS1%/body/07_results.tex .
+[11:57:16.094][Cacher][Watcher] Watched file://%WS1%/body/07_results.tex by the .* watcher.
+[11:57:16.095][Event] FILE_WATCHED: "file://%WS1%/body/07_results.tex"
+[11:57:16.103][Cacher] Caching %WS1%/body/07_results.tex .
+[11:57:16.127][Cacher] Updated inputs of %WS1%/body/07_results.tex .
+[11:57:16.127][Cacher] Parse LaTeX AST: %WS1%/body/07_results.tex .
+[11:57:16.149][Cacher] Input %WS1%/body/08_discussion.tex from %WS1%/main.tex .
+[11:57:16.151][Cacher] Adding %WS1%/body/08_discussion.tex .
+[11:57:16.156][Cacher][Watcher] Watched file://%WS1%/body/08_discussion.tex by the .* watcher.
+[11:57:16.156][Event] FILE_WATCHED: "file://%WS1%/body/08_discussion.tex"
+[11:57:16.161][Cacher] Caching %WS1%/body/08_discussion.tex .
+[11:57:16.182][Cacher] Updated inputs of %WS1%/body/08_discussion.tex .
+[11:57:16.182][Cacher] Parse LaTeX AST: %WS1%/body/08_discussion.tex .
+[11:57:16.213][Cacher] Input %WS1%/body/09_conclusion.tex from %WS1%/main.tex .
+[11:57:16.217][Cacher] Adding %WS1%/body/09_conclusion.tex .
+[11:57:16.217][Cacher][Watcher] Watched file://%WS1%/body/09_conclusion.tex by the .* watcher.
+[11:57:16.217][Event] FILE_WATCHED: "file://%WS1%/body/09_conclusion.tex"
+[11:57:16.218][Cacher] Caching %WS1%/body/09_conclusion.tex .
+[11:57:16.229][Cacher] Updated inputs of %WS1%/body/09_conclusion.tex .
+[11:57:16.230][Cacher] Parse LaTeX AST: %WS1%/body/09_conclusion.tex .
+[11:57:16.246][Cacher] Input %WS1%/body/10_appendix_configuration.tex from %WS1%/main.tex .
+[11:57:16.247][Cacher] Adding %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.247][Cacher][Watcher] Watched file://%WS1%/body/10_appendix_configuration.tex by the .* watcher.
+[11:57:16.248][Event] FILE_WATCHED: "file://%WS1%/body/10_appendix_configuration.tex"
+[11:57:16.254][Cacher] Caching %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.262][Cacher] Updated inputs of %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.263][Cacher] Parse LaTeX AST: %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.308][Cacher] Input %WS1%/body/11_appendix_scenarios.tex from %WS1%/main.tex .
+[11:57:16.310][Cacher] Adding %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.310][Cacher][Watcher] Watched file://%WS1%/body/11_appendix_scenarios.tex by the .* watcher.
+[11:57:16.311][Event] FILE_WATCHED: "file://%WS1%/body/11_appendix_scenarios.tex"
+[11:57:16.314][Cacher] Caching %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.324][Cacher] Updated inputs of %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.324][Cacher] Parse LaTeX AST: %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.345][Cacher] Input %WS1%/body/12_appendix_reproduction.tex from %WS1%/main.tex .
+[11:57:16.350][Cacher] Adding %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.354][Cacher][Watcher] Watched file://%WS1%/body/12_appendix_reproduction.tex by the .* watcher.
+[11:57:16.355][Event] FILE_WATCHED: "file://%WS1%/body/12_appendix_reproduction.tex"
+[11:57:16.356][Cacher] Caching %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.357][Cacher] Updated inputs of %WS1%/main.tex .
+[11:57:16.358][Cacher] Parse LaTeX AST: %WS1%/main.tex .
+[11:57:16.376][Cacher] Updated inputs of %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.377][Cacher] Parse LaTeX AST: %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.562][Cacher] Parsed LaTeX AST in 598.89 ms: %WS1%/body/03_problem.tex .
+[11:57:16.622][Cacher] Updated elements in 59.73 ms: %WS1%/body/03_problem.tex .
+[11:57:16.623][Event] FILE_PARSED: "%WS1%/body/03_problem.tex"
+[11:57:16.624][Cacher] Parsed LaTeX AST in 624.99 ms: %WS1%/body/04_system.tex .
+[11:57:16.625][Cacher] Updated elements in 0.39 ms: %WS1%/body/04_system.tex .
+[11:57:16.626][Event] FILE_PARSED: "%WS1%/body/04_system.tex"
+[11:57:16.638][Cacher] Parsed LaTeX AST in 614.11 ms: %WS1%/body/05_decision_models.tex .
+[11:57:16.639][Cacher] Updated elements in 0.46 ms: %WS1%/body/05_decision_models.tex .
+[11:57:16.640][Event] FILE_PARSED: "%WS1%/body/05_decision_models.tex"
+[11:57:16.646][Cacher] Parsed LaTeX AST in 574.01 ms: %WS1%/body/06_experimental_setup.tex .
+[11:57:16.647][Cacher] Updated elements in 0.47 ms: %WS1%/body/06_experimental_setup.tex .
+[11:57:16.648][Event] FILE_PARSED: "%WS1%/body/06_experimental_setup.tex"
+[11:57:16.676][Cacher] Parsed LaTeX AST in 548.74 ms: %WS1%/body/07_results.tex .
+[11:57:16.678][Cacher] Updated elements in 1.15 ms: %WS1%/body/07_results.tex .
+[11:57:16.679][Event] FILE_PARSED: "%WS1%/body/07_results.tex"
+[11:57:16.684][Cacher] Parsed LaTeX AST in 501.66 ms: %WS1%/body/08_discussion.tex .
+[11:57:16.686][Cacher] Updated elements in 0.47 ms: %WS1%/body/08_discussion.tex .
+[11:57:16.687][Event] FILE_PARSED: "%WS1%/body/08_discussion.tex"
+[11:57:16.688][Cacher] Parsed LaTeX AST in 457.03 ms: %WS1%/body/09_conclusion.tex .
+[11:57:16.689][Cacher] Updated elements in 0.27 ms: %WS1%/body/09_conclusion.tex .
+[11:57:16.690][Event] FILE_PARSED: "%WS1%/body/09_conclusion.tex"
+[11:57:16.692][Cacher] Parsed LaTeX AST in 427.78 ms: %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.693][Cacher] Updated elements in 0.38 ms: %WS1%/body/10_appendix_configuration.tex .
+[11:57:16.693][Event] FILE_PARSED: "%WS1%/body/10_appendix_configuration.tex"
+[11:57:16.694][Cacher] Parsed LaTeX AST in 370.06 ms: %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.695][Cacher] Updated elements in 0.14 ms: %WS1%/body/11_appendix_scenarios.tex .
+[11:57:16.695][Event] FILE_PARSED: "%WS1%/body/11_appendix_scenarios.tex"
+[11:57:16.707][Cacher] Parsed LaTeX AST in 348.41 ms: %WS1%/main.tex .
+[11:57:16.708][File] Calling kpsewhich to resolve report.cls .
+[11:57:16.815][File] kpsewhich returned with non-zero code null.
+[11:57:16.816][Cacher] Updated elements in 108.56 ms: %WS1%/main.tex .
+[11:57:16.818][Cacher] Parsed LaTeX AST in 441.02 ms: %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.819][Cacher] Updated elements in 0.20 ms: %WS1%/body/12_appendix_reproduction.tex .
+[11:57:16.820][Event] FILE_PARSED: "%WS1%/body/12_appendix_reproduction.tex"
+[11:57:16.837][Cacher] Bib %WS1%/refs.bib from %WS1%/main.tex .
+[11:57:16.846][Intelli][Citation] Parsing .bib entries from %WS1%/refs.bib
+[11:57:16.846][Cacher][Watcher] Watched file://%WS1%/refs.bib with a new .bib watcher on %WS1% .
+[11:57:16.847][Event] FILE_WATCHED: "file://%WS1%/refs.bib"
+[11:57:16.847][Event] FILE_PARSED: "%WS1%/main.tex"
+[11:57:16.887][Intelli][Citation] Parse BibTeX AST from %WS1%/refs.bib .
+[11:57:16.914][Intelli][Citation] Parsed 26 bib entries from %WS1%/refs.bib .
+[11:57:16.916][Event] FILE_PARSED: "%WS1%/refs.bib"
+[11:57:17.314][Structure] Structure updated with 0 root sections for %WS1%/main.tex .
+[11:57:17.315][Event] STRUCTURE_UPDATED
+[11:57:17.319][Structure] Structure force updated with 14 root sections for %WS1%/main.tex .
+[11:57:17.320][Event] STRUCTURE_UPDATED
+[11:57:17.347][Structure] Structure force updated with 14 root sections for %WS1%/main.tex .
+[11:57:17.348][Event] STRUCTURE_UPDATED
