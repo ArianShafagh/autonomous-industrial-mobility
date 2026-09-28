@@ -1,48 +1,186 @@
+% -----------------------------------------------------------------------------------------------
+% BEFORE SUBMITTING: every citation in this chapter must be checked against the paper itself.
+% The claims below follow the notes in docs/related_work.md, which were compiled from publisher
+% metadata and abstracts. Read each paper, confirm that the sentence citing it is a fair summary,
+% and correct it where it is not. Never leave a citation you have not opened.
+% Entries in refs.bib marked TODO still need volume/issue/page numbers from the publisher page.
+% -----------------------------------------------------------------------------------------------
+
 \chapter{Background and Related Work}
 \label{ch:background}
 
-% NARRATIVE GOAL
-% Two jobs: (1) teach the reader the few concepts they need, (2) show where this work sits and what
-% gap it fills. Do not review the whole field — review what your argument needs.
-% Source for citations: docs/related_work.md in the repository (20 verified peer-reviewed papers,
-% 2024-2025, already grouped by the sections below; DOIs checked against Crossref).
+This chapter introduces the concepts the thesis builds on and positions its contribution against
+published work. It is organised by the questions the thesis has to answer rather than by
+technique: how a mobile robot navigates, how it decides what to do, how safety is enforced in a
+learned policy, how energy enters the decision, and how such systems are validated. The chapter
+closes by naming the gap that \cref{ch:models} addresses.
 
 \section{Autonomous mobile robots in production logistics}
 \label{sec:amr}
-% What AMRs do, why dispatching/task allocation matters, and the industrial framing.
 
-\section{Navigation: ROS~2 and Nav2}
+Autonomous mobile robots (AMRs) move material between machines, stores and assembly stations. They
+differ from the older automated guided vehicles (AGVs) in that they localise and plan routes
+themselves instead of following fixed markers, which makes them attractive for factories whose
+layout changes. Surveys of the field cover the navigation side thoroughly
+\cite{tang2025pathplanningreview, katona2024obstacleavoidance, aremu2025pathplanningreview}: path
+planning, obstacle avoidance and the classical-versus-heuristic taxonomy of planners are mature
+topics with established solutions.
+
+What remains open is the layer above navigation --- the assignment of transport work. In a
+production setting this is a decision under uncertainty: the robot must choose which station to
+serve, when to deliver, and when to interrupt work to recharge, without knowing when the next part
+will be finished or which machine will fail next \cite{warita2024onlineplanning}. That is the
+problem this thesis addresses.
+
+\section{Navigation with ROS~2 and Nav2}
 \label{sec:nav2}
-% Only what the thesis uses: costmaps, global planners (NavFn, Theta*, Smac), a local controller
-% (MPPI), AMCL localisation, behaviour trees and recovery. This sets up \cref{sec:planner-study}.
 
-\section{Decision making for mobile robots}
+The robot in this thesis uses ROS~2 \cite{macenski2022ros2} with the Nav2 navigation stack
+\cite{macenski2020nav2}, the de-facto standard for mobile robot navigation in research and
+increasingly in industry. Four of its components matter here.
+
+A \textbf{costmap} represents the hall as an occupancy grid inflated by the robot's footprint, so
+that a path which keeps to free cells is one the robot can physically follow. A \textbf{global
+planner} searches that grid for a route to the goal; the planners compared in
+\cref{sec:planner-study} are NavFn (Dijkstra and A$^{*}$ variants), Theta$^{*}$, which allows
+any-angle paths and therefore produces straighter routes with fewer turns, and the Smac family
+(a 2D variant and a state-lattice variant that plans kinematically feasible paths). A
+\textbf{controller} --- here MPPI, a sampling-based model-predictive controller --- follows the
+planned path while reacting to what the sensors currently see. \textbf{AMCL} localises the robot in
+the map using its lidar, and a \textbf{behaviour tree} sequences the whole process, including
+recovery behaviours when a goal cannot be reached.
+
+This separation matters for the thesis's scope: Nav2 answers \emph{how do I get there}, and the
+decision models of \cref{ch:models} answer \emph{where should I go and why}. Reported deployments
+of ROS~2 and Nav2 in logistics environments \cite{borse2025robotinonav} follow the same division.
+
+\section{Deciding what to do next}
 \label{sec:decision-making}
-\subsection{Rule-based and heuristic dispatching}
-\subsection{Deep reinforcement learning}
-% Policy-gradient methods, PPO, and action masking as the standard way to express legality.
-\subsection{Neuro-symbolic approaches}
-% Group A of docs/related_work.md. The closest peer-reviewed analogue keeps the symbolic part
-% readable and editable after training; this thesis writes the symbolic part by hand instead,
-% which is a difference to defend openly.
+
+\subsection{Dispatching rules}
+Classical scheduling addresses the assignment problem with dispatching rules --- serve the nearest
+station, the one waiting longest, the one with the fullest buffer. They are transparent, need no
+training, and remain the baseline any learned method is expected to beat; comparisons against such
+rules are still the standard way of demonstrating that a learned scheduler is worth its complexity
+\cite{chang2025hierarchicalagv}. Their weakness is that a rule cannot trade one objective against
+another in a situation its author did not anticipate, which is precisely what the reference policy
+of \cref{sec:rule-policy} demonstrates when the factory is overloaded.
+
+\subsection{Learned scheduling}
+Deep reinforcement learning has been applied to exactly this class of problem: scheduling AGVs in
+flexible job shops with energy and throughput in one objective
+\cite{cheng2025energysavingfjsp}, hierarchical scheduling that adapts to shop-floor conditions
+\cite{chang2025hierarchicalagv}, and joint scheduling of production equipment and transport
+vehicles with action masks constraining the choices \cite{zhang2025dualresource}. The last is the
+closest published counterpart to the PPO baseline of \cref{sec:ppo}: the same algorithm family,
+the same use of masking, and a problem of the same shape --- production and transport decided
+together.
+
+Proximal Policy Optimization \cite{schulman2017ppo} is the algorithm used here, in its
+mask-supporting variant, with the implementation from Stable-Baselines3 \cite{raffin2021sb3}.
+% If preprints may not be cited, replace the PPO citation with the algorithm's description in
+% \cite{khan2025drlheuristicreview} or a textbook.
+
+\subsection{Neuro-symbolic policies}
+Neuro-symbolic approaches combine learned components with explicit symbolic structure, with the
+aim of keeping the behaviour inspectable. Recent work learns policies in a form that remains
+readable and even editable after training \cite{baugh2025neuraldnfmt}; others derive transparency
+from an explicit structured world model rather than from post-hoc explanation
+\cite{hu2024graphworldmodels}, or argue that safety in human-robot settings must be symbolically
+auditable rather than statistically inferred \cite{kozik2025explainable}.
+
+The architecture of this thesis sits in that family but makes the opposite choice on one axis: its
+symbolic layer is \emph{hand-written} rather than learned. The rules encode constraints that follow
+from physics and from the problem statement (\cref{sec:constraints}), which are known exactly and
+do not need to be induced from data; what is learned is only the part that genuinely requires
+judgement. The cost of that choice --- a rule can be missing until reality exposes it --- is
+discussed in \cref{sec:limitations}.
 
 \section{Safety in learned policies}
 \label{sec:safe-learning}
-% Group B: shielding, action masking, constrained RL. The argument the results support: a mask
-% expresses legality, but the guarantee comes from where the constraint is enforced.
 
-\section{Energy-aware navigation and battery management}
+A learned policy optimises a reward; it does not, by construction, respect a constraint. Two
+mechanisms are established for closing that gap.
+
+\textbf{Shielding} places a correctness layer between the policy and the environment: the shield
+filters out actions that would violate a specification, so the agent may learn freely within what
+remains \cite{koenighofer2025shields}. The hard rules of \cref{sec:hard-rules} are a
+domain-specific shield in exactly this sense, and the vocabulary of that literature --- a
+correctness layer that is not itself learned --- describes them precisely.
+
+\textbf{Action masking} is the practical form the same idea takes inside reinforcement learning
+implementations: illegal actions are removed from the policy's distribution before sampling, as in
+the AGV scheduling work cited above \cite{zhang2025dualresource}. The PPO baseline of this thesis
+uses masking, which is what makes the comparison in \cref{ch:results} a comparison of
+architectures rather than of information: both the neuro-symbolic model and PPO are told which
+actions are legal.
+
+Both mechanisms act on \emph{legality}. The contribution of this thesis acts on something else ---
+the \emph{influence} a learned component may exert over choices that are all legal
+(\cref{sec:bounded-correction}). The nearest published relative is shielding with adaptive
+constraint strength \cite{odriozola2025fearfield}, where the severity of the constraint varies
+rather than being binary; approaches that encode safety directly in the reward or in a risk-aware
+objective \cite{long2025humanriskaware} take the opposite route, keeping safety inside the learned
+function rather than outside it.
+
+\section{Energy-aware decision making}
 \label{sec:energy-aware}
-% Groups C and D: energy models, charge scheduling, and how energy consumption is calibrated —
-% this justifies the parameters in \file{params.yaml} (\cref{app:configuration}).
 
-\section{Simulation and sim-to-real validation}
+Energy enters the problem twice: as a cost to be minimised and as a constraint that forces the
+robot to interrupt work. Published scheduling approaches treat it in both ways. Battery management
+is modelled as part of the scheduling decision, weighing the value of a transport task against the
+need to charge under uncertainty about future demand \cite{dilefeld2025batterymanagement}; energy
+and throughput are combined in a single objective for multi-AGV job shops
+\cite{cheng2025energysavingfjsp, chang2025hierarchicalagv}; and charging itself is treated as a
+learned decision rather than a fixed threshold \cite{zhou2025resilientcharging}, which is the
+published justification for offering the robot a choice of charge levels rather than a single
+\texttt{CHARGE} action (\cref{sec:actions}).
+
+For the decision to be meaningful, the underlying energy model has to be credible. Reviews of
+energy prediction for mobile robots \cite{gora2024energyprediction} place analytic models of the
+kind used here --- idle power plus a distance term plus a payload term --- among the alternatives
+and give consumption ranges against which such a model can be sanity-checked
+(\cref{sec:robot-model}). Payload-dependent consumption has been estimated empirically for ground
+robots \cite{mohamadi2024payloadpower}, which supports treating the payload term as proportional to
+carried mass rather than as a free parameter. Measurements of which quantities actually dominate
+consumption find angular velocity and acceleration to be the principal predictors, with payload
+secondary \cite{rico2025explainableenergy} --- a result that independently explains why the
+planner comparison of \cref{sec:planner-study} found large differences in turning but only small
+ones in energy between planners that drive almost the same distance.
+
+\section{Simulation and validation}
 \label{sec:sim2real}
-% Group E: what is normally validated, and the gap this thesis addresses by comparing a fast
-% abstract simulator against full Gazebo shifts.
+
+Learned decision policies are trained in simulation because the number of episodes required makes
+anything else impractical, and the resulting question is always what the results are worth. The
+two-layer pattern used in this thesis --- train and decide against a fast abstract model, then run
+the result on the full system --- is the same pattern as digital-twin-driven approaches to AGV
+optimisation \cite{lee2025digitaltwinagv}. Methodologies for quantifying the gap between a
+simulated and a real navigation system, using multiple metrics rather than a single success rate,
+have been proposed for flexible assembly systems \cite{bergs2025digitaltwinnavigation}; the
+validation in \cref{sec:gazebo-validation} follows that spirit, comparing energy, throughput, lost
+production and safety separately rather than reporting one aggregate number.
 
 \section{Research gap}
 \label{sec:gap}
-% Two or three sentences, sharp: existing work either learns the whole policy (no guarantee) or
-% hand-writes it (no trade-off reasoning); reported evaluations rarely separate seen from unseen
-% conditions; and abstract schedulers are seldom validated against a full navigation stack.
+
+The reviewed work divides along lines that leave one intersection empty. The scheduling literature
+\cite{dilefeld2025batterymanagement, cheng2025energysavingfjsp, chang2025hierarchicalagv,
+zhou2025resilientcharging, lee2025digitaltwinagv, warita2024onlineplanning} optimises energy and
+throughput, but without an interpretable decision or a structural safety guarantee. The
+neuro-symbolic literature \cite{baugh2025neuraldnfmt, hu2024graphworldmodels, kozik2025explainable}
+provides interpretability, but not an industrial resource model in which battery, heat and wear
+constrain what may be done. The safe-learning literature \cite{koenighofer2025shields,
+odriozola2025fearfield, long2025humanriskaware} provides the safety machinery, but is usually
+demonstrated without an energy objective or a full navigation stack. The energy literature
+\cite{gora2024energyprediction, rico2025explainableenergy, mohamadi2024payloadpower} models
+consumption accurately, but decides nothing.
+
+This thesis occupies that intersection. It combines (i) a symbolic layer that makes safety
+structural rather than learned, (ii) a \emph{bounded} neural correction on top of it, which
+constrains the learned component's influence rather than only its choices, (iii) a calibrated
+energy, thermal and wear model that makes the constraints physically meaningful, and (iv)
+validation of the \emph{same policy object} in a fast simulator and in Gazebo with a complete Nav2
+stack. Each ingredient exists separately in the literature; the combination, and the evidence in
+\cref{ch:results} that the bound is what makes the learned part safe to keep, is what this work
+contributes.
