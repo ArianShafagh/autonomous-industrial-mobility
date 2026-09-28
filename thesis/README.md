@@ -5,18 +5,26 @@ Optimal Path Planning and Resource-Efficient Navigation*.
 
 ## Layout
 
+Built on the **UNIME template** taken from your own Overleaf project (`thesisExamples/arian_thesis`),
+the same one the example bachelor thesis uses, so the cover page, fonts and spacing are what the
+faculty expects.
+
 ```
 thesis/
-  main.tex            the only file that is compiled; it \input's everything else
-  preamble/           packages.tex · style.tex · macros.tex (every recurring number)
-  front/              titlepage · declaration · abstract · acknowledgements
-  chapters/           01 … 09, one file per chapter
-  back/               appendices A–C
-  figures/            figures; the result figures are copied from tools/ai/results/
-  bib/references.bib  seeded from docs/related_work.md (20 verified papers)
+  main.tex        the file you compile; metadata (candidate, supervisor, title) at the top
+  thesis.sty      the faculty style package, unchanged except for the PDF keywords
+  unime-logo.jpg  used by the cover page
+  extras.tex      the few packages this thesis adds (siunitx, cleveref, enumitem, algorithm)
+  macros.tex      every recurring result number, defined once
+  front/          frontCover · abstract · index (ToC) · indexfigures · indextables · acknowledgement
+                  (declaration.tex exists but is not included; add it if your faculty asks for one)
+  body/           01–09 chapters, 10–12 appendices
+  figures/        figures; the four result figures are copied from tools/ai/results/
+  refs.bib        references, seeded from docs/related_work.md
 ```
 
-Compile with **pdfLaTeX + Biber** (Overleaf: Menu → Compiler → pdfLaTeX).
+Compile with **pdfLaTeX + BibTeX** (not Biber): the template uses `\bibliographystyle{unsrt}`,
+exactly like the example theses.
 
 ## How to work in here
 

@@ -1,0 +1,52 @@
+\usepackage{newlfont}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{wrapfig}
+\usepackage{subfig}
+\usepackage{ifthen}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{url}
+\usetikzlibrary{arrows.meta, positioning, calc, shapes.geometric}
+\usepackage{listings}
+\lstset { 
+    basicstyle=\ttfamily\footnotesize,
+    columns=fullflexible,
+    keepspaces=true,
+    literate={°}{{\"\deg}}1,
+    numbers=left,
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breaklines=true,
+    breakatwhitespace=false,
+}
+\usepackage[bookmarks=true]{hyperref}
+\hypersetup{
+        colorlinks=true,
+        linkcolor=black,
+        anchorcolor=black,
+        citecolor=black,
+        urlcolor=black,
+        pdftitle={\thesistitle},
+        pdfauthor={\candidate},
+        pdfkeywords={autonomous mobile robots, neuro-symbolic AI, reinforcement learning, energy-aware navigation, ROS 2, Nav2}
+}
+\usepackage{setspace}
+\doublespacing
+\textwidth=450pt\oddsidemargin=0pt\linespread{1.4}
+\graphicspath{{figures/}}
+
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\loss}{\mathcal{L}}
+\newcommand{\cliptext}{\mathrm{CLIP}_{text}}

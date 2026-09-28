@@ -2,57 +2,66 @@
 %  Towards Autonomous Industrial Mobility:
 %  An AI Framework for Optimal Path Planning and Resource-Efficient Navigation
 %
-%  Bachelor thesis — Arian Shafagh
+%  Bachelor thesis - Arian Shafagh - Universita degli studi di Messina
 %
-%  Compile with pdfLaTeX + Biber (Overleaf: Menu -> Compiler -> pdfLaTeX).
-%  Every chapter lives in its own file so chapters can be written, moved and
-%  commented on independently:
-%      preamble/  packages, styling, macros (numbers used in the text)
-%      front/     title page, declaration, abstracts, acknowledgements
-%      chapters/  the thesis itself, one file per chapter
-%      back/      appendices
-%      figures/   figures (the result figures are copied from tools/ai/results)
-%      bib/       references.bib
+%  Built on the UNIME template (thesis.sty + front/frontCover.tex), same layout
+%  as the example theses in ../thesisExamples/.
+%  Compile with pdfLaTeX + BibTeX  (Overleaf: Menu -> Compiler -> pdfLaTeX).
+%
+%  Structure:
+%    front/    cover, abstract, indexes, acknowledgement
+%    body/     one file per chapter (01-09) and the appendices (10-12)
+%    figures/  figures; result figures are copied from tools/ai/results/
+%    macros.tex  every recurring number, defined once
+%    refs.bib    references, seeded from docs/related_work.md
 % =============================================================================
-\documentclass[a4paper,12pt,twoside,openright]{report}
+\documentclass[a4paper, 12pt]{report}
+\usepackage[english]{babel}
 
-\input{preamble/packages}
-\input{preamble/style}
-\input{preamble/macros}
+\newcommand{\doclanguage}{English}
+\newcommand{\course}{Bachelor's Degree in Computer Science L31}
+\newcommand{\curriculum}{Curriculum: Data Analysis}
 
-\addbibresource{bib/references.bib}
+\newcommand{\candidate}{Arian Shafagh}
+\newcommand{\supervisor}{Prof. Giovanni Merlino}
+% \newcommand{\cosupervisor}{Prof. <name>}      % uncomment if you have one
+\newcommand{\accademicyear}{2025/2026}
+\newcommand{\thesistitle}{Towards Autonomous Industrial Mobility: An AI Framework for Optimal Path Planning and Resource-Efficient Navigation}
+
+\usepackage{thesis}        % the UNIME style package (do not restructure it)
+\input{extras}             % the few extra packages this thesis needs
+\input{macros}             % result numbers, defined once and used everywhere
 
 \begin{document}
 
-% ------------------------------------------------------------------ front matter
-\frontmatter
-\input{front/titlepage}
-\input{front/declaration}
-\input{front/abstract}
-\input{front/acknowledgements}
+    % ---------------------------------------------------------------- front matter
+    \input{front/frontCover}
+    \input{front/abstract}
+    \input{front/index}
+    \input{front/indexfigures}
+    \input{front/indextables}
+    \input{front/acknowledgement}
+    % \input{front/declaration}   % only if your faculty requires a signed declaration
 
-\tableofcontents
-\listoffigures
-\listoftables
+    % --------------------------------------------------------------------- chapters
+    \input{body/01_introduction}
+    \input{body/02_background}
+    \input{body/03_problem}
+    \input{body/04_system}
+    \input{body/05_decision_models}
+    \input{body/06_experimental_setup}
+    \input{body/07_results}
+    \input{body/08_discussion}
+    \input{body/09_conclusion}
 
-% ---------------------------------------------------------------------- chapters
-\mainmatter
-\input{chapters/01_introduction}
-\input{chapters/02_background}
-\input{chapters/03_problem}
-\input{chapters/04_system}
-\input{chapters/05_decision_models}
-\input{chapters/06_experimental_setup}
-\input{chapters/07_results}
-\input{chapters/08_discussion}
-\input{chapters/09_conclusion}
+    % ------------------------------------------------------------------ references
+    \bibliographystyle{unsrt}
+    \bibliography{refs}
 
-% ------------------------------------------------------------------- back matter
-\printbibliography[heading=bibintoc]
-
-\appendix
-\input{back/a_configuration}
-\input{back/b_scenarios}
-\input{back/c_reproduction}
+    % ------------------------------------------------------------------ appendices
+    \appendix
+    \input{body/10_appendix_configuration}
+    \input{body/11_appendix_scenarios}
+    \input{body/12_appendix_reproduction}
 
 \end{document}
