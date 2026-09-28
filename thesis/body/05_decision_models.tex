@@ -1,59 +1,337 @@
 \chapter{Decision Models}
 \label{ch:models}
 
-% NARRATIVE GOAL
-% The core chapter. Build the model in the order a reader can follow: what the rules guarantee,
-% what the network adds, and why the network must be kept on a leash.
-% Source: HANDOVER.md WP5, WP6, WP9 and the WP9 follow-up.
+The system of \cref{ch:system} can execute any action; this chapter is about choosing which one.
+Four answers are developed and compared: a rule-based reference policy, the \NS that is this
+thesis's contribution, a deep reinforcement learning policy, and a family of ablations that
+isolate what each part of the \NS actually contributes.
 
-\section{Overview}
-\label{sec:model-overview}
-% One figure: legal actions -> hard rules (forbid) -> priority tiers (rank) -> neural ranker
-% (choose within the top tier) -> action + explanation string.
+All of them implement the same interface. A policy receives the state of the factory and the
+robot, together with the list of currently legal actions, and returns one action, a set of scores
+and a human-readable explanation of why. Nothing in a policy touches ROS, which is what allows the
+identical object to run inside the fast simulator during training and inside the decision service
+on the robot (\cref{sec:service}).
 
-\section{The symbolic layer}
-\label{sec:symbolic-layer}
+\section{The rule-based reference}
+\label{sec:rule-policy}
+
+The reference policy exists so that the learned models have something honest to beat. It is
+written from what an operator would say about the job, in five sentences:
+
+\begin{enumerate}[leftmargin=*, itemsep=0.1em]
+  \item Keep the robot able to get home: charge when the battery would not cover the trip plus the
+        journey to the charger plus the reserve.
+  \item Never let a line stand still: serve \textsc{blocked} sections first, then whichever will
+        block soonest.
+  \item Do not drive half empty: top the load up at another section if it is close and has units.
+  \item Deliver what you carry when the robot is full or nothing else is worth collecting.
+  \item Wait at the charger, never in an aisle, because waiting anywhere else only spends energy.
+\end{enumerate}
+
+A section counts as urgent if it will block within \SI{180}{\second}, and a buffer below
+\SI{35}{\percent} is not worth a dedicated trip. The policy is roughly a hundred lines long, entirely
+explainable, and --- as \cref{sec:overall} shows --- far from useless: it scores \num{41.66}
+against the \NS's \num{53.81}, and it is the most energy-efficient policy in the comparison. It is
+also the fallback the robot runs when the decision service is unavailable
+(\cref{sec:service}), so the same code has to be trustworthy in production, not only in the
+evaluation.
+
+\section{The neuro-symbolic model}
+\label{sec:ns-model}
+
+The \NS is built from the observation that the decision has two different kinds of content. Some
+of it is arithmetic and physics: whether the robot can complete a journey without stranding
+itself, whether a line is already losing production, how much energy an action costs. That part is
+known exactly, it can be computed from the robot's own models, and getting it wrong is
+unacceptable rather than merely suboptimal. The rest is judgement: whether it is worth driving
+past a half-full buffer to reach a fuller one, whether to collect a second load before delivering,
+whether a quick top-up now saves a longer charge later. That part is not exactly computable, but
+it can be learned.
+
+The model separates the two. A symbolic layer decides what is \emph{allowed} and what is
+\emph{urgent}; a neural scorer chooses among the candidates that survive. \Cref{fig:ns-pipeline}
+shows the pipeline.
+
+% TODO(figure): draw the pipeline as a diagram. Suggested shape, left to right:
+%   legal actions -> [hard rules: forbid] -> [priority tiers: keep the top tier]
+%   -> [symbolic estimate + bounded neural correction: rank] -> action + explanation
+% Keep it plain (boxes and arrows, no colour gradients); tikz is already available via thesis.sty.
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.9\textwidth}{\centering\vspace{2em}\textit{<pipeline diagram: legal actions
+    $\rightarrow$ hard rules $\rightarrow$ priority tiers $\rightarrow$ bounded neural ranking
+    $\rightarrow$ action + explanation>}\vspace{2em}}}
+    \caption{The neuro-symbolic decision pipeline. The symbolic layer removes actions and ranks
+             what remains into urgency tiers; the neural scorer only ever chooses \emph{within}
+             the most urgent tier.}
+    \label{fig:ns-pipeline}
+\end{figure}
+
 \subsection{Hard rules}
-% H1 maintenance, H2 payload, H3 battery reserve including the return trip (checked by simulating
-% the route with the robot's own model), H4 motor temperature, H5 no pointless waiting.
-% H5 is worth a paragraph of its own: it closes a gap between two thresholds, found only by
-% watching a real shift (HANDOVER, WP9 follow-up).
-\subsection{Priority tiers}
-% Tier 2 unblock a stopped line, tier 1 prevent one from stopping, tier 0 routine.
-\subsection{Explainability}
-% Every decision carries the rules that fired. Quote one real explanation string from a log.
+\label{sec:hard-rules}
 
-\section{The neural ranker}
+Hard rules forbid. They encode the constraints of \cref{sec:constraints} and no score from any
+network can overrule them --- this is the guarantee that a purely learned policy cannot give.
+
+\begin{description}[leftmargin=1.2em, style=nextline, itemsep=0.2em]
+  \item[H1 --- Maintenance.] Below \SI{30}{\percent} drive condition, pickups and deliveries are
+        forbidden; only charging and waiting remain.
+  \item[H2 --- Payload.] A pickup is forbidden if nothing at that section still fits within the
+        remaining payload capacity.
+  \item[H3 --- Reserve.] An action is forbidden if the battery after completing it \emph{and
+        returning to the charger} would fall below the reserve plus a safety margin of
+        \SI{2}{\percent}. This is not a threshold on the gauge: the whole route --- outward leg,
+        dwell, journey home --- is simulated with the robot's own energy, thermal and wear models
+        (\cref{sec:robot-model}), so the answer depends on the payload, the motor temperature and
+        the condition of the drive.
+  \item[H4 --- Heat.] An action is forbidden if the simulated peak motor temperature along that
+        route would reach the limit of \SI{70}{\degreeCelsius}.
+  \item[H5 --- Pointless waiting.] Away from the charger, if every pickup and delivery is already
+        forbidden and charging is possible, waiting is forbidden too.
+\end{description}
+
+H1--H4 follow directly from the constraints. H5 does not: it was added after watching the robot
+work a real shift, and the reason is worth recording. Charging becomes \emph{urgent} (tier~2
+below) slightly below the battery level at which the pickups are already refused by H3. In the
+gap between those two thresholds, waiting and charging looked equally good to the ranker, and the
+robot spent about \SI{1}{\percent} of its pack waiting at a section before driving to the charger
+anyway. The rule closes the gap by stating what is obviously true and was nowhere written down:
+if the robot cannot collect or deliver anything until it charges, waiting cannot improve the
+situation. Adding it improved the score on the training scenarios from \num{58.70} to \num{58.81}
+and, on the full evaluation, \texttt{low\_battery\_start} from \num{55.14} to \num{55.57}.
+
+\subsection{Priority tiers}
+\label{sec:tiers}
+
+The surviving actions are then ranked into three tiers, and only the most urgent tier is passed
+on:
+
+\begin{description}[leftmargin=1.2em, style=nextline, itemsep=0.2em]
+  \item[Tier 2 --- unblock a stopped line.] A pickup at a \textsc{blocked} section, or charging
+        when the battery is at the reserve.
+  \item[Tier 1 --- prevent a line from stopping.] A pickup at a section that will fill within
+        \SI{180}{\second} or within the travel time to it, whichever is longer; or a delivery when
+        the robot is full and can collect nothing else.
+  \item[Tier 0 --- routine.] Everything else.
+\end{description}
+
+The tiers express a priority that should never be traded away for a small gain in energy: a line
+that is already losing production outranks one that is merely getting full, which outranks a
+convenient errand. Because only the top tier reaches the scorer, the network can never choose a
+routine action while a line stands still --- it can only decide \emph{which} of the equally urgent
+actions to take.
+
+\subsection{Explanation}
+\label{sec:explanations}
+
+Every verdict carries its reasons, so every decision explains itself. A real decision from a
+Gazebo shift reads:
+
+\begin{quote}\ttfamily\small
+decision: WAIT:60 --- [routine] waiting away from the charger only spends energy |
+PICKUP:B refused: battery would be 16 \% back at the charger, below the 17 \% reserve;
+DELIVER refused: battery would be 17 \% back at the charger, below the 17 \% reserve;
+neural score +0.95, chosen over CHARGE:40 by +0.16
+\end{quote}
+
+The explanation names the tier, the reason the chosen action is in it, which alternatives were
+forbidden and why, and by how much the network preferred this action to the runner-up. This is not
+a post-hoc rationalisation of a black-box output: it is the actual computation, written out. It is
+also how the H5 rule was found --- the string above is the trace that showed the robot preferring
+to wait while it was in fact stuck until it charged.
+
+\section{The neural scorer}
 \label{sec:neural-ranker}
-\subsection{Features and the symbolic estimate}
-% 27 features; the network learns a *residual* on an analytic estimate rather than the value
-% itself. Say why: the estimate already captures the arithmetic, so the network only has to learn
-% what the arithmetic misses.
+
+\subsection{Features}
+\label{sec:features}
+
+The network scores \emph{one candidate action at a time}: it receives a vector of \num{27}
+features describing that action in the current state, and returns a single number. Scoring actions
+rather than states is what keeps the network small and portable --- it learns ``is this action
+worth it, given what it costs and what it saves'', not ``what should be done in this exact
+factory''.
+
+The features cover four groups: what kind of action it is; the robot's state (battery,
+temperature, condition, payload, cargo, time left in the shift); what the action costs and leaves
+behind (distance, energy as a percentage of the pack, battery afterwards, battery after also
+returning home); and what it achieves (the target section's fill, units and mass gained, time to
+full, rate, health, whether it is blocked or faulted, plus the worst other section's fill and time
+to full, and whether any other line is blocked). Charging actions additionally carry their target
+level and the gain it would bring.
+
+\subsection{Learning a correction, not a value}
+\label{sec:residual}
+
+The network does not predict an action's value. It predicts a \emph{correction} to an analytic
+estimate:
+
+\begin{equation}
+    \label{eq:score}
+    \operatorname{score}(a) \;=\; \underbrace{\hat{v}(a)}_{\text{symbolic estimate}}
+        \;+\; \underbrace{c_\theta(a)}_{\text{learned correction}}
+\end{equation}
+
+where the symbolic estimate is the obvious part of the value, computed directly from the models:
+the units the action moves, valued with the objective of \cref{eq:objective}, minus the energy the
+journey and its dwell time cost. What the estimate cannot know is the future --- which line blocks
+next, whether a fuller load would have been better, whether this trip makes a charge unavoidable
+later --- and that is exactly what the correction has to supply.
+
+This split matters for a reason that only became visible in the evaluation
+(\cref{sec:bounded-correction}). The estimate is arithmetic on the current state, so it stays
+correct in any factory, including one with twice the production rate. The network is a function
+fitted on a distribution of states, so it is reliable near the situations it was trained on and
+unreliable away from them. Starting from the estimate means the model degrades towards sensible
+arithmetic rather than towards noise.
+
 \subsection{Training}
-% Rollout look-ahead targets, policy iteration, a ranking loss (softmax cross-entropy per decision
-% point) rather than regression, best-round selection on validation scenarios.
-% The ranking loss was the decisive change — report it as such.
+\label{sec:ns-training}
+
+Training data are collected by look-ahead in the fast simulator. At each decision point of a
+simulated shift, every candidate action is taken in a copy of the simulator, the resulting future
+is played out for \SI{900}{\second} with a reference policy, and the discounted return is recorded
+as that action's value. Because production and faults are random, three futures are averaged per
+action. Exploration is added by choosing a random action at \SI{25}{\percent} of decision points,
+so the data are not confined to what the reference policy would have done. Collection runs over
+the six training scenarios with seeds from \num{12345} upwards, which never overlap the evaluation
+seeds (\cref{sec:splits}).
+
+The decisive design choice is the loss. The look-ahead value of an action is noisy, and the
+candidates at one decision point often differ by far less than that noise, so regressing values
+spends the network's capacity on modelling randomness. What the model actually has to get right is
+\emph{which candidate is best}. The scorer is therefore trained with a softmax cross-entropy over
+the candidates of each decision point, with the look-ahead's best action as the target, plus a
+small value-regression term that keeps the scores on a meaningful scale so they remain readable in
+the explanation strings.
+
+Training is repeated for three rounds of policy iteration: the first round looks ahead with the
+symbolic policy, and each later round looks ahead with the model trained in the previous one. The
+round with the best validation score is kept. In the final training run, round~1 was the best
+(validation score \num{59.68}, against \num{58.05} and \num{56.10} for rounds~2 and~3), so policy
+iteration did not pay off here --- a negative result worth reporting rather than hiding. The kept
+model picks the look-ahead's best action in \SI{35}{\percent} of validation decision points, which
+sounds low until one notices that many decision points have several near-equivalent candidates;
+what matters is the shift score, not the agreement rate.
 
 \section{Bounding the correction}
 \label{sec:bounded-correction}
-% THE contribution. Present it as a discovery, not as a design:
-%   1. the unbounded model was worse than its own rules on unseen scenarios;
-%   2. the trace showed it choosing WAIT while every line was blocked, with an explanation string
-%      that said waiting only spends energy;
-%   3. the cause: in training, production is half as fast and batching pays;
-%   4. the fix: centre the correction on the candidates' mean and clip it to +-\maxCorrection;
-%   5. the bound was chosen on TRAINING scenarios with validation seeds only (table of the sweep:
-%      none 57.75, 20 -> 57.75, 10 -> 58.06, 5 -> 58.15, 2 -> 58.15, 1 -> 58.70, 0 -> 57.41).
-% State the interpretation: the network may decide close calls, never overrule clear evidence.
 
-\section{Reinforcement learning baseline}
+The model as described so far --- rules, tiers, and a network correcting an analytic estimate ---
+is the version that was first evaluated. It was worse than its own symbolic layer on scenarios it
+had never seen (\num{43.33} against \num{45.66}, \cref{tab:splits}), and the gap came almost
+entirely from one scenario, \texttt{heavy\_load}, where it scores \num{\heavyUnbounded} against
+the symbolic layer's \num{53.21}.\footnote{These are the numbers of the final configuration, in
+which both variants also carry the H5 rule of \cref{sec:hard-rules}. When the failure was first
+observed, before H5 existed, the same comparison read \num{\heavyDiscovery} against
+\num{53.21}.}
+
+The decision trace explained why. In a factory producing beyond one robot's capacity, the model
+repeatedly chose \texttt{WAIT} while carrying cargo, up to eight times in a row, while all three
+lines stood \textsc{blocked} and lost production. Its own explanation string said, correctly,
+that ``waiting away from the charger only spends energy'': the symbolic estimate ranked waiting
+last, and the learned correction --- around $+20$ on every candidate, with differences of a few
+units --- simply outvoted it.
+
+The cause is not a bug but a distribution shift. In the six training scenarios, production is
+roughly half as fast, and waiting to accumulate a fuller load genuinely pays. The network learned
+that habit and applied it to an overload it had never seen, where the same habit is ruinous.
+
+The remedy follows from \cref{eq:score}. The correction is centred on the mean of the candidates
+at that decision point --- only differences between candidates affect the ranking --- and then
+clipped:
+
+\begin{equation}
+    \label{eq:bounded}
+    \operatorname{score}(a) \;=\; \hat{v}(a)
+        \;+\; \operatorname{clip}\!\left(c_\theta(a) - \overline{c_\theta},\; -\beta,\; +\beta\right)
+\end{equation}
+
+With a bound $\beta$, the network can reorder candidates whose analytic estimates lie within
+$\beta$ of each other --- the close calls, where judgement is what is needed --- and can never
+overturn a difference the arithmetic considers clear. It constrains the network's
+\emph{influence}, which is a different thing from the action masking and shielding of
+\cref{sec:safe-learning}: those constrain which actions are \emph{legal}.
+
+The bound was selected on the six training scenarios with validation seeds \numrange{1000}{1019},
+never on the unseen scenarios or the evaluation seeds (\cref{tab:bound-sweep}).
+
+\begin{table}[H]
+    \centering
+    \caption{Choosing the bound $\beta$: mean score over the six training scenarios with
+             validation seeds \numrange{1000}{1019}. $\beta=\infty$ is the unbounded model,
+             $\beta=0$ switches the network off and decides on the analytic estimate alone.}
+    \label{tab:bound-sweep}
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        $\beta$ & $\infty$ & 20 & 10 & 5 & 2 & \textbf{1} & 0\\
+        \midrule
+        Mean score & 57.75 & 57.75 & 58.06 & 58.15 & 58.15 & \textbf{58.70} & 57.41\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Two things are visible in that table. The network is worth having: switching it off entirely
+($\beta=0$) is worse than every bounded setting. And its useful influence is small: the best value
+is $\beta=\maxCorrection$, one point on a scale where a delivered unit is worth one point. The
+chosen model may therefore move an action by at most the value of a single delivered unit relative
+to the others --- enough to break a tie, not enough to argue with the arithmetic.
+
+What this costs and buys is measured in \cref{sec:ablation-results}: nothing on the training
+scenarios ($p=0.058$), \num{3.87} points on the unseen ones ($p<0.001$), and
+\num{\heavyBounded} against \num{\heavyUnbounded} on \texttt{heavy\_load}.
+
+\section{The reinforcement learning comparison}
 \label{sec:ppo}
-% MaskablePPO on the same environment, observation and reward. Training setup and the fairness fix
-% (each parallel environment now draws a random training scenario, so all six are seen).
-% The unmasked variant exists to ask how much of PPO's competence is simply knowing the rules.
 
-\section{Reference policies and ablations}
+The learned comparison is Maskable PPO, trained on the same environment, the same observation
+content and the same objective, so that the comparison is about \emph{where knowledge is placed},
+not about who gets more information.
+
+The agent sees the state as one vector (robot state plus per-section features) and chooses from
+the same discrete action set. Action masks mark the actions that are currently legal, which is the
+standard way of expressing hard constraints in reinforcement learning, and the agent samples only
+among them. Training runs for \num{300000} steps across four parallel environments
+($n_{\text{steps}}=512$, batch size \num{256}, learning rate \num{3e-4}, $\gamma=0.995$,
+$\lambda=0.95$, entropy coefficient \num{0.01}, two hidden layers of \num{64} units --- the same
+size as the neural scorer), and takes about ten minutes on the evaluation machine.
+
+One detail of the training setup had to be corrected before the comparison was fair. Each parallel
+environment was originally bound to one fixed scenario, so with four environments the agent only
+ever saw four of the six training scenarios. The environment now draws a scenario at random at
+every reset, so all six are seen regardless of how many environments run. Both the corrected model
+and the original one are reported (\texttt{ppo} and \texttt{ppo\_wp6}), because the difference
+between them is itself informative: it is small, and the safety behaviour does not change
+(\cref{sec:safety-results}).
+
+A second variant, \texttt{ppo\_unmasked}, is trained without the action mask. Illegal choices are
+executed anyway --- they simply achieve nothing --- and cost a small penalty, so the agent has to
+learn the rules from experience. It answers the question of how much of a masked agent's
+competence comes from the mask rather than from learning.
+
+\section{Ablations}
 \label{sec:ablations}
-% rule (nearest section above 50 % buffer, charge when the reserve would break),
-% ns_symbolic_only, ns_neural_only, ns_estimate_only, ns_unbounded, ppo_wp6.
-% A table listing each policy and the exact question it answers is very effective here.
+
+\Cref{tab:policies} lists every policy in the evaluation and the question it exists to answer.
+Each removes exactly one thing, so that a difference in \cref{ch:results} can be attributed.
+
+\begin{table}[H]
+    \centering
+    \caption{The policies compared in \cref{ch:results} and what each one isolates.}
+    \label{tab:policies}
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        Policy & What it is, and the question it answers\\
+        \midrule
+        \texttt{ns} & The full model: hard rules, priority tiers, analytic estimate, bounded neural correction.\\
+        \texttt{ns\_unbounded} & The same model with $\beta=\infty$. \emph{Does bounding the network matter?}\\
+        \texttt{ns\_estimate\_only} & The same model with $\beta=0$. \emph{Does the network contribute anything at all?}\\
+        \texttt{ns\_symbolic\_only} & Rules and tiers, then the cheapest action per unit moved; no network, no estimate. \emph{How far do the rules alone get?}\\
+        \texttt{ns\_neural\_only} & The network ranking every legal action, with no rules and no tiers. \emph{What did the network really learn --- including about safety?}\\
+        \texttt{rule} & The reference policy of \cref{sec:rule-policy}. \emph{Is any of this better than common sense?}\\
+        \texttt{ppo} & Maskable PPO trained on all six training scenarios. \emph{Rules versus learning, with equal information.}\\
+        \texttt{ppo\_unmasked} & PPO without the action mask. \emph{How much of PPO's competence is the mask?}\\
+        \texttt{ppo\_wp6} & The earlier PPO, trained on four of the six scenarios. \emph{Did the training-coverage fix change the comparison?}\\
+        \bottomrule
+    \end{tabularx}
+\end{table}

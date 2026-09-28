@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.9.28)  28 SEP 2026 12:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.9.28)  28 SEP 2026 12:15
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -28,7 +28,7 @@ File: size12.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 Package: babel 2024/01/07 v24.1 The Babel package
 \babel@savecnt=\count196
 \U@D=\dimen141
-\l@unhyphenated=\language5
+\l@unhyphenated=\language9
  (/usr/share/texlive/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
 \bbl@dirlevel=\count197
@@ -603,28 +603,505 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 Package hyperref Info: Option `colorlinks' set `true' on input line 44.
  (/usr/share/texlive/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2022/12/04 v6.7b set line spacing
-)) (./extras.tex
+)) (./extras.tex (/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty
+Package: siunitx 2024-01-25 v3.3.10 A comprehensive (SI) units package
+\l__siunitx_number_uncert_offset_int=\count339
+\l__siunitx_number_exponent_fixed_int=\count340
+\l__siunitx_number_min_decimal_int=\count341
+\l__siunitx_number_min_integer_int=\count342
+\l__siunitx_number_round_precision_int=\count343
+\l__siunitx_number_lower_threshold_int=\count344
+\l__siunitx_number_upper_threshold_int=\count345
+\l__siunitx_number_group_first_int=\count346
+\l__siunitx_number_group_size_int=\count347
+\l__siunitx_number_group_minimum_int=\count348
+\l__siunitx_angle_tmp_dim=\dimen304
+\l__siunitx_angle_marker_box=\box76
+\l__siunitx_angle_unit_box=\box77
+\l__siunitx_compound_count_int=\count349
+ (/usr/share/texlive/texmf-dist/tex/latex/translations/translations.sty
+Package: translations 2022/02/05 v1.12 internationalization of LaTeX2e packages (CN)
+)
+\l__siunitx_table_tmp_box=\box78
+\l__siunitx_table_tmp_dim=\dimen305
+\l__siunitx_table_column_width_dim=\dimen306
+\l__siunitx_table_integer_box=\box79
+\l__siunitx_table_decimal_box=\box80
+\l__siunitx_table_uncert_box=\box81
+\l__siunitx_table_before_box=\box82
+\l__siunitx_table_after_box=\box83
+\l__siunitx_table_before_dim=\dimen307
+\l__siunitx_table_carry_dim=\dimen308
+\l__siunitx_unit_tmp_int=\count350
+\l__siunitx_unit_position_int=\count351
+\l__siunitx_unit_total_int=\count352
+) (/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip67
+\enit@outerparindent=\dimen309
+\enit@toks=\toks44
+\enit@inbox=\box84
+\enit@count@id=\count353
+\enitdp@description=\count354
+) (/usr/share/texlive/texmf-dist/tex/latex/algorithms/algorithm.sty
+Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating environment
+\@float@every@algorithm=\toks45
+\c@algorithm=\count355
+) (/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty
+Package: algpseudocode 
+ (/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
+Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
 
-! LaTeX Error: File `siunitx.sty' not found.
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+\c@ALG@line=\count356
+\c@ALG@rem=\count357
+\c@ALG@nested=\count358
+\ALG@tlm=\skip68
+\ALG@thistlm=\skip69
+\c@ALG@Lnr=\count359
+\c@ALG@blocknr=\count360
+\c@ALG@storecount=\count361
+\c@ALG@tmpcounter=\count362
+\ALG@tmplength=\skip70
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texlive/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+)) (/usr/share/texlive/texmf-dist/tex/latex/cleveref/cleveref.sty
+Package: cleveref 2018/03/27 v0.21.4 Intelligent cross-referencing
+Package cleveref Info: `hyperref' support loaded on input line 2370.
+LaTeX Info: Redefining \cref on input line 2370.
+LaTeX Info: Redefining \Cref on input line 2370.
+LaTeX Info: Redefining \crefrange on input line 2370.
+LaTeX Info: Redefining \Crefrange on input line 2370.
+LaTeX Info: Redefining \cpageref on input line 2370.
+LaTeX Info: Redefining \Cpageref on input line 2370.
+LaTeX Info: Redefining \cpagerefrange on input line 2370.
+LaTeX Info: Redefining \Cpagerefrange on input line 2370.
+LaTeX Info: Redefining \labelcref on input line 2370.
+LaTeX Info: Redefining \labelcpageref on input line 2370.
+Package cleveref Info: `algorithmicx' support loaded on input line 3120.
+Package cleveref Info: `listings' support loaded on input line 3131.
+Package cleveref Info: `subfig' support loaded on input line 3164.
+Package cleveref Info: always capitalise cross-reference names on input line 7825.
+Package cleveref Info: always capitalise cross-reference names on input line 7852.
+Package cleveref Info: no abbreviation of names on input line 7852.
+) (./macros.tex) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count363
+\l__pdf_internal_box=\box85
+) (./main.aux)
+\openout1 = `main.aux'.
 
-Type X to quit or <RETURN> to proceed,
-or enter new name. (Default extension: sty)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 35.
+LaTeX Font Info:    ... okay on input line 35.
+ (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count364
+\scratchdimen=\dimen310
+\scratchbox=\box86
+\nofMPsegments=\count365
+\nofMParguments=\count366
+\everyMPshowfont=\toks46
+\MPscratchCnt=\count367
+\MPscratchDim=\dimen311
+\MPnumerator=\count368
+\makeMPintoPDFobject=\count369
+\everyMPtoPDFconversion=\toks47
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+ (/usr/share/texlive/texmf-dist/tex/latex/grfext/grfext.sty
+Package: grfext 2019/12/03 v1.3 Manage graphics extensions (HO)
+)
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+Package grfext Info: Graphics extension search list:
+(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 504.
+ (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: listings package is loaded.
+Package caption Info: longtable package is loaded.
+ (/usr/share/texlive/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)
+Package caption Info: wrapfig package is loaded.
+Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count370
+Package hyperref Info: Link coloring ON on input line 35.
+\@outlinefile=\write4
+\openout4 = `main.out'.
 
-Enter file name: 
-./extras.tex:4: Emergency stop.
-<read *> 
-         
-l.4 \sisetup
-            {per-mode=symbol}^^M
-*** (cannot \read from terminal in nonstop modes)
+ (/usr/share/texlive/texmf-dist/tex/latex/translations/translations-basic-dictionary-english.trsl
+File: translations-basic-dictionary-english.trsl (english translation file `translations-basic-dictionary')
+)
+Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 35.
+ (./front/frontCover.tex
+<unime-logo.jpg, id=7, 903.375pt x 903.375pt>
+File: unime-logo.jpg Graphic file (type jpg)
+<use unime-logo.jpg>
+Package pdftex.def Info: unime-logo.jpg  used on input line 6.
+(pdftex.def)             Requested size: 80.9967pt x 80.99698pt.
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 26.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+LaTeX Font Info:    Trying to load font information for U+msa on input line 26.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 26.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
 
- 
-Here is how much of TeX's memory you used:
- 24667 strings out of 476182
- 455800 string characters out of 5795595
- 1922975 words of memory out of 5000000
- 46302 multiletter control sequences out of 15000+600000
- 559131 words of font info for 38 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 99i,0n,101p,525b,397s stack positions out of 10000i,1000n,20000p,200000b,200000s
-./extras.tex:4:  ==> Fatal error occurred, no output PDF file produced!
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./unime-logo.jpg>]) (./front/abstract.tex) (./front/index.tex
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1 \tableofcontents
+                     [1
+
+]
+No file main.toc.
+\tf@toc=\write5
+\openout5 = `main.toc'.
+
+) (./front/indexfigures.tex [2
+
+]
+No file main.lof.
+\tf@lof=\write6
+\openout6 = `main.lof'.
+
+) (./front/indextables.tex [3
+
+]
+No file main.lot.
+\tf@lot=\write7
+\openout7 = `main.lot'.
+
+) (./front/acknowledgement.tex [4
+
+]) (./body/01_introduction.tex [5
+
+]
+Chapter 1.
+[6
+
+]) (./body/02_background.tex [7]
+Chapter 2.
+) (./body/03_problem.tex [8
+
+]
+Overfull \vbox (11.60582pt too high) has occurred while \output is active []
+
+ [9]
+Chapter 3.
+
+LaTeX Warning: Reference `ch:models' on page 1 undefined on input line 6.
+
+
+LaTeX Warning: Reference `fig:maze' on page 1 undefined on input line 14.
+
+<figures/maze_layout.png, id=87, 524.6802pt x 398.4486pt>
+File: figures/maze_layout.png Graphic file (type png)
+<use figures/maze_layout.png>
+Package pdftex.def Info: figures/maze_layout.png  used on input line 22.
+(pdftex.def)             Requested size: 413.99918pt x 314.40614pt.
+[10
+
+]
+
+LaTeX Warning: Reference `tab:distances' on page 1 undefined on input line 32.
+
+
+LaTeX Warning: Reference `sec:planner-study' on page 1 undefined on input line 35.
+
+[11 <./figures/maze_layout.png>]
+
+LaTeX Warning: Reference `tab:sections' on page 1 undefined on input line 55.
+
+
+Overfull \hbox (21.81615pt too wide) in paragraph at lines 68--77
+ [][] 
+ []
+
+[12]
+
+LaTeX Warning: Reference `app:configuration' on page 1 undefined on input line 97.
+
+[13]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 132.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 132.
+
+
+LaTeX Warning: Reference `sec:executor' on page 1 undefined on input line 144.
+
+[14]
+
+LaTeX Warning: Reference `sec:constraints' on page 1 undefined on input line 164.
+
+
+LaTeX Warning: Reference `sec:limitations' on page 1 undefined on input line 179.
+
+
+LaTeX Warning: Reference `eq:objective' on page 1 undefined on input line 185.
+
+[15]
+
+LaTeX Warning: Reference `sec:scenarios' on page 1 undefined on input line 214.
+
+[16]
+
+LaTeX Warning: Reference `tab:scenarios' on page 1 undefined on input line 241.
+
+
+LaTeX Warning: Reference `sec:factory' on page 1 undefined on input line 241.
+
+
+LaTeX Warning: Reference `sec:robot' on page 1 undefined on input line 242.
+
+
+LaTeX Warning: Reference `ch:models' on page 1 undefined on input line 247.
+
+
+LaTeX Warning: Reference `sec:generalisation' on page 1 undefined on input line 250.
+
+
+LaTeX Warning: Reference `sec:splits' on page 1 undefined on input line 251.
+
+[17]
+
+LaTeX Warning: Reference `eq:objective' on page 1 undefined on input line 282.
+
+) (./body/04_system.tex [18]
+Chapter 4.
+) (./body/05_decision_models.tex [19
+
+]
+Chapter 5.
+
+LaTeX Warning: Reference `ch:system' on page 1 undefined on input line 4.
+
+
+LaTeX Warning: Reference `sec:service' on page 1 undefined on input line 13.
+
+[20
+
+]
+
+LaTeX Warning: Reference `sec:overall' on page 1 undefined on input line 33.
+
+
+LaTeX Warning: Reference `sec:service' on page 1 undefined on input line 36.
+
+
+LaTeX Warning: Reference `fig:ns-pipeline' on page 1 undefined on input line 52.
+
+[21]
+
+LaTeX Warning: Reference `sec:constraints' on page 1 undefined on input line 73.
+
+
+LaTeX Warning: Reference `sec:robot-model' on page 1 undefined on input line 85.
+
+[22] [23]
+Overfull \hbox (21.81047pt too wide) in paragraph at lines 131--135
+[]\T1/cmtt/m/n/10.95 decision: WAIT:60 --- [routine] waiting away from the charger only spends
+ []
+
+
+Overfull \hbox (4.83536pt too wide) in paragraph at lines 131--135
+\T1/cmtt/m/n/10.95 energy | PICKUP:B refused: battery would be 16 % back at the charger,
+ []
+
+
+Overfull \hbox (10.49373pt too wide) in paragraph at lines 131--135
+\T1/cmtt/m/n/10.95 below the 17 % reserve; DELIVER refused: battery would be 17 % back at
+ []
+
+
+Overfull \hbox (50.10233pt too wide) in paragraph at lines 131--135
+\T1/cmtt/m/n/10.95 the charger, below the 17 % reserve; neural score +0.95, chosen over CHARGE:40
+ []
+
+[24]
+
+LaTeX Warning: Reference `eq:objective' on page 1 undefined on input line 176.
+
+
+LaTeX Warning: Reference `sec:bounded-correction' on page 1 undefined on input line 182.
+
+
+LaTeX Warning: Reference `sec:splits' on page 1 undefined on input line 198.
+
+[25]
+
+LaTeX Warning: Reference `tab:splits' on page 1 undefined on input line 222.
+
+
+LaTeX Warning: Reference `sec:hard-rules' on page 1 undefined on input line 227.
+
+[26]
+
+LaTeX Warning: Reference `eq:score' on page 1 undefined on input line 240.
+
+
+LaTeX Warning: Reference `sec:safe-learning' on page 1 undefined on input line 254.
+
+
+LaTeX Warning: Reference `tab:bound-sweep' on page 1 undefined on input line 257.
+
+[27]
+
+LaTeX Warning: Reference `sec:ablation-results' on page 1 undefined on input line 280.
+
+
+LaTeX Warning: Reference `sec:safety-results' on page 1 undefined on input line 305.
+
+[28]
+
+LaTeX Warning: Reference `tab:policies' on page 1 undefined on input line 315.
+
+
+LaTeX Warning: Reference `ch:results' on page 1 undefined on input line 316.
+
+
+LaTeX Warning: Reference `ch:results' on page 1 undefined on input line 320.
+
+
+LaTeX Warning: Reference `ch:results' on page 1 undefined on input line 320.
+
+
+LaTeX Warning: Reference `sec:rule-policy' on page 1 undefined on input line 336.
+
+) (./body/06_experimental_setup.tex [29] [30]
+Chapter 6.
+) (./body/07_results.tex [31
+
+]
+Chapter 7.
+
+LaTeX Warning: Reference `ch:models' on page 1 undefined on input line 4.
+
+
+LaTeX Warning: Reference `ch:setup' on page 1 undefined on input line 5.
+
+
+LaTeX Warning: Reference `ch:discussion' on page 1 undefined on input line 7.
+
+
+LaTeX Warning: Reference `app:reproduction' on page 1 undefined on input line 14.
+
+
+LaTeX Warning: Reference `sec:metrics' on page 1 undefined on input line 17.
+
+
+LaTeX Warning: Reference `fig:score-by-scenario' on page 1 undefined on input line 21.
+
+
+LaTeX Warning: Reference `tab:overall' on page 1 undefined on input line 26.
+
+
+Overfull \hbox (41.20898pt too wide) in paragraph at lines 36--51
+ [][] 
+ []
+
+[32
+
+]
+Overfull \hbox (3.76546pt too wide) in paragraph at lines 53--58
+[]\T1/cmr/m/n/12 Among the poli-cies that never vi-o-lated a con-straint, the neuro-symbolic model achieves
+ []
+
+
+./body/07_results.tex:64: Package siunitx Error: Invalid number '51/360'.
+
+For immediate help type H <return>.
+ ...                                              
+                                                  
+l.64 (\num{51/360}
+                  ). The interpretation of this pattern is taken up in \cref...
+
+The input '51/360' could not be parsed as a number following the format
+defined in module documentation.
+
+
+
+LaTeX Warning: Reference `sec:rules-matter' on page 1 undefined on input line 64.
+
+<figures/fig_score_by_scenario.png, id=263, 788.7066pt x 478.9092pt>
+File: figures/fig_score_by_scenario.png Graphic file (type png)
+<use figures/fig_score_by_scenario.png>
+Package pdftex.def Info: figures/fig_score_by_scenario.png  used on input line 68.
+(pdftex.def)             Requested size: 450.0pt x 273.24414pt.
+[33]
+
+LaTeX Warning: Reference `tab:per-scenario' on page 1 undefined on input line 79.
+
+[34 <./figures/fig_score_by_scenario.png>] [35]
+
+LaTeX Warning: Reference `sec:bounded-correction' on page 1 undefined on input line 131.
+
+
+LaTeX Warning: Reference `tab:splits' on page 1 undefined on input line 132.
+
+
+LaTeX Warning: Reference `sec:bounded-correction' on page 1 undefined on input line 172.
+
+[36]
+
+LaTeX Warning: Reference `sec:constraints' on page 1 undefined on input line 179.
+
+
+Overfull \hbox (41.31467pt too wide) in paragraph at lines 175--181
+[]\T1/cmr/m/n/12 Two poli-cies score higher than the neuro-symbolic model un-der \T1/cmtt/m/n/12 heavy_load\T1/cmr/m/n/12 : \T1/cmtt/m/n/12 ns_neural_only
+ []
+
+<figures/fig_violations.png, id=293, 458.1918pt x 265.4718pt>
+File: figures/fig_violations.png Graphic file (type png)
+<use figures/fig_violations.png>
+Package pdftex.def Info: figures/fig_violations.png  used on input line 187.
+(pdftex.def)             Requested size: 369.0033pt x 213.79549pt.
+[37 <./figures/fig_violations.png>]
+
+./body/07_results.tex:203: Package siunitx Error: Invalid number '51/360'.
+
+For immediate help type H <return>.
+ ...                                              
+                                                  
+l.203 change this (\texttt{ppo\_wp6}, \num{51/360}
+                                                  ), which indicates that th...
+
+The input '51/360' could not be parsed as a number following the format
+defined in module documentation.
+
+
+<figures/fig_energy_throughput.png, id=301, 441.3288pt x 291.9708pt>
+File: figures/fig_energy_throughput.png Graphic file (type png)
+<use figures/fig_energy_throughput.png>
+Package pdftex.def Info: fi
