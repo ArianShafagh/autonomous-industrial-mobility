@@ -1,58 +1,124 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
-% NARRATIVE GOAL OF THIS CHAPTER
-% Make the reader care, then promise exactly what the thesis delivers. A bachelor thesis is
-% judged partly on whether the question is clear by the end of page three.
-
 \section{Motivation}
 \label{sec:motivation}
-% Industrial mobile robots move material between machines. The interesting decision is not "how do
-% I drive there" (solved by navigation stacks) but "what is worth doing next": a full buffer stops
-% a production line, a flat battery strands the robot, and every metre costs energy.
-% Keep it concrete: the factory of this thesis produces 20, 30 and 5 units per hour in sections
-% A, B and C; a buffer that fills is production lost for good.
+
+Picture a production hall late in a shift. Three machines are making parts at different speeds:
+one finishes a part every two minutes, another every three, the third only every twelve, but its
+parts are the heaviest. Each machine sets its output on a small buffer beside it, and when that
+buffer is full the machine stops --- not because anything broke, but because there is nowhere left
+to put the next part. A single mobile robot moves between them, collecting finished parts and
+bringing them to one delivery point, returning to one charging station when its battery runs low.
+Nobody tells it where to go.
+
+The robot's difficulty is not driving. Modern navigation software plans routes through a cluttered
+hall, follows them, and recovers when a corridor turns out to be blocked; that problem is solved
+well enough to be bought off the shelf. The difficulty is deciding \emph{what to do next}. Serving
+the fast machine first keeps the busiest line running, but it is the machine furthest from the
+charging station. Collecting a half-empty buffer wastes a journey; waiting for it to fill risks
+arriving after the line has already stopped, and every minute a line stands still is production
+that is lost for good, not postponed. Charging early costs working time the shift will not give
+back; charging late risks a robot stranded in a corridor, which requires a person to walk in and
+fetch it --- exactly the outcome an autonomous system exists to avoid.
+
+These decisions have to be made continuously, from a state that keeps changing and is partly
+random: buffers fill at irregular rates, machines degrade and occasionally break down, the
+battery drains faster when the robot is loaded or its motors are hot. This is the problem industrial
+mobile robots actually face once navigation works, and it is the subject of this thesis.
 
 \section{Problem statement}
 \label{sec:problem-statement}
-% One robot, three producing sections, one delivery point, one charger. A decision maker must pick
-% the next action under hard constraints (battery reserve, motor temperature, payload, condition).
-% Two families of answer exist: hand-written rules (predictable, but blind to trade-offs) and
-% learned policies (good at trade-offs, but with no guarantee). This thesis asks whether the two
-% can be combined so that the guarantee survives.
+
+Two established ways of answering \emph{what next} exist, and each has a characteristic weakness.
+
+A \textbf{rule-based} policy is written by hand: serve blocked lines first, charge when the battery
+would not cover the trip home, do not drive half empty. Such a policy is predictable, explains
+itself, and never does anything its author did not intend. What it cannot do is weigh alternatives
+against each other. It has no way of judging whether this half-full buffer is worth a detour given
+where the robot already is, how much energy the trip would cost, and which other line will fill
+next.
+
+A \textbf{learned} policy, trained by reinforcement learning, is good at exactly that weighing. It
+discovers trade-offs nobody wrote down. But what it learns, it learns from a reward signal, and a
+reward signal expresses a preference, not a guarantee. A policy can be trained to avoid draining
+its battery and will still, in a situation its training did not cover, drive until the battery is
+nearly empty --- because nothing in its construction forbids it.
+
+The engineering question is therefore not which of the two is better, but whether they can be
+combined so that the guarantee of the first survives the flexibility of the second. This thesis
+builds such a combination --- a \emph{neuro-symbolic} policy, in which explicit rules decide what
+is permitted and urgent, and a small neural network chooses among what remains --- and measures it
+against a deep reinforcement learning policy given exactly the same information, in a complete
+ROS~2 system with a simulated factory, a physically modelled robot and a real navigation stack.
 
 \section{Research questions}
 \label{sec:research-questions}
-% State them as questions you actually answer in \cref{ch:results}. Suggested:
-\begin{enumerate}[label=\textbf{RQ\arabic*.}, leftmargin=*]
-  \item \textit{<Does a neuro-symbolic policy outperform a deep reinforcement learning policy of
-        equal information on throughput, energy and safety?>}
-  \item \textit{<What does each half contribute — do the rules alone, or the network alone, suffice?>}
-  \item \textit{<Do the policies still hold up in situations they were never trained on?>}
-  \item \textit{<Do results obtained in a fast abstract simulator transfer to full physics
-        simulation with a real navigation stack?>}
+
+\begin{enumerate}[label=\textbf{RQ\arabic*.}, leftmargin=*, itemsep=0.25em]
+  \item Does a neuro-symbolic policy outperform a deep reinforcement learning policy with the same
+        information, measured on throughput, energy and safety?
+  \item What does each half contribute --- do the rules alone, or the network alone, already
+        suffice?
+  \item Do the policies still behave sensibly in factories they were never trained for?
+  \item Do results obtained in a fast, abstract simulator transfer to the full simulation with
+        physics and a real navigation stack?
 \end{enumerate}
+
+RQ1 and RQ2 are answered in \cref{sec:overall,sec:ablation-results}, RQ3 in
+\cref{sec:generalisation}, and RQ4 in \cref{sec:gazebo-validation}; \cref{sec:answers} draws the
+four answers together.
 
 \section{Contributions}
 \label{sec:contributions}
-% Be precise and modest; every item must be defensible with a number from \cref{ch:results}.
-\begin{itemize}[leftmargin=*]
-  \item A complete, reproducible ROS~2 system in which a single robot works an autonomous shift:
-        factory model, energy/thermal/wear model, mission executor with recovery, decision service
-        and a read-only monitor.
-  \item A \NS whose hard rules can never be overruled, whose priority tiers are explicit, and whose
-        learned ranker is \emph{bounded}: the correction it may apply is limited to
-        $\pm\maxCorrection$ score units.
-  \item The observation that motivates that bound: without it, the learned ranker carried a habit
-        from its training scenarios into an overloaded factory it had never seen and waited while
-        production lines stopped (\heavyUnbounded{} against \heavyBounded{} with the bound).
-  \item An evaluation of 3240 simulated shifts with paired statistics and a held-out set of
-        scenarios, validated by full Gazebo shifts in which the energy model agrees to
-        \gazeboEnergyGap{}.
-  \item A planner study showing that a global planner selected on short benchmark tours was the
-        worse choice over full shifts (\thetaFaults{} shifts faulty against \navfnFaults{}).
+
+\begin{itemize}[leftmargin=*, itemsep=0.25em]
+  \item \textbf{A complete autonomous system}, not a simulation study: a maze-like factory
+        generated from a single description, three production lines that lose output when their
+        buffers fill, a robot with modelled energy, heat and wear, a mission executor with a
+        navigation recovery ladder, a decision service the robot survives without, and a read-only
+        live monitor (\cref{ch:system}).
+
+  \item \textbf{A neuro-symbolic decision model} whose hard rules cannot be overruled, whose
+        priorities are explicit, and which explains every decision in terms an engineer can check
+        (\cref{ch:models}). Over \num{3240} measured shifts it is the strongest policy that never
+        breaks a constraint: \num{53.81} against \num{52.35} for deep reinforcement learning and
+        \num{41.66} for a rule-based reference (\cref{sec:overall}).
+
+  \item \textbf{A bounded neural correction}, the central technical contribution. The network may
+        adjust the analytic value of an action by at most one score unit relative to its
+        alternatives, so it can settle close calls but can never overturn clear evidence
+        (\cref{sec:bounded-correction}). The bound was selected on training scenarios alone and is
+        worth \num{3.87} points on scenarios the model had never seen.
+
+  \item \textbf{The observation that motivated it}: without the bound, the network carried a habit
+        from its training scenarios --- waiting to accumulate a fuller load --- into an overloaded
+        factory it had never seen, and waited while all three production lines stood still, against
+        the explicit judgement of its own symbolic estimate (\cref{sec:bounded-correction}).
+
+  \item \textbf{An evaluation designed to be believed}: nine policies on identical seeds, six
+        scenarios written after training and never used for it, paired non-parametric statistics,
+        and validation of the fast simulator against complete shifts in Gazebo, where energy agrees
+        to \SI{0.2}{\percent} and the safety difference between the two approaches reproduces
+        (\cref{ch:setup,sec:gazebo-validation}).
+
+  \item \textbf{A planner study with a transferable lesson}: the global path planner selected on
+        short benchmark tours proved unreliable over full shifts and had to be replaced
+        (\cref{sec:planner-study}).
 \end{itemize}
 
 \section{Outline}
 \label{sec:outline}
-% One or two sentences per chapter. Write this LAST, when the chapters exist.
+
+\Cref{ch:background} reviews the work this thesis builds on: navigation with ROS~2 and Nav2,
+rule-based and learned decision making for mobile robots, safety in learned policies, energy-aware
+scheduling, and how such systems are usually validated. \Cref{ch:problem} defines the factory, the
+robot, the actions, the objective and the constraints exactly, and argues from the setting's own
+arithmetic why no simple rule solves it. \Cref{ch:system} describes the system that executes and
+measures decisions, and the design choices that make its numbers trustworthy.
+\Cref{ch:models} develops the four decision models: the rule-based reference, the neuro-symbolic
+model with its hard rules, priority tiers and bounded neural ranking, the reinforcement learning
+comparison, and the ablations that isolate each part. \Cref{ch:setup} states how the comparison
+was conducted, and \cref{ch:results} reports what happened. \Cref{ch:discussion} interprets those
+results, names the measurement decisions that changed the conclusions, and sets out the limits of
+the work. \Cref{ch:conclusion} concludes and identifies what should be done next.
