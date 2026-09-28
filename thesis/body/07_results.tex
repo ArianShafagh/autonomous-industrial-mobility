@@ -61,7 +61,7 @@ rule-carrying policy (\num{61.9} against \num{59.9}) and loses almost no product
 \SI{10.21}{\watt\hour} against \SI{8.42}{\watt\hour} and violates a constraint in \num{53} of its
 \num{360} shifts. \texttt{ppo\_wp6}, the earlier model trained on only four of the six training
 scenarios, is statistically indistinguishable from the \NS in score ($p=0.121$) and equally unsafe
-(\num{51/360}). The interpretation of this pattern is taken up in \cref{sec:rules-matter}.
+(\num{51}/\num{360}). The interpretation of this pattern is taken up in \cref{sec:rules-matter}.
 
 \begin{figure}[H]
     \centering
@@ -200,7 +200,7 @@ Every policy without them violated constraints: the same network without rules i
 For \texttt{ppo} the violations are concentrated where its training no longer covers the
 situation: \num{49} of its \num{53} unsafe shifts occur in unseen scenarios, and \num{29} of those
 in \texttt{heavy\_load} alone. Retraining PPO on all six training scenarios instead of four did not
-change this (\texttt{ppo\_wp6}, \num{51/360}), which indicates that the violations follow from
+change this (\texttt{ppo\_wp6}, \num{51}/\num{360}), which indicates that the violations follow from
 learning the constraint from a reward signal rather than from having seen too few scenarios.
 
 \section{Throughput and energy}

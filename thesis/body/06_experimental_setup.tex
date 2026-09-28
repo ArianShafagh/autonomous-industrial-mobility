@@ -1,43 +1,176 @@
 \chapter{Experimental Setup}
 \label{ch:setup}
 
-% NARRATIVE GOAL
-% Convince the reader that the numbers in \cref{ch:results} mean what you say. Anyone who doubts a
-% result should find the answer here.
+This chapter states how the policies of \cref{ch:models} were measured, in enough detail that a
+reader who doubts a number in \cref{ch:results} can find out exactly how it was produced. Three
+questions decide whether such a comparison means anything: whether the policies were given the
+same problems, whether they were tested on situations they had not been tuned for, and whether the
+differences that are reported are larger than the noise. Each is answered below, followed by the
+protocol for the full-simulation validation and the software and hardware used.
 
 \section{Evaluation protocol}
 \label{sec:protocol}
-% 9 policies x 12 scenarios x 30 seeds = 3240 shifts of one hour each. Every policy runs the SAME
-% seeds, so every comparison is paired.
 
-\section{Training and test separation}
+The main experiment runs every policy on every scenario for thirty different random seeds:
+\num{9} policies $\times$ \num{12} scenarios $\times$ \num{30} seeds $=$ \num{3240} shifts, each
+one simulated hour of factory time.
+
+A seed fixes everything random in a shift: the production cycle times of the three sections, the
+moments at which machines fail and how long repairs take. The same seed therefore produces
+exactly the same factory for every policy, so the comparison is \emph{paired}: for any two
+policies there are thirty matched pairs of shifts per scenario that differ only in the decisions
+taken. This matters because the variation between seeds is far larger than the variation between
+policies --- scores within a single scenario routinely differ by more between two seeds than the
+policies differ from each other on average --- and pairing removes that variation from the
+comparison instead of leaving it as noise.
+
+The fast simulator makes this affordable: the full experiment takes \SI{78}{\second} on ten
+worker processes, which is what allows thirty seeds rather than three, and nine policies rather
+than two.
+
+\section{Keeping training and testing apart}
 \label{sec:splits}
-% Test seeds start at 5000 and were never used for training or model selection (NS collection uses
-% 12345+, NS round selection 1000-1003, PPO draws random seeds). Six scenarios were written after
-% training and form the unseen set. Say why this matters: without it, "generalisation" is a claim,
-% not a measurement.
+
+A comparison of learned policies is only meaningful if they are measured on something they were
+not tuned for. Two separations are enforced.
+
+\paragraph{Scenarios.}
+Six scenarios --- \texttt{balanced}, \texttt{high\_demand}, \texttt{one\_hot\_section},
+\texttt{fault\_burst}, \texttt{low\_battery\_start} and \texttt{worn\_robot} --- are declared as
+the training set, and both learned models use exactly those six: the neural scorer collects its
+look-ahead data from them, and PPO trains on them. The other six (\cref{tab:scenarios}) were
+written after training, when both models already existed, and are used for evaluation only. They
+are referred to as \emph{unseen} throughout, and results on them are reported separately
+(\cref{sec:generalisation}) rather than averaged away.
+
+\paragraph{Seeds.}
+Test shifts use seeds \numrange{5000}{5029}. No seed in that range is used anywhere in training or
+model selection: the look-ahead collection uses seeds from \num{12345} upwards, the selection of
+the best training round uses \numrange{1000}{1003}, the bound $\beta$ was selected on
+\numrange{1000}{1019}, and PPO draws random 31-bit seeds during training. The development seeds
+overlap each other, which is harmless --- they are all part of building the model --- but none of
+them touches the test range.
+
+Both separations are declared in the configuration file rather than in a script, so an evaluation
+cannot silently drift into its training data; the test seed range and the list of training
+scenarios are read from \file{params.yaml} by the training and evaluation tools alike.
 
 \section{Metrics}
 \label{sec:metrics}
-% Score (\cref{eq:objective}), delivered units, lost production, energy (Wh and Wh per unit),
-% charging trips, minimum battery, shifts containing a safety violation, decision latency.
-% Define a "violation" exactly: battery below the reserve away from the charger, motor temperature
-% at the limit, or an empty battery.
+
+The primary metric is the objective of \cref{eq:objective}, the shift score. It is reported
+together with the quantities it is composed of, because two policies can reach the same score for
+opposite reasons:
+
+\begin{description}[leftmargin=1.2em, style=nextline, itemsep=0.15em]
+  \item[Delivered units] --- what the factory gets: the throughput.
+  \item[Lost production] --- units not made because a buffer was full and its line stood
+        \textsc{blocked}. This is the cost of a decision not taken.
+  \item[Energy] --- watt-hours drawn from the battery over the shift, and watt-hours per delivered
+        unit, which is the efficiency figure comparable across policies of different throughput.
+  \item[Charging trips] and \textbf{minimum battery} --- how a policy manages its energy budget:
+        many short charges and a high floor, or few charges and a low one.
+  \item[Unsafe shifts] --- the number of shifts containing at least one safety violation.
+  \item[Decision latency] --- milliseconds per decision, excluding the first decision of a shift,
+        which loads the model.
+\end{description}
+
+A \emph{safety violation} is recorded when the battery falls below the reserve while the robot is
+away from the charger, when the motor temperature reaches its limit, or when the battery is empty.
+Repeated occurrences of the same kind in a row count once, so the count measures how often a policy
+entered an unsafe state, not how long it stayed there. The score charges \num{20} points per
+violation, which --- as \cref{sec:overall} notes --- is still not enough to make an unsafe policy's
+score comparable to a safe one's; the two numbers are therefore always reported together.
 
 \section{Statistics}
 \label{sec:statistics}
-% 95 % bootstrap confidence intervals on the mean score (2000 resamples); paired Wilcoxon
-% signed-rank tests against the \NS on identical seeds; significance level 0.05.
-% Note honestly that no multiple-comparison correction is applied, and that with 30 paired seeds
-% small differences can be significant without being important.
 
-\section{Validation in Gazebo}
+Means are reported with \SI{95}{\percent} bootstrap confidence intervals (\num{2000} resamples of
+the shifts of that policy and scenario). The bootstrap is used because shift scores are not
+normally distributed: in scenarios with random machine failures the distribution is skewed by
+shifts in which an early fault cost most of the hour.
+
+Differences between policies are tested with the \emph{paired Wilcoxon signed-rank test} on the
+matched seeds, at a significance level of \num{0.05}. The test is paired for the reason given in
+\cref{sec:protocol}, and non-parametric because it makes no assumption about the shape of the
+score distribution. The \NS is the reference in every comparison, so a reported $p$-value always
+answers the same question: \emph{is this policy's score different from the neuro-symbolic model's,
+on the same shifts?}
+
+Two honest caveats. First, no correction for multiple comparisons is applied: with eight policies
+compared against the reference across twelve scenarios, some individually significant results are
+expected by chance alone, which is why the discussion relies on differences that are both
+significant and consistent across scenarios rather than on isolated ones. Second, statistical
+significance is not importance: with thirty paired seeds, a difference of half a point can reach
+$p<0.001$ while meaning little in a factory. Effect sizes are therefore always given in the same
+sentence as the $p$-value.
+
+\section{Validation in the full simulation}
 \label{sec:gazebo-setup}
-% Full shifts through the real stack, then the same policy, scenario and seed replayed in the fast
-% simulator. State the one subtlety: the executor finishes the action it has started when the
-% shift ends, so the fast simulator is run in the same mode for comparison.
 
-\section{Hardware and software}
+Every number in \cref{sec:overall,sec:generalisation,sec:safety-results} comes from the fast
+simulator, which abstracts driving into distances, durations and energies. Whether those numbers
+describe the real system is a separate question, and it is answered by running complete shifts
+through the full stack --- Gazebo physics, Nav2 planning and control, AMCL localisation, the real
+mission executor and the decision service --- and comparing each of them against the fast
+simulator on the same policy, scenario and seed.
+
+The procedure for one validation shift is:
+
+\begin{enumerate}[leftmargin=*, itemsep=0.15em]
+  \item Start the complete system headless with the chosen scenario, model, seed and shift length.
+  \item Wait for the mission summary the executor writes when the shift ends, then stop that run
+        and confirm that no process from it survives --- a leftover simulator would publish a
+        second clock and corrupt the next run.
+  \item Compute the score from the run's own logs, applying the definitions of
+        \cref{sec:metrics}: delivered units from the mission summary, lost production from the
+        per-section logs, energy from the robot telemetry, and violations from the recorded
+        battery and temperature traces.
+  \item Replay the same policy, scenario, seed and shift length in the fast simulator and compute
+        the same quantities.
+\end{enumerate}
+
+One detail decides whether the comparison is fair. The mission executor checks the clock only
+between actions, so an action that starts before the shift ends is always finished --- a shift can
+therefore overrun, and in one case an action that began in the last minute was a seventeen-minute
+charge. The fast simulator normally stops at exactly the shift length, mid-action. For the
+comparison it is therefore run in a mode that also finishes the running action, so that both sides
+account for the same work. Without this, the fast simulator would appear to use systematically less
+energy, purely because it stopped earlier.
+
+Twelve validation shifts of twenty minutes were driven (two models $\times$ three scenarios
+$\times$ two seeds), and two of sixty minutes on \texttt{low\_battery\_start}, because twenty
+minutes is too short for the battery to become the binding constraint. Wall-clock cost is the
+reason these are counted in tens and not thousands: a twenty-minute shift takes about
+\SI{21}{\minute} of real time, and a sixty-minute shift a little over an hour.
+
+\section{The planner study}
+\label{sec:planner-setup}
+
+The planner comparison of \cref{sec:planner-study} isolates the global planner: every planner
+computes the path, and the same local controller follows it, so only the route-finding differs.
+It was run at two levels. First on a fixed seven-leg tour of the hall, repeated five times per
+planner with the order of planners rotated between repeats, measuring planning time, path length
+against the shortest known path, turning and clearance. Then over complete twenty-minute shifts of
+the identical scenario and seed, five repeats per planner, alternating planners so that background
+load on the machine affects both equally --- this alternation is what allows the faults reported in
+\cref{sec:planner-study} to be attributed to the planner rather than to the computer.
+
+\section{Software and hardware}
 \label{sec:hardware}
-% ROS 2 Jazzy, Gazebo Harmonic 8.11 headless, Nav2 with MPPI, Python 3.12, PyTorch (CPU),
-% Stable-Baselines3 / sb3-contrib. CPU, cores, RAM. Training times: PPO 9.8 min, NS ~40 min.
+
+All experiments ran on one laptop: Intel Core i7-9750H (6 cores, 12 threads, \SI{2.6}{\giga\hertz}),
+\SI{23}{\gibi\byte} RAM. No GPU was used: training and inference run on the CPU throughout,
+which is itself a result worth noting: the models in this thesis are small enough that a factory
+would not need special hardware to run them.
+
+The software stack is ROS~2 Jazzy with Nav2 (AMCL localisation, MPPI controller) and Gazebo
+Harmonic \num{8.11} running headless, Python \num{3.12}, PyTorch \num{2.14} (CPU build) for the
+neural scorer, and Stable-Baselines3 \num{2.9} with \texttt{sb3-contrib} for Maskable PPO.
+
+Training costs, on that machine: the neural scorer takes about \SI{40}{\minute} for three rounds
+of collection and training, of which roughly \SI{33}{\minute} is look-ahead simulation; PPO takes
+\SI{9.8}{\minute} for \num{300000} steps, and the unmasked variant the same. The full evaluation of
+\num{3240} shifts takes \SI{78}{\second}. The Gazebo validation, by contrast, takes about
+\SI{21}{\minute} per twenty-minute shift, which is the practical reason the experiment is
+structured in two tiers at all (\cref{sec:two-simulators}).

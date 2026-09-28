@@ -1,0 +1,19 @@
+\babel@toc {english}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The production hall: three sections (A north-west, B north-east, C south-east), one delivery point and one charging station. Every corridor is at least \SI {1.5}{\metre } wide, and the layout is deliberately asymmetric so that different places produce distinguishable sensor readings.}}{15}{figure.caption.6}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces The neuro-symbolic decision pipeline. The symbolic layer removes actions and ranks what remains into urgency tiers; the neural scorer only ever chooses \emph {within} the most urgent tier.}}{27}{figure.caption.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Score per policy and scenario (mean over 30 seeds, \SI {95}{\percent } bootstrap CI). Hatched bars mark policies whose mean includes shifts with safety violations; the annotation gives how many of the 30 shifts were affected.}}{44}{figure.caption.19}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Share of shifts containing at least one safety violation (battery below the reserve away from the charger, motor temperature at the limit, or an empty battery).}}{47}{figure.caption.22}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Delivered units against energy per delivered unit, averaged over all scenarios and seeds. Points towards the lower right deliver more for less energy.}}{48}{figure.caption.23}%
+\contentsline {figure}{\numberline {7.4}{\ignorespaces Gazebo score against fast-simulator score for the same policy, scenario and seed. A point on the dashed line would mean perfect agreement.}}{50}{figure.caption.24}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
