@@ -1,49 +1,208 @@
 \chapter{Discussion}
 \label{ch:discussion}
 
-% NARRATIVE GOAL
-% Answer the research questions in order, say what the numbers mean, and be the first to name the
-% weaknesses. Examiners reward a candidate who criticises their own work accurately.
+\Cref{ch:results} reported what happened. This chapter asks what it means: what the numbers say
+about the research questions, why the central mechanism works, which measurement decisions changed
+the conclusions, and where the work's limits are.
 
 \section{Answering the research questions}
 \label{sec:answers}
-% RQ1 ... RQ4, each in a short subsection or paragraph, each pointing at a table or figure.
 
-\section{Why the bound works}
+\paragraph{RQ1 --- Does the neuro-symbolic model outperform deep reinforcement learning of equal
+information?}
+On score alone, the honest answer is \emph{barely}: \num{53.81} against \num{52.35} over all
+scenarios, and on the six training scenarios the difference is not statistically supported
+($p=0.213$). On the terms the problem actually sets, the answer is \emph{yes, and not narrowly}:
+the \NS never violated a constraint in \num{360} shifts, while \texttt{ppo} did so in \num{53}, and
+it reached its throughput with \SI{21}{\percent} less energy (\SI{8.42}{\watt\hour} against
+\SI{10.21}{\watt\hour}) and a mean minimum battery of \SI{59.0}{\percent} against
+\SI{45.0}{\percent}. Both policies solve a problem well; only one of them solves the problem as
+stated in \cref{sec:constraints}.
+
+\paragraph{RQ2 --- What does each half contribute?}
+The rules contribute the guarantee, and they are not merely a safety net: the symbolic layer alone
+scores \num{52.91}, above \texttt{ppo} and far above the rule-based reference. The network
+contributes a small, consistent improvement on top --- \num{0.90} points against the symbolic layer
+and \num{0.96} against the analytic estimate alone, both at $p<0.001$. Neither half is redundant,
+but they are not equal partners: the rules carry most of the competence, and the network refines
+it. The most striking evidence for the division of labour is \texttt{ns\_neural\_only}. Without
+rules, the same network delivers \emph{more} units than the full model (\num{60.7} against
+\num{59.9}) and loses almost no production (\num{0.21} against \num{1.90}) --- it has genuinely
+learned what is worth doing --- while violating constraints in \num{57} of \num{360} shifts. It
+learned the judgement and not the guarantee, which is precisely the split the architecture assumes.
+
+\paragraph{RQ3 --- Do the policies hold up in situations they were never trained for?}
+This is where the approaches separate most clearly. On the six unseen scenarios the \NS scores
+\num{47.20}, its unbounded variant \num{43.33}, the symbolic layer \num{45.66} and \texttt{ppo}
+\num{44.83} with \num{49} unsafe shifts out of \num{180}. Two observations follow. First, an
+unbounded learned ranker is worse than no ranker at all outside its training distribution: the
+network does not merely stop helping, it actively harms. Second, PPO's failures are concentrated
+where its training no longer covers the situation --- \num{49} of its \num{53} unsafe shifts are in
+unseen scenarios, \num{29} of them in \texttt{heavy\_load} alone.
+
+\paragraph{RQ4 --- Do fast-simulator results transfer to the full simulation?}
+Yes, with a known bias. Energy transfers almost exactly (\SI{+0.2}{\percent}) because it is
+computed from the same physical model in both cases; throughput is \SI{5.1}{\percent} lower in
+Gazebo because real driving loses seconds per leg to acceleration, arrival tolerances and
+occasional recovery behaviours. The bias is systematic and in one direction, so it shifts all
+policies together and leaves their ordering intact --- which is what a comparison needs. The
+sixty-minute shifts additionally reproduced the safety difference itself
+(\cref{tab:longshift}), so the central claim of this thesis does not rest on the abstraction.
+
+\section{Why bounding the correction works}
 \label{sec:why-bound}
-% The interpretation: the analytic estimate extrapolates (it is arithmetic on the current state),
-% the network interpolates (it is a function fitted on a distribution). Bounding the network's
-% influence keeps its judgement where it is reliable -- near-ties -- and lets the arithmetic decide
-% when the evidence is clear. Relate this to shielding and masking in \cref{sec:safe-learning}:
-% those constrain *legality*; the bound constrains *influence*.
 
-\section{Why the rules matter more than the score}
+The bound of \cref{eq:bounded} is one line of code, and it is worth being precise about why such a
+small change is worth \num{3.87} points on unseen scenarios.
+
+The score of an action is the sum of two terms with different epistemic status. The analytic
+estimate is arithmetic on the current state: given the distances, the payload and the objective
+weights, it computes what an action moves and what it costs. Arithmetic \emph{extrapolates} --- it
+is as valid in a factory producing twice as fast as in the one it was written for. The learned
+correction is a function fitted to a sample of states; it \emph{interpolates}. Inside the region
+its training covered, it encodes real knowledge that the arithmetic lacks: which line will block
+next, when a fuller load repays the detour. Outside that region, it continues to produce confident
+numbers with no basis.
+
+Unbounded, the second term dominates the first: the corrections observed in the failing scenario
+were around $+20$ on every candidate, while the estimates differed by a few units. The ranking was
+therefore decided entirely by the network, in a factory where its training did not apply, and the
+rules could not intervene because none of its choices were illegal --- waiting with cargo while
+lines block is wasteful, not forbidden.
+
+Bounding the correction re-establishes the intended hierarchy without touching either component.
+Where the arithmetic is nearly indifferent, the network decides, and its judgement is exactly what
+is wanted. Where the arithmetic is clear, no amount of misplaced confidence can overturn it. The
+selection table (\cref{tab:bound-sweep}) shows both halves of this: $\beta=0$, which silences the
+network, is worse than every bounded setting, and so is $\beta=\infty$.
+
+This is a different mechanism from the shielding and action masking discussed in
+\cref{sec:safe-learning}. Those act on the \emph{legality} of actions: a shield removes what is
+unsafe, and the learned policy is free within what remains. The bound acts on the \emph{influence}
+of the learned component over choices that are all legal. The two are complementary --- this system
+uses both --- and the distinction is worth stating, because a shield would not have prevented the
+failure described above.
+
+\section{Why the rules matter more than the score suggests}
 \label{sec:rules-matter}
-% PPO matches the \NS on score in seen scenarios but is unsafe in 14.7 % of shifts. Argue what a
-% violation means in a real hall: a stranded robot, a stopped line, a person fetching it.
 
-\section{Measurement decisions that changed conclusions}
+A reader comparing only scores would conclude that the difference between the approaches is minor.
+The comparison of \texttt{ppo\_wp6} with the \NS makes the point sharply: the two are
+statistically indistinguishable in score ($p=0.121$), and one of them enters an unsafe state in
+\num{51} of \num{360} shifts.
+
+What a violation means physically is not a slightly lower score. The battery reserve exists so the
+robot can always reach the charging station; below it, the robot risks stopping in a corridor,
+where it blocks a route, requires a person to fetch it, and delivers nothing further that shift.
+The scoring penalty of \num{20} points is a modelling convenience, not a real cost --- the real
+cost is an unplanned human intervention in a factory that was supposed to run by itself. This is
+why \cref{ch:results} reports unsafe shifts beside every score rather than trusting the penalty to
+express the difference.
+
+There is a second, quieter argument for the rules. The \NS explains every decision in terms a
+plant engineer can check: which constraint forbade an alternative, which priority applied, by how
+much the network preferred the chosen action. When the robot behaved oddly in
+\cref{sec:hard-rules}, that explanation is what made the cause findable in minutes. A policy whose
+output is an action index affords no such inspection --- a property that matters more in an
+industrial setting than a fraction of a point of score.
+
+\section{Measurement decisions that changed the conclusions}
 \label{sec:measurement}
-% Two honest stories worth telling, both of which changed a decision:
-%   1. PPO had trained on only four of six scenarios; fixing it changed the comparison's fairness.
-%   2. A planner chosen on short tours failed over full shifts. Benchmarks measure what they
-%      measure, and the operating regime is part of the benchmark.
+
+Two results in this thesis exist only because a measurement was questioned, and both changed a
+decision that had already been made.
+
+\paragraph{An unfair training setup.}
+PPO's parallel environments were originally each bound to one scenario, so with four environments
+the agent saw four of the six training scenarios. Had this gone unnoticed, the thesis would have
+compared a fully trained neuro-symbolic model against a partially trained baseline, and the
+comparison would have been worthless regardless of its statistics. The correction is undramatic
+--- after retraining on all six, PPO's score and its violation rate are essentially unchanged ---
+but that outcome is itself the useful finding: PPO's constraint violations are not a symptom of
+insufficient scenario coverage, and would not have been fixed by more of the same training.
+
+\paragraph{A benchmark that measured the wrong regime.}
+The global planner was selected on a short benchmark tour, where Theta$^{*}$ was \SI{3.3}{\percent}
+faster with half the turning --- a clean, statistically significant result ($p=0.001$). Over full
+shifts the same planner produced faults in \num{6} of \num{17} shifts, including one that ended
+with the robot halted, because it refuses to plan when the start or goal cell is momentarily
+occupied. The benchmark was not wrong; it answered the question it was asked, which was about
+tours between free poses in an empty hall. The operating regime --- a robot standing against a
+machine, in a costmap containing fresh sensor data --- was outside it. The lesson generalises
+beyond planners: a benchmark measures a regime, and a component chosen in one regime has to be
+re-checked in the one it will run in.
 
 \section{Limitations}
 \label{sec:limitations}
-% Be specific and quantitative:
-%   - the objective counts only battery energy, so idling on the charger is free in the score;
-%   - one robot, one delivery point, one charger; no traffic, no human co-workers;
-%   - the fast simulator abstracts driving into distance and time, and Gazebo validates that only
-%     for the routes actually driven;
-%   - the 60-minute Gazebo comparison is one shift per model, a demonstration rather than a
-%     statistic;
-%   - the symbolic layer is hand-written and therefore only as good as its author's understanding;
-%   - simulation throughout: no physical robot.
+
+\paragraph{The objective does not charge for charging.}
+Only energy drawn from the battery is counted (\cref{sec:objective}). A robot parked on the charger
+draws its idle power from the charging station, so waiting there is free in the score although the
+factory pays for it. This favours policies that spend time docked, and it is the main reason the
+rule-based reference appears so energy-efficient (\SI{0.099}{\watt\hour} per unit against
+\SI{0.150}{\watt\hour}): it charges \num{7.1} times per shift and spends much of the hour parked.
+Correcting this would require re-training both learned models against the corrected objective, so
+it is reported rather than fixed. The comparison between policies remains valid --- all of them are
+scored the same way --- but the absolute energy figures understate what a real installation would
+pay.
+
+\paragraph{The remaining weakness of the model is a batching trade-off.}
+In \texttt{worn\_robot}, the only scenario where a simpler policy wins significantly, the rule
+reference makes \num{14} deliveries of \num{3.7} units and drives \SI{359}{\metre}; the \NS makes
+\num{25} deliveries of \num{2.2} units and drives \SI{468}{\metre} for the same output. Reacting
+quickly is what wins everywhere else, and it is what loses here, because a worn drivetrain makes
+every metre more expensive. The model has no notion that waiting for a fuller load can be the
+cheaper option; its look-ahead horizon of \SI{900}{\second} may simply be too short for that
+trade-off to appear in the training targets.
+
+\paragraph{One robot, one hall, one objective.}
+The problem has a single robot, a single delivery point and a single charger, and no human traffic.
+Several robots would introduce congestion, charger contention and task allocation --- a different
+problem class in which the symbolic layer's per-action reasoning would have to be extended
+considerably. Likewise, all results come from one maze layout and one set of objective weights;
+the ratio between the cost of a lost unit and the cost of a watt-hour in particular is a modelling
+choice, and a factory that valued energy differently might rank the policies differently.
+
+\paragraph{The symbolic layer is hand-written.}
+Its rules are only as good as the understanding of whoever wrote them, and H5 is direct evidence:
+a necessary rule was missing until a real shift exposed it. There is no mechanism guaranteeing that
+no further such gap exists. Learning the symbolic layer, as some of the related work does
+(\cref{sec:decision-making}), would address this, at the cost of the readability the hand-written
+rules provide.
+
+\paragraph{Simulation throughout.}
+No physical robot was involved. The energy model is calibrated and validated against Gazebo, but
+Gazebo shares its assumptions about rolling resistance and motor efficiency, so agreement between
+them is consistency rather than proof. Localisation error, wheel slip, floor variation and battery
+ageing would all test the model in ways this work cannot.
+
+\paragraph{The full-simulation evidence is thin in volume.}
+Twelve twenty-minute shifts and two sixty-minute shifts are demonstrations, not statistics. They
+establish that the fast simulator does not mislead and that the safety difference is real in the
+full stack; they cannot support a confidence interval on the sim-to-real gap.
 
 \section{Threats to validity}
 \label{sec:validity}
-% Internal: seeds, paired tests, no multiple-comparison correction.
-% External: one layout, one robot model, one objective weighting.
-% Construct: does the score really express what a factory wants? What would change with different
-% weights (the ratio of energy cost to a lost unit is the interesting one)?
+
+\paragraph{Internal validity.}
+Policies are compared on identical seeds with paired non-parametric tests, which removes the
+dominant source of variance. No correction for multiple comparisons is applied
+(\cref{sec:statistics}), so isolated significant results should be treated with caution; the
+conclusions drawn here rest on differences that are consistent across scenarios or supported by a
+mechanism, not on single $p$-values. The bound $\beta$ was selected on training scenarios and
+development seeds only, so the improvement it produces on the test set is not a selection effect.
+
+\paragraph{External validity.}
+The results describe this factory: one layout, three sections with these rates, this robot, this
+objective. The scenario set was deliberately widened to twelve configurations, six of them never
+seen during training, which supports claims about robustness to \emph{parameter} changes --- rates,
+masses, buffer sizes, battery health, ambient temperature. It supports no claim about a different
+hall geometry, more robots, or a different task structure.
+
+\paragraph{Construct validity.}
+Whether the score in \cref{eq:objective} expresses what a factory wants is a modelling assumption.
+Two of its weights are defensible from first principles (a delivered unit and a lost unit are
+worth the same; energy is cheap relative to production), while the penalty of \num{20} per safety
+violation is a stand-in for a cost --- an unplanned intervention --- that has no natural unit. This
+thesis therefore avoids resting any conclusion on the penalty's magnitude, and reports violation
+counts separately throughout.
