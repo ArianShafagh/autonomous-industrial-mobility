@@ -1,6 +1,10 @@
 \chapter{Scenarios}
 \label{app:scenarios}
 
-% Table of the 12 scenarios: name, seen/unseen, one-line description, and what it stresses
-% (overload, faults, heat, small buffers, aged battery, ...). The descriptions are in
-% src/robofetch_factory/config/scenarios/*.yaml.
+The twelve scenarios of \cref{sec:scenarios}, with the parameter overrides each one applies to the
+defaults of \cref{app:configuration}. Six were available for training both learned models; the
+other six were written after training and are used only for evaluation
+(\cref{sec:splits}). Like the parameter tables, this table is generated from the scenario files
+themselves.
+
+\input{generated/scenarios}
