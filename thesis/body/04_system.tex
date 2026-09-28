@@ -1,54 +1,185 @@
 \chapter{System Design}
 \label{ch:system}
 
-% NARRATIVE GOAL
-% Show that the platform is sound, so that the results in \cref{ch:results} can be trusted. Explain
-% the decisions a reader would otherwise question ("why two simulators?", "why one node for all
-% three sections?"). Source: HANDOVER.md, sections WP1-WP3 and WP7.
+The decision models of \cref{ch:models} are only as trustworthy as the system that executes them
+and the simulator that measures them. This chapter describes that system: how the world is
+generated from a single description, how the factory and the robot are modelled, how an action is
+turned into motion and what happens when the motion fails, and how a decision model is attached to
+the running robot without becoming part of it.
 
-\section{Architecture overview}
+\section{Architecture}
 \label{sec:architecture}
-% One figure, drawn by you: layout.yaml -> generator -> {Gazebo world, Nav2 map, POIs, path
-% matrix}; factory node; robot state node; mission executor; decision service; dashboard.
-% Key principle to state explicitly: the decision layer never sees ROS, so the same policy object
-% runs in the fast simulator and on the robot.
 
-\section{One source of truth for the world}
+The system is built as a set of ROS~2 nodes around a Gazebo simulation, with the decision model as
+a separate process (\cref{fig:architecture}). Four elements matter for the rest of this thesis:
+
+\begin{itemize}[leftmargin=*, itemsep=0.15em]
+  \item a \textbf{generator} that turns one layout description into the simulated world, the
+        navigation map, the named poses and the table of maze distances;
+  \item a \textbf{factory node} that runs the production model of the three sections and publishes
+        their live state;
+  \item a \textbf{mission executor} that turns one action into navigation goals, dwell times and a
+        report, and that recovers when navigation fails;
+  \item a \textbf{decision service} that answers the executor's question \emph{what next?} and can
+        be stopped, replaced or upgraded without touching the robot.
+\end{itemize}
+
+% TODO(figure): draw the architecture. Suggested: layout.yaml at the top feeding the generator,
+% whose four outputs fan out to Gazebo, Nav2, the executor and the models; below, the ROS nodes
+% (factory, robot state, mission executor) with their topics; to the right, the decision service
+% and the dashboard as separate processes. tikz is available via thesis.sty.
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.92\textwidth}{\centering\vspace{2.2em}\textit{<architecture diagram:
+    layout.yaml $\rightarrow$ generator $\rightarrow$ \{world, map, poses, distances\};
+    factory node, robot state node, mission executor, Nav2, Gazebo; decision service and
+    dashboard as separate processes>}\vspace{2.2em}}}
+    \caption{System architecture. Everything geometric derives from one file; the decision service
+             is a separate process, and the dashboard only observes.}
+    \label{fig:architecture}
+\end{figure}
+
+One principle runs through the design: \textbf{the decision layer never sees ROS}. A policy
+receives plain data and returns an action, which is what allows the identical policy object to run
+inside the fast simulator for thousands of training shifts and inside the live service on the
+robot. If the two had separate implementations, every result in \cref{ch:results} would depend on
+their agreeing, and that agreement would have to be proved rather than assumed.
+
+\section{One description of the world}
 \label{sec:single-source}
-% layout.yaml is an ASCII grid; the generator emits the SDF world, the PGM map, the points of
-% interest and the path-length matrix. Nothing can drift out of step.
-% Worth telling as a story: the 0.5 m pinch that made Nav2 plan through a gap the robot could not
-% pass, and the clearance check that now fails generation if such a gap exists (HANDOVER WP1).
 
-\section{Factory model}
+The hall is described once, as an ASCII grid in which each character is a half-metre cell: wall,
+machine, pickup zone of a section, delivery point, charging station or free floor. A generator
+turns that single file into four artefacts: the Gazebo world, the occupancy map used for
+navigation, the named poses the robot drives to, and a matrix of the shortest maze path between
+every pair of those poses.
+
+The alternative --- maintaining a simulated world and a navigation map separately --- is a known
+trap: the two drift apart, and the robot then plans in a hall that differs from the one it drives
+in. Deriving both from one description makes that class of error impossible, and it has a second
+benefit for this thesis: the path matrix used by the fast simulator and by the symbolic rules is
+generated from the same geometry the robot actually drives, so a distance in
+\cref{tab:distances} is not an approximation of the simulated world but a property of it.
+
+\paragraph{A lesson from the first layout.}
+The first version of the hall contained a \SI{0.5}{\metre} gap between two wall segments. Nav2
+treats only about \SI{0.22}{\metre} around an obstacle as lethal, so its planner happily routed
+through the gap, while the controller could not fit the robot through it. The result was a robot
+that planned \SI{10.47}{\metre} from B to C, and then drove \SI{24.4}{\metre} after re-routing.
+The layout was widened, but the more useful outcome is the check that was added to the generator:
+it compares the shortest path through comfortable space with the shortest path through any space
+wider than \SI{0.25}{\metre}, and refuses to generate a world if the second is more than
+\SI{5}{\percent} shorter for any pair of points --- which is exactly the signature of a gap the
+robot cannot use. Fed the old layout, the check flags precisely the three pairs Nav2 had got wrong.
+
+\section{The factory model}
 \label{sec:factory-model}
-% Production as a Gamma process, buffers, BLOCKED/DEGRADED/FAULT states, seeded per section.
 
-\section{Robot model: energy, heat and wear}
+Each section is modelled as a machine with an output buffer. Cycle times are drawn from a Gamma
+distribution, so units appear irregularly around the nominal rate; finished units accumulate in the
+buffer; and when the buffer is full the line stops and everything it would have produced is
+counted as lost. Machine health decreases with every unit produced, reduces the production rate
+below \SI{60}{\percent} health, and raises the hazard of a breakdown, which stops the line for a
+repair of about twenty minutes. The model is pure Python with a seeded random generator per
+section, and it is used unchanged by the fast simulator and by the ROS node, so a scenario behaves
+the same in both.
+
+The three sections run inside a \emph{single} ROS node rather than one node each. This began as a
+performance fix --- three Python nodes on the simulation clock, each waking on every clock message,
+starved the navigation stack during start-up --- and the same investigation led to the physics step
+being set to \SI{4}{\milli\second}. It is a small detail, but it is the reason the system can run a
+full shift reliably on a laptop, which is what made the twelve Gazebo validation shifts possible.
+
+\section{The robot model}
 \label{sec:robot-model}
-% Idle power, drive energy per metre, payload term, charging power, thermal and wear models.
-% Mention the calibration error caught by a magnitude test (drive energy 3.6x too high, HANDOVER
-% WP2) — it shows the model was checked, not assumed.
 
-\section{Mission execution and recovery}
+The robot's energy, temperature and wear are modelled analytically rather than measured from
+Gazebo, for two reasons: the same model must run thousands of times per second during training,
+and both simulators must agree on what an action costs. Energy is idle power plus a distance term
+plus a payload term, corrected for motor temperature and drive condition; temperature integrates
+heating under load against cooling; condition degrades with energy drawn and with time spent above
+the warning temperature (\cref{sec:robot}).
+
+Because every result in this thesis is denominated in these units, the model is checked rather than
+trusted. A test asserts that its parameters imply physically plausible magnitudes --- an energy
+consumption between \SIrange{5}{40}{\watt\hour\per\kilo\metre}, a continuous driving time between
+one and four hours, a full charge between thirty minutes and two hours. That test caught the first
+calibration error in this work: a drive energy of \SI{0.012}{\watt\hour\per\metre}, which reads
+plausibly but implies \SI{16.8}{\watt} of motor power for a \SI{4.3}{\kilo\gram} robot and a
+runtime under an hour. The corrected value, \SI{0.005}{\watt\hour\per\metre}, is the one used
+throughout.
+
+\section{Executing an action}
 \label{sec:executor}
-% Action -> navigation goal -> dwell -> report. The recovery ladder: retry, clear costmaps, back
-% up, return to charger, declare stuck. The arrival check against AMCL that catches Nav2 reporting
-% success at a blocked goal.
 
-\section{Decision service and graceful degradation}
+The mission executor is the only component that touches both worlds: it receives an action from the
+decision service and produces motion, dwell and a report. For a pickup it sends the section's pose
+as a navigation goal, waits for arrival, stands still for the loading time on the simulation clock,
+asks the section to hand over as many units as still fit, and records what the action cost ---
+duration, distance, energy, battery --- next to what the model had predicted it would cost. That
+pairing of predicted and measured values is what later allows the fast simulator to be validated
+action by action.
+
+\paragraph{Navigation failure is normal, not exceptional.}
+Over a full shift a robot in a maze will fail to reach a goal: a costmap holds a stale obstacle, the
+robot ends up wedged against a wall, a planner refuses. The executor therefore treats failure as
+part of the job and escalates in fixed steps: retry, clear both costmaps and retry, back up
+\SI{0.3}{\metre} and retry, and finally abandon the goal and return to the charging station as a
+safe place. Only if the charger is unreachable as well does the robot stop and end the mission as
+\emph{navigation stuck}, which is the one outcome that requires a person. Each drive also carries a
+timeout of three times its predicted duration, so a robot that oscillates cannot hang the shift.
+\Cref{sec:planner-study} contains a shift in which this ladder ran to its end.
+
+\paragraph{Arrival is verified, not believed.}
+Nav2 can report success without the robot being at the goal: when a goal pose is blocked, its
+planner plans to the nearest free position within its tolerance and the controller duly arrives
+\emph{there}. Every reported success is therefore checked against the robot's localised position,
+and a deviation beyond \SI{0.35}{\metre} counts as a failure. Without this check a blocked pickup
+point would silently become a successful pickup of nothing, and the resulting data would be wrong
+in a way that no later analysis could detect.
+
+\section{The decision service}
 \label{sec:service}
-% The policy runs as its own process; if it stops answering, the executor falls back to built-in
-% rules and the shift continues. Report the measured decision latency (see \cref{sec:latency}).
+
+The decision model runs as its own process and answers over HTTP: the executor sends the current
+state and the legal actions, the service returns the chosen action together with its scores and its
+explanation. The separation buys three things. The model can be changed --- or swapped for another
+model entirely --- without restarting the robot; ``the AI is unavailable'' becomes a state that can
+be produced deliberately, by stopping the process; and the decision latency reported in
+\cref{sec:latency} is measured on the same path the robot uses, not in a test harness.
+
+If the service does not answer, the executor falls back to the rule-based policy of
+\cref{sec:rule-policy} and continues the shift, recording for each decision whether it came from
+the model or from the fallback. A robot that stops working because a web service is down would be
+of no industrial interest; this way the failure degrades the quality of the decisions rather than
+the availability of the robot.
 
 \section{Monitoring}
 \label{sec:monitoring}
-% The read-only dashboard: section cards, robot state, decisions with their explanations, and the
-% live maze map. Screenshot it for the thesis. Emphasise "read-only": the operator watches, the
-% robot decides.
 
-\section{Two simulators, and why}
+A web dashboard shows the live state: the three sections with their buffers, production and health,
+the robot with its battery, temperature, payload and position on a map of the hall, the shift
+totals, and the stream of decisions with their explanations. It is deliberately read-only --- there
+is no control on the page, and no route that accepts a command. The robot is autonomous by
+construction, and the operator's only intervention is the physical emergency stop, not a button in
+a browser.
+
+The map on the page is drawn from the same layout description as the simulated world
+(\cref{sec:single-source}), so what the operator sees cannot drift from where the robot actually
+is.
+
+\section{Two simulators}
 \label{sec:two-simulators}
-% Gazebo is physically faithful but real-time; the fast simulator runs a shift in milliseconds,
-% which is what makes 3240 shifts and any training possible. The bridge between them is the
-% validation in \cref{sec:gazebo-validation}: same models, same parameters, same objective.
+
+The system exists twice. The full simulation --- Gazebo physics, Nav2, localisation, the executor
+--- is faithful but runs in real time: one shift takes an hour. The fast simulator replaces driving
+with the path matrix and the robot model, advances the same factory model in one-second steps, and
+completes a shift in milliseconds. Training the neural scorer and evaluating nine policies over
+\num{3240} shifts is possible only in the second; claiming that those results describe the first
+requires evidence.
+
+That evidence is produced by replaying a completed Gazebo mission action by action in the fast
+simulator and comparing the predicted values against the measured ones. For the reference mission
+the totals agree to \SI{0.6}{\percent} in energy, with the worst single action differing by
+\SI{10}{\percent} in duration. The shift-level comparison of \cref{sec:gazebo-validation} extends
+this from a single scripted mission to complete autonomous shifts under both decision models.
