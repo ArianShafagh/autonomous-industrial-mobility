@@ -1,0 +1,46 @@
+\chapter{Problem Setting}
+\label{ch:problem}
+
+% NARRATIVE GOAL
+% Define the world precisely enough that a reader could rebuild it. Everything here is a fact of
+% the setup, not a design decision of your solution — those belong in \cref{ch:system}.
+
+\section{The factory}
+\label{sec:factory}
+% Layout (a 14.5 x 10 m maze hall), three sections A/B/C, one delivery point, one charger.
+% Production rates 20, 30 and 5 units per hour; buffers of 8, 10 and 3 units; unit masses.
+% Figure: the maze (thesis/figures/, e.g. a screenshot of the dashboard map or the Gazebo world).
+
+\section{The robot}
+\label{sec:robot}
+% Differential drive, 0.39 m/s, 22 Wh battery, 15 % reserve, payload limit, motor temperature
+% limit 70 C, wear. Table of parameters -> \cref{app:configuration}.
+
+\section{Tasks and actions}
+\label{sec:actions}
+% The action vocabulary: PICKUP:<A|B|C>, DELIVER, CHARGE:<40|70|100>, WAIT:<s>. One action is one
+% decision; the executor drives, dwells and reports.
+
+\section{Objective}
+\label{sec:objective}
+% The single number everything is judged by, stated as an equation:
+\begin{equation}
+  \label{eq:objective}
+  J = \underbrace{n_{\text{delivered}}}_{+1 \text{ each}}
+    - \underbrace{n_{\text{lost}}}_{-1 \text{ each}}
+    - 0.5\,\underbrace{E_{\text{battery}}}_{\si{\watt\hour}}
+    - 20\,\underbrace{n_{\text{violations}}}_{\text{safety}}
+\end{equation}
+% Explain each weight and, honestly, what it does not count: idling on the charger is paid by the
+% charger, not the battery (a limitation revisited in \cref{sec:limitations}).
+
+\section{Constraints}
+\label{sec:constraints}
+% Battery reserve including the return trip, motor temperature, payload, maintenance condition.
+% These are the constraints the symbolic layer enforces in \cref{sec:symbolic-layer}.
+
+\section{Scenarios}
+\label{sec:scenarios}
+% 12 scenarios; six used for training, six written afterwards and never trained on. Table in
+% \cref{app:scenarios}. Say clearly here that the split is what makes \cref{sec:generalisation}
+% a generalisation result rather than a curve fit.

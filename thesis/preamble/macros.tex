@@ -1,0 +1,53 @@
+% -----------------------------------------------------------------------------
+% Numbers and names that appear many times. Defining them once means a value can
+% never disagree with itself between chapters — and if a result is ever re-run,
+% it is changed here, in one place.
+% Sources: THESIS_DATA.md and HANDOVER.md in the repository root.
+% -----------------------------------------------------------------------------
+
+% --- policy names, so the thesis never mixes "NS" and "neuro-symbolic"
+\newcommand{\NS}{neuro-symbolic model\xspace}
+\newcommand{\NSshort}{NS\xspace}
+\newcommand{\PPO}{PPO\xspace}
+
+% --- headline results (fast simulator, 12 scenarios x 30 seeds = 3240 shifts)
+\newcommand{\scoreNS}{53.81}
+\newcommand{\scoreNSci}{[51.9,\,55.7]}
+\newcommand{\scoreSymbolic}{52.91}
+\newcommand{\scoreUnbounded}{51.56}
+\newcommand{\scoreEstimateOnly}{52.85}
+\newcommand{\scoreNeuralOnly}{51.81}
+\newcommand{\scorePPO}{52.35}
+\newcommand{\scoreRule}{41.66}
+\newcommand{\scorePPOunmasked}{28.19}
+
+% --- safety (shifts containing at least one violation, out of 360)
+\newcommand{\violNS}{0/360}
+\newcommand{\violPPO}{53/360}
+\newcommand{\violNeuralOnly}{57/360}
+
+% --- generalisation (the six scenarios written after training, 180 shifts each)
+\newcommand{\unseenNS}{47.20}
+\newcommand{\unseenSymbolic}{45.66}
+\newcommand{\unseenPPO}{44.83}
+\newcommand{\unseenUnbounded}{43.33}
+
+% --- the heavy_load failure and its repair
+\newcommand{\heavyUnbounded}{28.5}
+\newcommand{\heavyBounded}{52.3}
+\newcommand{\maxCorrection}{1.0}
+
+% --- Gazebo validation
+\newcommand{\gazeboEnergyGap}{+0.2\,\%}
+\newcommand{\gazeboScoreGap}{-5.7\,\%}
+\newcommand{\longShiftNS}{55.16}
+\newcommand{\longShiftPPO}{37.79}
+\newcommand{\longShiftNSbattery}{17.0\,\%}
+\newcommand{\longShiftPPObattery}{9.4\,\%}
+
+% --- planners
+\newcommand{\thetaFaults}{6 of 17}
+\newcommand{\navfnFaults}{0 of 5}
+
+% --- shorthand for referring to the artefacts
+\newcommand{\file}[1]{\texttt{#1}}

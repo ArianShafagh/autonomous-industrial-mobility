@@ -1,0 +1,43 @@
+\chapter{Experimental Setup}
+\label{ch:setup}
+
+% NARRATIVE GOAL
+% Convince the reader that the numbers in \cref{ch:results} mean what you say. Anyone who doubts a
+% result should find the answer here.
+
+\section{Evaluation protocol}
+\label{sec:protocol}
+% 9 policies x 12 scenarios x 30 seeds = 3240 shifts of one hour each. Every policy runs the SAME
+% seeds, so every comparison is paired.
+
+\section{Training and test separation}
+\label{sec:splits}
+% Test seeds start at 5000 and were never used for training or model selection (NS collection uses
+% 12345+, NS round selection 1000-1003, PPO draws random seeds). Six scenarios were written after
+% training and form the unseen set. Say why this matters: without it, "generalisation" is a claim,
+% not a measurement.
+
+\section{Metrics}
+\label{sec:metrics}
+% Score (\cref{eq:objective}), delivered units, lost production, energy (Wh and Wh per unit),
+% charging trips, minimum battery, shifts containing a safety violation, decision latency.
+% Define a "violation" exactly: battery below the reserve away from the charger, motor temperature
+% at the limit, or an empty battery.
+
+\section{Statistics}
+\label{sec:statistics}
+% 95 % bootstrap confidence intervals on the mean score (2000 resamples); paired Wilcoxon
+% signed-rank tests against the \NS on identical seeds; significance level 0.05.
+% Note honestly that no multiple-comparison correction is applied, and that with 30 paired seeds
+% small differences can be significant without being important.
+
+\section{Validation in Gazebo}
+\label{sec:gazebo-setup}
+% Full shifts through the real stack, then the same policy, scenario and seed replayed in the fast
+% simulator. State the one subtlety: the executor finishes the action it has started when the
+% shift ends, so the fast simulator is run in the same mode for comparison.
+
+\section{Hardware and software}
+\label{sec:hardware}
+% ROS 2 Jazzy, Gazebo Harmonic 8.11 headless, Nav2 with MPPI, Python 3.12, PyTorch (CPU),
+% Stable-Baselines3 / sb3-contrib. CPU, cores, RAM. Training times: PPO 9.8 min, NS ~40 min.

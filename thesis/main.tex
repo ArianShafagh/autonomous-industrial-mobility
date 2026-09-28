@@ -1,0 +1,58 @@
+% =============================================================================
+%  Towards Autonomous Industrial Mobility:
+%  An AI Framework for Optimal Path Planning and Resource-Efficient Navigation
+%
+%  Bachelor thesis — Arian Shafagh
+%
+%  Compile with pdfLaTeX + Biber (Overleaf: Menu -> Compiler -> pdfLaTeX).
+%  Every chapter lives in its own file so chapters can be written, moved and
+%  commented on independently:
+%      preamble/  packages, styling, macros (numbers used in the text)
+%      front/     title page, declaration, abstracts, acknowledgements
+%      chapters/  the thesis itself, one file per chapter
+%      back/      appendices
+%      figures/   figures (the result figures are copied from tools/ai/results)
+%      bib/       references.bib
+% =============================================================================
+\documentclass[a4paper,12pt,twoside,openright]{report}
+
+\input{preamble/packages}
+\input{preamble/style}
+\input{preamble/macros}
+
+\addbibresource{bib/references.bib}
+
+\begin{document}
+
+% ------------------------------------------------------------------ front matter
+\frontmatter
+\input{front/titlepage}
+\input{front/declaration}
+\input{front/abstract}
+\input{front/acknowledgements}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ---------------------------------------------------------------------- chapters
+\mainmatter
+\input{chapters/01_introduction}
+\input{chapters/02_background}
+\input{chapters/03_problem}
+\input{chapters/04_system}
+\input{chapters/05_decision_models}
+\input{chapters/06_experimental_setup}
+\input{chapters/07_results}
+\input{chapters/08_discussion}
+\input{chapters/09_conclusion}
+
+% ------------------------------------------------------------------- back matter
+\printbibliography[heading=bibintoc]
+
+\appendix
+\input{back/a_configuration}
+\input{back/b_scenarios}
+\input{back/c_reproduction}
+
+\end{document}

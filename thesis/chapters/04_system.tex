@@ -1,0 +1,54 @@
+\chapter{System Design}
+\label{ch:system}
+
+% NARRATIVE GOAL
+% Show that the platform is sound, so that the results in \cref{ch:results} can be trusted. Explain
+% the decisions a reader would otherwise question ("why two simulators?", "why one node for all
+% three sections?"). Source: HANDOVER.md, sections WP1-WP3 and WP7.
+
+\section{Architecture overview}
+\label{sec:architecture}
+% One figure, drawn by you: layout.yaml -> generator -> {Gazebo world, Nav2 map, POIs, path
+% matrix}; factory node; robot state node; mission executor; decision service; dashboard.
+% Key principle to state explicitly: the decision layer never sees ROS, so the same policy object
+% runs in the fast simulator and on the robot.
+
+\section{One source of truth for the world}
+\label{sec:single-source}
+% layout.yaml is an ASCII grid; the generator emits the SDF world, the PGM map, the points of
+% interest and the path-length matrix. Nothing can drift out of step.
+% Worth telling as a story: the 0.5 m pinch that made Nav2 plan through a gap the robot could not
+% pass, and the clearance check that now fails generation if such a gap exists (HANDOVER WP1).
+
+\section{Factory model}
+\label{sec:factory-model}
+% Production as a Gamma process, buffers, BLOCKED/DEGRADED/FAULT states, seeded per section.
+
+\section{Robot model: energy, heat and wear}
+\label{sec:robot-model}
+% Idle power, drive energy per metre, payload term, charging power, thermal and wear models.
+% Mention the calibration error caught by a magnitude test (drive energy 3.6x too high, HANDOVER
+% WP2) — it shows the model was checked, not assumed.
+
+\section{Mission execution and recovery}
+\label{sec:executor}
+% Action -> navigation goal -> dwell -> report. The recovery ladder: retry, clear costmaps, back
+% up, return to charger, declare stuck. The arrival check against AMCL that catches Nav2 reporting
+% success at a blocked goal.
+
+\section{Decision service and graceful degradation}
+\label{sec:service}
+% The policy runs as its own process; if it stops answering, the executor falls back to built-in
+% rules and the shift continues. Report the measured decision latency (see \cref{sec:latency}).
+
+\section{Monitoring}
+\label{sec:monitoring}
+% The read-only dashboard: section cards, robot state, decisions with their explanations, and the
+% live maze map. Screenshot it for the thesis. Emphasise "read-only": the operator watches, the
+% robot decides.
+
+\section{Two simulators, and why}
+\label{sec:two-simulators}
+% Gazebo is physically faithful but real-time; the fast simulator runs a shift in milliseconds,
+% which is what makes 3240 shifts and any training possible. The bridge between them is the
+% validation in \cref{sec:gazebo-validation}: same models, same parameters, same objective.

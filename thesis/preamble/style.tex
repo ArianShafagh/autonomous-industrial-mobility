@@ -1,0 +1,28 @@
+% Look and feel: headers, captions, code listings.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+\fancyhead[LO]{\nouppercase{\rightmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\captionsetup{font=small, labelfont=bf, margin=1em}
+\setlength{\parskip}{0.3em}
+
+\definecolor{codebg}{RGB}{247,247,245}
+\definecolor{codekey}{RGB}{42,120,214}
+\definecolor{codecomment}{RGB}{110,110,110}
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekey},
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{codebg},
+  showstringspaces=false,
+  captionpos=b,
+  numbers=left,
+  numberstyle=\tiny\color{codecomment},
+}

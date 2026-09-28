@@ -1,0 +1,48 @@
+\chapter{Background and Related Work}
+\label{ch:background}
+
+% NARRATIVE GOAL
+% Two jobs: (1) teach the reader the few concepts they need, (2) show where this work sits and what
+% gap it fills. Do not review the whole field — review what your argument needs.
+% Source for citations: docs/related_work.md in the repository (20 verified peer-reviewed papers,
+% 2024-2025, already grouped by the sections below; DOIs checked against Crossref).
+
+\section{Autonomous mobile robots in production logistics}
+\label{sec:amr}
+% What AMRs do, why dispatching/task allocation matters, and the industrial framing.
+
+\section{Navigation: ROS~2 and Nav2}
+\label{sec:nav2}
+% Only what the thesis uses: costmaps, global planners (NavFn, Theta*, Smac), a local controller
+% (MPPI), AMCL localisation, behaviour trees and recovery. This sets up \cref{sec:planner-study}.
+
+\section{Decision making for mobile robots}
+\label{sec:decision-making}
+\subsection{Rule-based and heuristic dispatching}
+\subsection{Deep reinforcement learning}
+% Policy-gradient methods, PPO, and action masking as the standard way to express legality.
+\subsection{Neuro-symbolic approaches}
+% Group A of docs/related_work.md. The closest peer-reviewed analogue keeps the symbolic part
+% readable and editable after training; this thesis writes the symbolic part by hand instead,
+% which is a difference to defend openly.
+
+\section{Safety in learned policies}
+\label{sec:safe-learning}
+% Group B: shielding, action masking, constrained RL. The argument the results support: a mask
+% expresses legality, but the guarantee comes from where the constraint is enforced.
+
+\section{Energy-aware navigation and battery management}
+\label{sec:energy-aware}
+% Groups C and D: energy models, charge scheduling, and how energy consumption is calibrated —
+% this justifies the parameters in \file{params.yaml} (\cref{app:configuration}).
+
+\section{Simulation and sim-to-real validation}
+\label{sec:sim2real}
+% Group E: what is normally validated, and the gap this thesis addresses by comparing a fast
+% abstract simulator against full Gazebo shifts.
+
+\section{Research gap}
+\label{sec:gap}
+% Two or three sentences, sharp: existing work either learns the whole policy (no guarantee) or
+% hand-writes it (no trade-off reasoning); reported evaluations rarely separate seen from unseen
+% conditions; and abstract schedulers are seldom validated against a full navigation stack.

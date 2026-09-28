@@ -1,0 +1,58 @@
+\chapter{Introduction}
+\label{ch:introduction}
+
+% NARRATIVE GOAL OF THIS CHAPTER
+% Make the reader care, then promise exactly what the thesis delivers. A bachelor thesis is
+% judged partly on whether the question is clear by the end of page three.
+
+\section{Motivation}
+\label{sec:motivation}
+% Industrial mobile robots move material between machines. The interesting decision is not "how do
+% I drive there" (solved by navigation stacks) but "what is worth doing next": a full buffer stops
+% a production line, a flat battery strands the robot, and every metre costs energy.
+% Keep it concrete: the factory of this thesis produces 20, 30 and 5 units per hour in sections
+% A, B and C; a buffer that fills is production lost for good.
+
+\section{Problem statement}
+\label{sec:problem-statement}
+% One robot, three producing sections, one delivery point, one charger. A decision maker must pick
+% the next action under hard constraints (battery reserve, motor temperature, payload, condition).
+% Two families of answer exist: hand-written rules (predictable, but blind to trade-offs) and
+% learned policies (good at trade-offs, but with no guarantee). This thesis asks whether the two
+% can be combined so that the guarantee survives.
+
+\section{Research questions}
+\label{sec:research-questions}
+% State them as questions you actually answer in \cref{ch:results}. Suggested:
+\begin{enumerate}[label=\textbf{RQ\arabic*.}, leftmargin=*]
+  \item \textit{<Does a neuro-symbolic policy outperform a deep reinforcement learning policy of
+        equal information on throughput, energy and safety?>}
+  \item \textit{<What does each half contribute — do the rules alone, or the network alone, suffice?>}
+  \item \textit{<Do the policies still hold up in situations they were never trained on?>}
+  \item \textit{<Do results obtained in a fast abstract simulator transfer to full physics
+        simulation with a real navigation stack?>}
+\end{enumerate}
+
+\section{Contributions}
+\label{sec:contributions}
+% Be precise and modest; every item must be defensible with a number from \cref{ch:results}.
+\begin{itemize}[leftmargin=*]
+  \item A complete, reproducible ROS~2 system in which a single robot works an autonomous shift:
+        factory model, energy/thermal/wear model, mission executor with recovery, decision service
+        and a read-only monitor.
+  \item A \NS whose hard rules can never be overruled, whose priority tiers are explicit, and whose
+        learned ranker is \emph{bounded}: the correction it may apply is limited to
+        $\pm\maxCorrection$ score units.
+  \item The observation that motivates that bound: without it, the learned ranker carried a habit
+        from its training scenarios into an overloaded factory it had never seen and waited while
+        production lines stopped (\heavyUnbounded{} against \heavyBounded{} with the bound).
+  \item An evaluation of 3240 simulated shifts with paired statistics and a held-out set of
+        scenarios, validated by full Gazebo shifts in which the energy model agrees to
+        \gazeboEnergyGap{}.
+  \item A planner study showing that a global planner selected on short benchmark tours was the
+        worse choice over full shifts (\thetaFaults{} shifts faulty against \navfnFaults{}).
+\end{itemize}
+
+\section{Outline}
+\label{sec:outline}
+% One or two sentences per chapter. Write this LAST, when the chapters exist.

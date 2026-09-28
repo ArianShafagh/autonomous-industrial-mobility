@@ -1,0 +1,59 @@
+\chapter{Decision Models}
+\label{ch:models}
+
+% NARRATIVE GOAL
+% The core chapter. Build the model in the order a reader can follow: what the rules guarantee,
+% what the network adds, and why the network must be kept on a leash.
+% Source: HANDOVER.md WP5, WP6, WP9 and the WP9 follow-up.
+
+\section{Overview}
+\label{sec:model-overview}
+% One figure: legal actions -> hard rules (forbid) -> priority tiers (rank) -> neural ranker
+% (choose within the top tier) -> action + explanation string.
+
+\section{The symbolic layer}
+\label{sec:symbolic-layer}
+\subsection{Hard rules}
+% H1 maintenance, H2 payload, H3 battery reserve including the return trip (checked by simulating
+% the route with the robot's own model), H4 motor temperature, H5 no pointless waiting.
+% H5 is worth a paragraph of its own: it closes a gap between two thresholds, found only by
+% watching a real shift (HANDOVER, WP9 follow-up).
+\subsection{Priority tiers}
+% Tier 2 unblock a stopped line, tier 1 prevent one from stopping, tier 0 routine.
+\subsection{Explainability}
+% Every decision carries the rules that fired. Quote one real explanation string from a log.
+
+\section{The neural ranker}
+\label{sec:neural-ranker}
+\subsection{Features and the symbolic estimate}
+% 27 features; the network learns a *residual* on an analytic estimate rather than the value
+% itself. Say why: the estimate already captures the arithmetic, so the network only has to learn
+% what the arithmetic misses.
+\subsection{Training}
+% Rollout look-ahead targets, policy iteration, a ranking loss (softmax cross-entropy per decision
+% point) rather than regression, best-round selection on validation scenarios.
+% The ranking loss was the decisive change — report it as such.
+
+\section{Bounding the correction}
+\label{sec:bounded-correction}
+% THE contribution. Present it as a discovery, not as a design:
+%   1. the unbounded model was worse than its own rules on unseen scenarios;
+%   2. the trace showed it choosing WAIT while every line was blocked, with an explanation string
+%      that said waiting only spends energy;
+%   3. the cause: in training, production is half as fast and batching pays;
+%   4. the fix: centre the correction on the candidates' mean and clip it to +-\maxCorrection;
+%   5. the bound was chosen on TRAINING scenarios with validation seeds only (table of the sweep:
+%      none 57.75, 20 -> 57.75, 10 -> 58.06, 5 -> 58.15, 2 -> 58.15, 1 -> 58.70, 0 -> 57.41).
+% State the interpretation: the network may decide close calls, never overrule clear evidence.
+
+\section{Reinforcement learning baseline}
+\label{sec:ppo}
+% MaskablePPO on the same environment, observation and reward. Training setup and the fairness fix
+% (each parallel environment now draws a random training scenario, so all six are seen).
+% The unmasked variant exists to ask how much of PPO's competence is simply knowing the rules.
+
+\section{Reference policies and ablations}
+\label{sec:ablations}
+% rule (nearest section above 50 % buffer, charge when the reserve would break),
+% ns_symbolic_only, ns_neural_only, ns_estimate_only, ns_unbounded, ppo_wp6.
+% A table listing each policy and the exact question it answers is very effective here.

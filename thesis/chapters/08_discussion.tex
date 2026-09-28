@@ -1,0 +1,49 @@
+\chapter{Discussion}
+\label{ch:discussion}
+
+% NARRATIVE GOAL
+% Answer the research questions in order, say what the numbers mean, and be the first to name the
+% weaknesses. Examiners reward a candidate who criticises their own work accurately.
+
+\section{Answering the research questions}
+\label{sec:answers}
+% RQ1 ... RQ4, each in a short subsection or paragraph, each pointing at a table or figure.
+
+\section{Why the bound works}
+\label{sec:why-bound}
+% The interpretation: the analytic estimate extrapolates (it is arithmetic on the current state),
+% the network interpolates (it is a function fitted on a distribution). Bounding the network's
+% influence keeps its judgement where it is reliable -- near-ties -- and lets the arithmetic decide
+% when the evidence is clear. Relate this to shielding and masking in \cref{sec:safe-learning}:
+% those constrain *legality*; the bound constrains *influence*.
+
+\section{Why the rules matter more than the score}
+\label{sec:rules-matter}
+% PPO matches the \NS on score in seen scenarios but is unsafe in 14.7 % of shifts. Argue what a
+% violation means in a real hall: a stranded robot, a stopped line, a person fetching it.
+
+\section{Measurement decisions that changed conclusions}
+\label{sec:measurement}
+% Two honest stories worth telling, both of which changed a decision:
+%   1. PPO had trained on only four of six scenarios; fixing it changed the comparison's fairness.
+%   2. A planner chosen on short tours failed over full shifts. Benchmarks measure what they
+%      measure, and the operating regime is part of the benchmark.
+
+\section{Limitations}
+\label{sec:limitations}
+% Be specific and quantitative:
+%   - the objective counts only battery energy, so idling on the charger is free in the score;
+%   - one robot, one delivery point, one charger; no traffic, no human co-workers;
+%   - the fast simulator abstracts driving into distance and time, and Gazebo validates that only
+%     for the routes actually driven;
+%   - the 60-minute Gazebo comparison is one shift per model, a demonstration rather than a
+%     statistic;
+%   - the symbolic layer is hand-written and therefore only as good as its author's understanding;
+%   - simulation throughout: no physical robot.
+
+\section{Threats to validity}
+\label{sec:validity}
+% Internal: seeds, paired tests, no multiple-comparison correction.
+% External: one layout, one robot model, one objective weighting.
+% Construct: does the score really express what a factory wants? What would change with different
+% weights (the ratio of energy cost to a lost unit is the interesting one)?

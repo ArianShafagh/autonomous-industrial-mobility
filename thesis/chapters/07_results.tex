@@ -1,0 +1,92 @@
+\chapter{Results}
+\label{ch:results}
+
+% NARRATIVE GOAL
+% Report, do not yet interpret (interpretation is \cref{ch:discussion}). Every number here exists
+% in THESIS_DATA.md; use the \newcommand macros from preamble/macros.tex so no value can drift.
+% Tables: booktabs only, no vertical rules. Figures are in thesis/figures/.
+
+\section{Overall comparison}
+\label{sec:overall}
+% Table: all nine policies, score with CI, delivered, lost, Wh, Wh/unit, shifts with a violation,
+% delta against the \NS and the paired p-value. Numbers in preamble/macros.tex and
+% tools/ai/results/summary_20260920_210847.md.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Shift score over all 12 scenarios (30 seeds each, 360 shifts per policy). Paired
+           Wilcoxon signed-rank test against the \NS.}
+  \label{tab:overall}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    Policy & Score [95\,\% CI] & \si{\watt\hour} & Shifts with violation & $\Delta$ & $p$\\
+    \midrule
+    \textbf{\NSshort{} (bounded)} & \textbf{\scoreNS{}} \scoreNSci{} & 8.42 & \textbf{\violNS{}} & --- & ---\\
+    % ... fill the remaining rows from summary_20260920_210847.md
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig_score_by_scenario.png}
+  \caption{Score per policy and scenario (mean, 95\,\% bootstrap CI). Hatched bars mark policies
+           whose score includes shifts with safety violations.}
+  \label{fig:score-by-scenario}
+\end{figure}
+
+\section{What each half contributes}
+\label{sec:ablation-results}
+% ns_symbolic_only \scoreSymbolic{}, ns_estimate_only \scoreEstimateOnly{}, ns_neural_only
+% \scoreNeuralOnly{} (but \violNeuralOnly{} unsafe), ns_unbounded \scoreUnbounded{}.
+% The sentence the chapter is built towards: the network helps only while it is bounded.
+
+\section{Generalisation to unseen scenarios}
+\label{sec:generalisation}
+% \unseenNS{} against \unseenSymbolic{}, \unseenPPO{} and \unseenUnbounded{}; and the
+% \heavyUnbounded{} -> \heavyBounded{} repair on heavy_load.
+
+\section{Safety}
+\label{sec:safety-results}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig_violations.png}
+  \caption{Share of shifts containing at least one safety violation.}
+  \label{fig:violations}
+\end{figure}
+% \violNS{} for every rule-carrying policy; \violPPO{} for PPO, of which 49 of 53 occur in unseen
+% scenarios; \violNeuralOnly{} for the network without rules.
+
+\section{Throughput and energy}
+\label{sec:energy-results}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{fig_energy_throughput.png}
+  \caption{Delivered units against energy per delivered unit, averaged over all scenarios.}
+  \label{fig:energy-throughput}
+\end{figure}
+% PPO delivers slightly more but spends 10.21 Wh against 8.42 Wh and runs the battery lower.
+
+\section{Decision latency}
+\label{sec:latency}
+% ~1.5 ms per decision for the \NS, comparable for PPO; irrelevant next to a 60 s action, which is
+% the point worth making.
+
+\section{Validation against Gazebo}
+\label{sec:gazebo-validation}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.62\textwidth]{fig_gazebo_vs_sim.png}
+  \caption{Gazebo score against fast-simulator score for the same policy, scenario and seed.}
+  \label{fig:gazebo-vs-sim}
+\end{figure}
+% 20-minute shifts: energy \gazeboEnergyGap{}, score \gazeboScoreGap{}, ranking unchanged.
+% 60-minute shifts on low_battery_start: \NSshort{} \longShiftNS{} with a minimum battery of
+% \longShiftNSbattery{}, PPO \longShiftPPO{} with \longShiftPPObattery{} and a below-reserve
+% violation. This is the tier-1 safety finding reproduced with real navigation.
+
+\section{Global path planner}
+\label{sec:planner-study}
+% Short tours (WP8): Theta* fastest, -3.3 % per tour, p = 0.001.
+% Full shifts (WP9): Theta* faulty in \thetaFaults{} shifts, NavFn \navfnFaults{}, scores equal.
+% Report the failure message verbatim -- it is the evidence for the mechanism.
