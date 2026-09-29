@@ -3,6 +3,11 @@
 Where every result lives, which files are **final**, and what each number means — for writing the
 thesis without running anything. Everything listed here is committed in this repository.
 
+> **The thesis itself lives in its own private repository:**
+> <https://github.com/ArianShafagh/autonomous-industrial-mobility-thesis> (LaTeX source, the
+> appendix generator and the reference checker). This repository holds the system and the data the
+> thesis reports.
+
 > **Authoritative sources, in this order:** (1) this file for the final numbers, (2) `HANDOVER.md`
 > for how each number was produced and why decisions were made, (3) the raw files below.
 > `docs/explained/` was written on 2026-09-17, *before* the final WP9 results: its architecture and

@@ -1,6 +1,6 @@
 # Setting the project up on a new PC
 
-**Everything is in this GitHub repo** (since 2026-09-21): code, configs, trained models, all results and figures, every Gazebo log, `docs/`, `HANDOVER.md` (the full work log) and `THESIS_DATA.md` (where each final number lives).
+**Everything is in this GitHub repo** (since 2026-09-21): code, configs, trained models, all results and figures, every Gazebo log, `docs/`, `HANDOVER.md` (the full work log) and `THESIS_DATA.md` (where each final number lives). The thesis text itself is in a separate private repository, <https://github.com/ArianShafagh/autonomous-industrial-mobility-thesis>.
 
 **Only for reading and writing** (e.g. on a Mac): just clone the repo, or browse it on GitHub. Nothing needs installing; start with `THESIS_DATA.md`. Steps 1–6 below are only for *running* the system.
 

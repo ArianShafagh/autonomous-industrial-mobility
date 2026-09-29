@@ -924,3 +924,24 @@ New hard rule in `SymbolicLayer.evaluate` (it needs the whole action set, so it 
 - `worn_robot` batching (above).
 - One 60-minute shift per model is a demonstration, not a statistic; more seeds would turn it into one (~65 min wall per shift).
 
+
+---
+
+## The thesis moved to its own repository (2026-09-29)
+
+The LaTeX source lived in `thesis/` here while it was being written. It now has its own **private**
+repository, with the 17 commits of its history preserved (`git subtree split`):
+
+> <https://github.com/ArianShafagh/autonomous-industrial-mobility-thesis>
+
+It also carries the two tools that used to sit in `tools/thesis/`: `gen_appendix.py`, which
+regenerates the appendix tables from this repository's `params.yaml` and scenario files, and
+`check_refs.py`, which verifies every bibliography entry against the publisher's Crossref record.
+Both expect this repository checked out alongside.
+
+Verified before deleting: a fresh clone of the thesis repository compiles to 82 pages with pdfLaTeX
+and BibTeX, zero errors and no undefined references or citations. Nothing is lost here either ---
+the deleted files remain in this repository's history.
+
+**This repository keeps** the system, the models, every result file and log, `THESIS_DATA.md` (which
+maps each result in the thesis to the file it came from) and `HANDOVER.md`.
