@@ -945,3 +945,51 @@ the deleted files remain in this repository's history.
 
 **This repository keeps** the system, the models, every result file and log, `THESIS_DATA.md` (which
 maps each result in the thesis to the file it came from) and `HANDOVER.md`.
+
+## Validating the thesis against the project (2026-09-29)
+
+The thesis states numbers; the project holds the data they came from. Nothing connected the two,
+so a typo in a table or a stale path after the repository split would have survived to the
+defence. `tools/thesis/check_claims.py` now closes that gap: it recomputes every number in
+chapter 7 from `tools/ai/results/episodes_20260920_210847.csv` using the same estimators as
+`evaluate.py` (2000-resample bootstrap seeded at 0, paired Wilcoxon on identical seeds) and
+compares each against the LaTeX it parses out of the thesis.
+
+It checks the means, both CI bounds, deltas, p-values and unsafe-shift counts of table 7.1; every
+cell, significance star and seen/unseen label of table 7.2; the throughput, energy, charge-trip,
+minimum-battery and latency figures of sections 7.6 and 7.7; the Gazebo comparison and the
+sixty-minute table of section 7.8; all 35 constants in `macros.tex`; and the protocol constants
+of chapters 3 and 6 against `params.yaml`. 233 checks, exit code 0 when they all pass.
+
+Results of the first full run:
+
+- **233 checks pass.** Three defects were found and fixed.
+- `ppo_wp6`'s upper confidence bound read **55.8** where the data gives **55.86** — rounded down
+  instead of to nearest. Fixed to 55.9.
+- `gen_appendix.py` and `check_refs.py` still assumed they lived at `tools/thesis/` inside this
+  workspace, so both were broken by the move to the thesis repository. `gen_appendix.py` now
+  takes `--project`; `check_refs.py` looks for `refs.bib` beside itself.
+- Appendix A named `tools/thesis/gen_appendix.py`, a path that no longer exists.
+
+Two claims I suspected were wrong turned out to be right, and the first version of the checker
+was what was wrong:
+
+- "highest score among the safe policies in **eight** of the twelve scenarios" is correct. My
+  first check ranged over all nine policies and got four; the sentence follows table 7.2, so it
+  ranges over that table's four columns, and "safe" is judged per scenario. Recomputed properly:
+  eight (balanced, fault_burst, heavy_load, heavy_parts, small_buffers, section_breakdown,
+  hot_factory, aged_battery).
+- The 1800 violation-free shifts figure is right: 5 globally clean policies x 360.
+
+Other checks run at the same time: `pytest` over the three test directories — **163 passed**;
+the appendix tables regenerate **byte for byte** from `params.yaml` (only the header comment
+changed, to the tool's new path); `check_refs.py` — **24 of 26 verified, 0 needing attention**;
+the PDF builds at **82 pages, 0 errors, 0 undefined references**.
+
+One structural finding, not a defect: `macros.tex` defines 35 numbers as the single source of
+truth but only 6 are referenced in the chapters — the rest are typed as literals, which is what
+the macros existed to prevent. It matters less now that the literals are checked against the
+data, but any re-run must change the macro and grep for the old literal.
+
+`VALIDATION.md` explains the whole scheme chapter by chapter, including the one part that cannot
+be automated: whether chapter 2's sentences fairly describe the papers they cite.
