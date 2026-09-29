@@ -1,0 +1,35 @@
+run_id: run_20260929_121514
+scenario: balanced
+seed: 1
+plan: ''
+ended_by: plan_finished
+actions: 11
+succeeded: 11
+failed: 0
+sim_duration_s: 626.6
+distance_m: 116.47
+energy_drawn_wh: 1.677
+energy_charged_wh: 0.0
+battery_end_percent: 92.33
+delivered_units:
+  A: 4
+  B: 5
+  C: 0
+model: ns
+planner: NavfnDijkstra
+decisions:
+  asked: 11
+  answered_by_model: 11
+  fallback: 0
+  mean_latency_ms: 397.9
+navigation:
+  drives: 11
+  drive_attempt_failures: 0
+  timeouts: 0
+  recovered_after_retry: 0
+  goals_abandoned: 0
+  returned_to_charger: 0
+prediction_error_percent (non-charge actions, total measured vs predicted):
+  duration: -1.1
+  distance: -0.3
+  energy: -0.7
