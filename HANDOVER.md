@@ -993,3 +993,48 @@ data, but any re-run must change the macro and grep for the old literal.
 
 `VALIDATION.md` explains the whole scheme chapter by chapter, including the one part that cannot
 be automated: whether chapter 2's sentences fairly describe the papers they cite.
+
+## Chapter 2 citations checked against the papers (2026-09-29)
+
+`check_refs.py` proves a reference *exists* and that its metadata is right. It cannot prove the
+sentence citing it is fair. All 26 citations in chapter 2 were therefore read against the abstract
+of the paper itself — Crossref where the publisher deposits one (14 of 26), the publisher's page
+otherwise. **21 accurate as written, 5 corrected.** The verdicts are in `CITATION_AUDIT.md` in the
+thesis repository, each with the sentence from the abstract that supports it.
+
+One was materially wrong and would have been a fair question at the defence:
+
+- **`lee2025digitaltwinagv`** was cited for "the two-layer pattern used in this thesis ... is the
+  same pattern as digital-twin-driven approaches to AGV optimisation". The paper's abstract says
+  the opposite: *"Most existing studies, however, utilise DT only as a post-training validation
+  tool. This study proposes a novel DT-driven DRL approach in which DT actively participates in
+  both training and decision-making phases."* The thesis uses exactly the arrangement the paper
+  names as the gap it fills, so the citation claimed support from a paper that treats the approach
+  as a limitation. Now stated correctly, with a pointer to the limitations section.
+
+Four overstated their source:
+
+- **`hu2024graphworldmodels`** — cited for transparency "rather than from post-hoc explanation".
+  The paper generates its explanations by feeding the planned path into an LLM after planning, and
+  is evaluated on D4RL. The contrast did not hold.
+- **`gora2024energyprediction`** — credited with "consumption ranges against which such a model can
+  be sanity-checked". The review compares algorithms on complexity, accuracy and universality and
+  publishes no such ranges.
+- **`warita2024onlineplanning`** — the citation sat at the end of a clause about machine failure.
+  The paper is warehouse commissioning as a spatial task-allocation MDP solved with MCTS; it says
+  nothing about breakdowns. The citation now sits on the part it supports.
+- **`kozik2025explainable`** — described as arguing safety "must be symbolically auditable rather
+  than statistically inferred". It is a hybrid of deep vision and probabilistic first-order logic;
+  it uses both.
+
+Three citations turned out to be unusually exact and were left alone: `rico2025explainableenergy`
+("angular velocity and linear acceleration as the dominant predictors, with payload mass exerting
+secondary effects" — quoted almost verbatim by the thesis), `zhang2025dualresource` (action
+mask-constrained PPO for joint equipment and vehicle scheduling) and `cheng2025energysavingfjsp`
+(makespan and total energy consumption in one weighted reward).
+
+Still open: the claim that dispatching-rule baselines are the standard comparison rests on
+`chang2025hierarchicalagv`, whose abstract does not list its baselines and whose full text is
+paywalled. Very likely correct, but unconfirmed — flagged in the audit rather than asserted.
+
+Rebuilt after the edits: 82 pages, 0 errors, 0 undefined references.

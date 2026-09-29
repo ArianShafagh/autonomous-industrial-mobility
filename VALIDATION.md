@@ -21,8 +21,10 @@ A thesis sentence can go wrong in exactly four ways, and each way has its own ch
 | D | **A statement about other people's work** | "Macenski et al. introduced Nav2" | the cited paper | verify the entry, then *read the paper* |
 
 A, B and C are fully automated below. **D cannot be automated** — a script can confirm a paper
-exists and that its title and year are right, but only you can confirm the paper says what
-Chapter 2 claims it says. That is the one part still open.
+exists and that its title and year are right, but only reading the paper confirms it says what
+Chapter 2 claims. That reading has now been done for all 26 citations against their abstracts
+(`CITATION_AUDIT.md` in the thesis repository); what remains is confirming the handful of claims
+that sit in paywalled full text rather than in an abstract.
 
 ---
 
@@ -66,11 +68,16 @@ a section, and that the section reports a measurement rather than a description.
 **Validated by:** `tools/check_refs.py` confirms each entry against the Crossref record of the
 publisher — title, year, journal, authors, pages. It cannot confirm that the *sentence citing it*
 is a fair summary.
-**Status:** 24 of 26 entries verified against the publisher. Two have no DOI and were left for
-manual confirmation: `schulman2017ppo` (arXiv only) and `raffin2021sb3` (JMLR, no DOI assigned).
-**Still yours to do:** read each cited paper's abstract and confirm your sentence about it is
-accurate. This is the single biggest remaining risk in the thesis, because a misdescribed
-citation is the easiest thing for an examiner to catch and the only one no tool can catch.
+**Status:** 24 of 26 entries verified against the publisher by `check_refs.py`. Separately, on
+2026-09-29 all 26 citations were read against the **abstract of the paper itself**: 21 were
+accurate as written and **5 were corrected**. The record is `CITATION_AUDIT.md` in the thesis
+repository, which gives a verdict per citation with the supporting sentence from the abstract.
+One citation (`lee2025digitaltwinagv`) had been cited as supporting this thesis's method when the
+paper argues the opposite; that is fixed.
+**Still yours to do:** one sentence still rests on an abstract that does not confirm it — the
+claim that dispatching-rule baselines are standard practice, cited to `chang2025hierarchicalagv`,
+whose paywalled full text would settle it. Also decide on `schulman2017ppo` (arXiv only) and
+`raffin2021sb3` (JMLR, genuinely has no DOI).
 
 ### Chapter 3 — Problem
 **Claims:** the constraints (C1–C4), the objective weights, the scenario definitions.
