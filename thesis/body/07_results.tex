@@ -6,19 +6,15 @@ This chapter reports what the policies of \cref{ch:models} actually did, under t
 statistically supported are marked as such, and the interpretation is left to
 \cref{ch:discussion}.
 
-Unless stated otherwise, every figure in this chapter comes from the same experiment: nine
-policies, twelve scenarios, thirty seeds each, one simulated hour per shift --- \num{3240} shifts
-in total, all policies on identical seeds. Confidence intervals are \SI{95}{\percent} bootstrap
-intervals of the mean score; $p$-values come from paired Wilcoxon signed-rank tests against the
-\NS on the same seeds. The complete tables, including every metric for every scenario, are in the
-result files listed in \cref{app:reproduction}.
+Unless stated otherwise, every number comes from the same experiment (\cref{sec:protocol}):
+\num{3240} shifts, all policies on identical seeds, \SI{95}{\percent} bootstrap confidence
+intervals, and paired Wilcoxon tests against the \NS.
 
-One reading instruction matters throughout. Because a safety violation costs a fixed
-\num{20} points per \emph{kind} of violation (\cref{sec:metrics}) rather than per minute spent in
-the unsafe state, a policy that works through a violation can still finish a shift with a high
-score. Such a score is not a valid result: it is obtained by ignoring a constraint that the
-problem statement declares inviolable. Wherever a policy's number includes shifts with violations,
-this is marked, and in \cref{fig:score-by-scenario} those bars are hatched.
+One reading instruction matters throughout. A safety violation costs a fixed \num{20} points per
+\emph{kind} of violation rather than per minute spent unsafe, so a policy that works through a
+violation can still finish with a high score. Such a score is not a valid result: it is obtained by
+ignoring a constraint the problem declares inviolable. Wherever a number includes shifts with
+violations this is marked, and in \cref{fig:score-by-scenario} those bars are hatched.
 
 \section{Overall comparison}
 \label{sec:overall}
@@ -50,18 +46,15 @@ this is marked, and in \cref{fig:score-by-scenario} those bars are hatched.
     \end{tabular}
 \end{table}
 
-Among the policies that never violated a constraint, the \NS achieves the highest score. Its
-advantage over the rule-based reference is large (\num{12.15} points, $p<0.001$); its advantage
-over its own symbolic layer is small but consistent (\num{0.90} points, $p<0.001$), and the same
-holds against the variant in which the network is switched off entirely
-(\texttt{ns\_estimate\_only}, \num{0.96} points, $p<0.001$).
+Among the policies that never violated a constraint, the \NS achieves the highest score: ahead of
+the rule-based reference by \num{12.15} points ($p<0.001$), of its own symbolic layer by \num{0.90}
+($p<0.001$) and of the variant with the network switched off by \num{0.96} ($p<0.001$).
 
 Two policies reach comparable scores by other means. \texttt{ppo} delivers more units than any
 rule-carrying policy (\num{61.9} against \num{59.9}) and loses almost no production, but spends
 \SI{10.21}{\watt\hour} against \SI{8.42}{\watt\hour} and violates a constraint in \num{53} of its
-\num{360} shifts. \texttt{ppo\_wp6}, the earlier model trained on only four of the six training
-scenarios, is statistically indistinguishable from the \NS in score ($p=0.121$) and equally unsafe
-(\num{51}/\num{360}). The interpretation of this pattern is taken up in \cref{sec:rules-matter}.
+\num{360} shifts; \texttt{ppo\_wp6} is statistically indistinguishable from the \NS in score
+($p=0.121$) and equally unsafe (\num{51}/\num{360}). \Cref{sec:rules-matter} takes up that pattern.
 
 \begin{figure}[H]
     \centering
@@ -118,18 +111,12 @@ the per-scenario breakdown rather than instead of it.
 \section{What each half contributes}
 \label{sec:ablation-results}
 
-The ablations isolate the two halves of the model. Switching the network off but keeping the rules
-and the analytic estimate (\texttt{ns\_estimate\_only}) costs \num{0.96} points overall
-($p<0.001$); replacing the analytic estimate by the symbolic layer's own cheapest-per-unit
-ranking (\texttt{ns\_symbolic\_only}) costs \num{0.90} points ($p<0.001$). Removing the rules
-instead and letting the network decide alone (\texttt{ns\_neural\_only}) produces a score that is
-not significantly different from the full model over all scenarios ($p=0.109$) --- but reaches it
-while violating a constraint in \num{57} of \num{360} shifts.
-
-The most informative ablation is \texttt{ns\_unbounded}: the same network, the same rules, the
-same training, with the only difference that its correction is not limited
-(\cref{sec:bounded-correction}). Over all scenarios it scores \num{2.25} points less than the
-bounded model ($p<0.001$). \Cref{tab:splits} shows where that difference comes from.
+Removing the rules and letting the network decide alone (\texttt{ns\_neural\_only}) gives a score
+not significantly different from the full model ($p=0.109$) --- reached while violating a constraint
+in \num{57} of \num{360} shifts. The most informative ablation is \texttt{ns\_unbounded}: the same
+network, rules and training, with the only difference that its correction is not limited
+(\cref{sec:bounded-correction}). It scores \num{2.25} points less overall ($p<0.001$), and
+\cref{tab:splits} shows where that difference comes from.
 
 \begin{table}[H]
     \centering
@@ -162,22 +149,18 @@ it from becoming harmful where its training no longer applies.
 \section{Generalisation}
 \label{sec:generalisation}
 
-Every policy scores lower on the unseen scenarios than on the seen ones, which is expected: those
-six scenarios were written to be harder. What differs is how much each policy loses and what it
-sacrifices.
+Every policy scores lower on the unseen scenarios, which is expected: they were written to be
+harder. What differs is how much each loses and what it sacrifices. The clearest case is
+\texttt{heavy\_load}, a factory producing beyond what one robot can carry: the unbounded model
+scores \num{33.78} against the bounded model's \num{54.88} ($p<0.001$), by far the largest effect of
+the bound anywhere in the evaluation and the observation that motivated it. Both variants are safe;
+the difference is entirely lost production, \num{30.06} against \num{21.84} units.
 
-The clearest case is \texttt{heavy\_load}, a factory producing beyond what one robot can carry.
-Here the unbounded model scores \num{33.78} and the bounded one \num{54.88}, a difference of
-\num{21.11} points ($p<0.001$) --- by far the largest effect of the bound anywhere in the
-evaluation, and the observation that motivated it (\cref{sec:bounded-correction}). Both variants
-are safe; the difference is entirely lost production, \num{30.06} against \num{21.84} units.
-
-Two policies score higher than the \NS under \texttt{heavy\_load}: \texttt{ns\_neural\_only} with
-\num{77.73} and \texttt{ppo} with \num{59.47}. Both do so by working the battery down to a
-minimum of \SI{3.4}{\percent} and \SI{1.4}{\percent} respectively, and both violate the reserve
-constraint in \num{30} and \num{29} of their \num{30} shifts. Under the rules of
-\cref{sec:constraints} these are not better solutions to the problem but solutions to a different,
-unconstrained one.
+Two policies score higher there --- \texttt{ns\_neural\_only} with \num{77.73} and \texttt{ppo} with
+\num{59.47} --- by working the battery down to \SI{3.4}{\percent} and \SI{1.4}{\percent} and
+violating the reserve in \num{30} and \num{29} of their \num{30} shifts. Under
+\cref{sec:constraints} these are not better solutions but solutions to a different, unconstrained
+problem.
 
 \section{Safety}
 \label{sec:safety-results}
@@ -215,35 +198,29 @@ learning the constraint from a reward signal rather than from having seen too fe
 \end{figure}
 
 The rule-based reference is by far the most energy-efficient policy (\SI{0.099}{\watt\hour} per
-delivered unit against \SI{0.150}{\watt\hour} for the \NS), and it achieves this by charging often
---- \num{7.1} charging trips per shift against \num{2.8} --- and therefore spending much of the
-shift parked, where idling is paid by the charger rather than by the battery. Its throughput
-suffers accordingly: \num{51.6} delivered units against \num{59.9}, and \num{7.47} lost units
-against \num{1.90}. This accounting asymmetry is a known limitation of the objective and is
-discussed in \cref{sec:limitations}.
-
-\texttt{ppo} sits at the opposite end: it delivers the most units of any policy
-(\num{61.9}) and spends the most energy (\SI{10.21}{\watt\hour}, \SI{0.180}{\watt\hour} per unit),
-with the lowest mean minimum battery of the safe-scoring policies (\SI{45.0}{\percent} against
-\SI{59.0}{\percent} for the \NS). Its behaviour is consistent: drive more, charge less, stay closer
-to the limits.
+delivered unit against \SI{0.150}{\watt\hour} for the \NS), achieved by charging often ---
+\num{7.1} trips per shift against \num{2.8} --- and therefore spending much of the shift parked,
+where idling is paid by the charger rather than the battery; its throughput suffers accordingly
+(\num{51.6} units against \num{59.9}, \num{7.47} lost against \num{1.90}). That accounting
+asymmetry is discussed in \cref{sec:limitations}. \texttt{ppo} sits at the opposite end: most units
+delivered (\num{61.9}), most energy spent (\SI{10.21}{\watt\hour}) and the lowest mean minimum
+battery of the safe-scoring policies (\SI{45.0}{\percent} against \SI{59.0}{\percent}).
 
 \section{Decision latency}
 \label{sec:latency}
 
 Mean time per decision was \SI{1.46}{\milli\second} for the \NS, \SI{1.39}{\milli\second} for the
-symbolic layer alone, \SI{2.67}{\milli\second} for \texttt{ppo}, measured on the evaluation
-machine excluding the first decision of each shift, which loads the model. Since one action lasts
-between \SI{30}{\second} and several minutes, decision time is irrelevant to the result for every
-policy tested; it is reported only to establish that neither approach is disqualified by its
-computational cost.
+symbolic layer alone and \SI{2.67}{\milli\second} for \texttt{ppo}. Since one action lasts from
+\SI{30}{\second} to several minutes, decision time is irrelevant to the result for every policy
+tested; it is reported only to show that neither approach is disqualified by its computational
+cost.
 
 \section{Validation against the full simulation}
 \label{sec:gazebo-validation}
 
-All numbers so far come from the fast simulator. To establish what they are worth, twelve complete
-shifts were driven in Gazebo with the full navigation stack, and each was replayed in the fast
-simulator with the same policy, scenario and seed (\cref{sec:gazebo-setup}).
+All numbers so far come from the fast simulator. Twelve complete shifts were therefore driven in
+Gazebo with the full navigation stack and each replayed in the fast simulator on the same policy,
+scenario and seed (\cref{sec:gazebo-setup}).
 
 \begin{figure}[H]
     \centering
@@ -253,17 +230,16 @@ simulator with the same policy, scenario and seed (\cref{sec:gazebo-setup}).
     \label{fig:gazebo-vs-sim}
 \end{figure}
 
-Over the eleven shifts that ran to completion, the fast simulator and Gazebo agree closely on
-energy and slightly less on throughput: mean energy \SI{3.24}{\watt\hour} against
-\SI{3.24}{\watt\hour} (\SI{+0.2}{\percent}), delivered units \num{23.7} against \num{25.0}
-(\SI{-5.1}{\percent}), score \num{21.99} against \num{23.32} (\SI{-5.7}{\percent}). The Gazebo runs
-are consistently the slightly weaker ones: real driving loses a few seconds per leg to
-acceleration, recovery behaviours and arrival tolerances, which over a twenty-minute shift costs
-about one delivered unit. No completed shift contained a safety violation on either side, and the
-ordering of the policies was the same in both.
+Over the eleven shifts that ran to completion the two agree closely on energy and slightly less on
+throughput: \SI{3.24}{\watt\hour} against \SI{3.24}{\watt\hour} (\SI{+0.2}{\percent}), \num{23.7}
+delivered units against \num{25.0} (\SI{-5.1}{\percent}), score \num{21.99} against \num{23.32}
+(\SI{-5.7}{\percent}). Gazebo is consistently the weaker of the two: real driving loses a few
+seconds per leg to acceleration, recovery behaviours and arrival tolerances, about one delivered
+unit over a twenty-minute shift. No completed shift contained a violation on either side, and the
+ordering of the policies was identical.
 
-Twenty-minute shifts are, however, too short for the battery to become critical, which is where
-the policies differ most. One full sixty-minute shift was therefore driven per model on
+Twenty minutes is, however, too short for the battery to become critical, which is where the
+policies differ most; one sixty-minute shift was therefore driven per model on
 \texttt{low\_battery\_start} (\cref{tab:longshift}).
 
 \begin{table}[H]
@@ -292,13 +268,10 @@ real timing and real recovery behaviour.
 \label{sec:planner-study}
 
 The decision layer chooses destinations; a global planner chooses the route. Five Nav2 planners
-were compared, first on short tours and then over complete shifts, with the same controller in
-every case so that only the planner differs.
-
-On the short benchmark --- a fixed seven-leg tour, five repeats per planner --- Theta$^{*}$ was the
-fastest, completing a tour in \SI{147.8(9)}{\second} against \SI{152.7(19)}{\second} for the NavFn
-Dijkstra planner ($p=0.001$), with about half the total turning and the shortest planning times.
-On that evidence it was made the default.
+were compared with the same controller throughout, so that only the planner differs. On a short
+benchmark --- a fixed seven-leg tour, five repeats each --- Theta$^{*}$ was fastest at
+\SI{147.8(9)}{\second} against \SI{152.7(19)}{\second} for NavFn Dijkstra ($p=0.001$), with about
+half the turning and the shortest planning times, and was made the default on that evidence.
 
 Over full twenty-minute shifts the picture reversed. In five repetitions of an identical shift per
 planner, three of the five Theta$^{*}$ shifts contained navigation faults --- six planner-loop
@@ -311,25 +284,3 @@ every Gazebo shift driven in this work, Theta$^{*}$ produced faults in \num{6} o
 and NavFn in \num{0} of \num{5}. The speed advantage did not survive either: over whole shifts the
 two planners scored \num{18.07} (sd \num{1.61}) and \num{17.75} (sd \num{1.23}), a difference well
 inside the run-to-run spread. NavFn Dijkstra was therefore restored as the default.
-
-\section{Summary}
-\label{sec:results-summary}
-
-\begin{itemize}[leftmargin=*]
-  \item Among policies that never violated a constraint, the \NS scored highest overall
-        (\num{53.81}), ahead of its symbolic layer alone (\num{52.91}, $p<0.001$) and the
-        rule-based reference (\num{41.66}, $p<0.001$).
-  \item Bounding the neural correction is worth almost nothing on the training scenarios
-        ($p=0.058$) and \num{3.87} points on unseen ones ($p<0.001$), with the largest single
-        effect in \texttt{heavy\_load} (\num{54.88} against \num{33.78}).
-  \item Every policy carrying the symbolic rules completed \num{1800} shifts without a violation;
-        every policy without them violated constraints in \SIrange{11.7}{15.8}{\percent} of shifts,
-        mostly in scenarios outside their training.
-  \item \texttt{ppo} matches the \NS on score in seen scenarios ($p=0.213$) by delivering more and
-        spending \SI{21}{\percent} more energy, and is unsafe in \num{49} of its \num{180} unseen
-        shifts.
-  \item The fast simulator agrees with the full Gazebo simulation to \SI{0.2}{\percent} on energy
-        and \SI{5.7}{\percent} on score, and the safety difference between the \NS and
-        \texttt{ppo} reproduces in a full-length Gazebo shift.
-  \item A planner selected on short tours proved unreliable over full shifts, and was replaced.
-\end{itemize}

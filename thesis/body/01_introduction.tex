@@ -22,10 +22,10 @@ that is lost for good, not postponed. Charging early costs working time the shif
 back; charging late risks a robot stranded in a corridor, which requires a person to walk in and
 fetch it --- exactly the outcome an autonomous system exists to avoid.
 
-These decisions have to be made continuously, from a state that keeps changing and is partly
-random: buffers fill at irregular rates, machines degrade and occasionally break down, the
-battery drains faster when the robot is loaded or its motors are hot. This is the problem industrial
-mobile robots actually face once navigation works, and it is the subject of this thesis.
+These decisions are made continuously, from a state that keeps changing and is partly random:
+buffers fill irregularly, machines degrade and break down, the battery drains faster when the robot
+is loaded or hot. This is the problem industrial mobile robots face once navigation works, and it
+is the subject of this thesis.
 
 \section{Problem statement}
 \label{sec:problem-statement}
@@ -85,25 +85,20 @@ four answers together.
         breaks a constraint: \num{53.81} against \num{52.35} for deep reinforcement learning and
         \num{41.66} for a rule-based reference (\cref{sec:overall}).
 
-  \item \textbf{A bounded neural correction}, the central technical contribution. The network may
+  \item \textbf{A bounded neural correction}, the central technical contribution: the network may
         adjust the analytic value of an action by at most one score unit relative to its
-        alternatives, so it can settle close calls but can never overturn clear evidence
-        (\cref{sec:bounded-correction}). The bound was selected on training scenarios alone and is
-        worth \num{3.87} points on scenarios the model had never seen.
-
-  \item \textbf{The observation that motivated it}: without the bound, the network carried a habit
-        from its training scenarios --- waiting to accumulate a fuller load --- into an overloaded
-        factory it had never seen, and waited while all three production lines stood still, against
-        the explicit judgement of its own symbolic estimate (\cref{sec:bounded-correction}).
+        alternatives, settling close calls but never overturning clear evidence
+        (\cref{sec:bounded-correction}). It was motivated by an observation --- unbounded, the
+        network carried a habit from its training scenarios into an overloaded factory it had never
+        seen and waited while all three production lines stood still --- and, selected on training
+        scenarios alone, is worth \num{3.87} points on scenarios the model had never seen.
 
   \item \textbf{An evaluation designed to be believed}: nine policies on identical seeds, six
         scenarios written after training and never used for it, paired non-parametric statistics,
         and validation of the fast simulator against complete shifts in Gazebo, where energy agrees
-        to \SI{0.2}{\percent} and the safety difference between the two approaches reproduces
-        (\cref{ch:setup,sec:gazebo-validation}).
-
-  \item \textbf{A planner study with a transferable lesson}: the global path planner selected on
-        short benchmark tours proved unreliable over full shifts and had to be replaced
+        to \SI{0.2}{\percent} and the safety difference reproduces
+        (\cref{ch:setup,sec:gazebo-validation}), together with a planner study whose lesson
+        transfers: the planner selected on short benchmark tours proved unreliable over full shifts
         (\cref{sec:planner-study}).
 \end{itemize}
 

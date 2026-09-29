@@ -155,7 +155,8 @@ def scenarios_table(training):
              r">{\raggedright\arraybackslash}p{7.45cm}}",
              r"    \caption{The twelve scenarios: what each one changes and what it stresses. "
              r"``Seen'' scenarios are available for training, ``unseen'' ones were written "
-             r"afterwards and are used only for evaluation.}\label{tab:scenarios-full}\\",
+             r"afterwards and are used only for evaluation. The exact parameter overrides are in "
+             r"the scenario files of the repository.}\label{tab:scenarios-full}\\",
              r"    \toprule",
              r"    Scenario & Split & Description and parameter overrides\\",
              r"    \midrule", r"    \endfirsthead",
@@ -164,10 +165,6 @@ def scenarios_table(training):
              r"    \midrule", r"    \endhead"]
     for key, split, description, overrides in rows:
         detail = escape(description)
-        if overrides:
-            detail += (r"\newline{\scriptsize\ttfamily "
-                       + escape("; ".join(overrides)).replace("\\_", "\\_\\allowbreak ")
-                       + "}")
         lines.append(f"    \\texttt{{{escape(key)}}} & {split} & {detail}\\\\[2pt]")
     lines += [r"    \bottomrule", r"\end{longtable}", r"\end{spacing}", ""]
     path = os.path.join(OUT, "scenarios.tex")

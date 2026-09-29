@@ -1,21 +1,18 @@
 \chapter{Problem Setting}
 \label{ch:problem}
 
-This chapter describes the world the robot works in, the choices it has, and the yardstick by
-which its behaviour is judged. Everything stated here is a property of the problem, fixed before
-any solution is designed; the decision models that answer it follow in \cref{ch:models}. The
-chapter closes by showing, with the numbers of the setting itself, why the question
-\emph{what should the robot do next?} has no obvious answer.
+This chapter defines the world the robot works in, the choices it has and the yardstick its
+behaviour is judged by --- all properties of the problem, fixed before any solution is designed ---
+and closes by showing, from the setting's own numbers, why \emph{what should the robot do next?}
+has no obvious answer.
 
 \section{The factory}
 \label{sec:factory}
 
-The setting is a single production hall of \SI{14.5}{\metre} by \SI{10}{\metre}, laid out as a
-maze of walls, machines and corridors (\cref{fig:maze}). Three production sections, named A, B and
-C, stand in different regions of the hall. Each of them manufactures finished units and places
-them in a local output buffer. A single delivery point in the south of the hall accepts finished
-units, and a single charging station in the south-west corner is where the robot starts its shift
-and the only place it can recharge.
+The setting is a production hall of \SI{14.5}{\metre} by \SI{10}{\metre}, laid out as a maze
+(\cref{fig:maze}). Three production sections A, B and C stand in different regions; each
+manufactures finished units into a local output buffer. One delivery point accepts finished units
+and one charging station, where the robot starts its shift, is the only place it can recharge.
 
 \begin{figure}[H]
     \centering
@@ -27,12 +24,10 @@ and the only place it can recharge.
     \label{fig:maze}
 \end{figure}
 
-The geometry is not decorative. Two properties of it shape the decision problem. First, the
-distances between the points of interest differ by almost a factor of three
-(\cref{tab:distances}), so the order in which sections are served changes how far the robot
-drives and therefore how much energy it spends. Second, several pairs of points are connected by
-more than one route, and the shortest route is not always the one a planner finds --- a fact that
-becomes important in \cref{sec:planner-study}.
+The geometry is not decorative. Distances between the points of interest differ by almost a factor
+of three (\cref{tab:distances}), so the order in which sections are served changes how far the
+robot drives and how much energy it spends; and several pairs are connected by more than one
+route, which becomes important in \cref{sec:planner-study}.
 
 \begin{table}[H]
     \centering
@@ -52,13 +47,11 @@ becomes important in \cref{sec:planner-study}.
     \end{tabular}
 \end{table}
 
-The three sections are deliberately unequal (\cref{tab:sections}). Section~B is the fast line: it
-produces one unit every two minutes, and its buffer of ten units is full after twenty minutes of
-neglect. Section~A is half as fast with a slightly larger reserve of time. Section~C produces only
-one unit every twelve minutes, but its units are almost four times as heavy as B's and its buffer holds
-just three of them, so it can be ignored for a while --- but not forgotten. Production is not
-perfectly regular: cycle times are drawn from a Gamma distribution with a coefficient of variation
-of \num{0.15}, so buffers do not fill on a predictable schedule.
+The three sections are deliberately unequal (\cref{tab:sections}). Section~B is the fast line, full
+after twenty minutes of neglect; A is half as fast; C produces one unit every twelve minutes, but
+its units are almost four times as heavy as B's and its buffer holds only three, so it can be
+ignored for a while --- but not forgotten. Cycle times are drawn from a Gamma distribution with a
+coefficient of variation of \num{0.15}, so buffers do not fill on a predictable schedule.
 
 \begin{table}[H]
     \centering
@@ -76,78 +69,72 @@ of \num{0.15}, so buffers do not fill on a predictable schedule.
     \end{tabular}
 \end{table}
 
-What turns this into a problem rather than a chore is the consequence of a full buffer. A section
-whose buffer is full cannot put the next finished unit anywhere, so the line stops: it enters the
-state \textsc{blocked}, and everything it would have produced while blocked is lost for good. Lost
-production cannot be recovered later by working harder, which is precisely why the robot's
-decisions matter. Two further states model the wear of the machines themselves. A machine's health
-decreases slowly with every unit it makes; below \SI{60}{\percent} health it runs at a reduced
-rate (\textsc{degraded}), and it can break down entirely (\textsc{fault}), which stops production
-for a repair of about twenty minutes. Faults are more likely the less healthy a machine is.
+What makes this a problem rather than a chore is the consequence of a full buffer: the line cannot
+put the next unit anywhere, so it stops (\textsc{blocked}) and everything it would have produced
+while blocked is lost for good. Lost production cannot be recovered by working harder later, which
+is why the robot's decisions matter. Machine health additionally decreases with every unit
+produced, reduces the rate below \SI{60}{\percent} health (\textsc{degraded}), and raises the
+hazard of a breakdown (\textsc{fault}) that stops the line for a repair of about twenty minutes.
 
 \section{The robot}
 \label{sec:robot}
 
-The transport robot is a small differential-drive platform of the TurtleBot class: \SI{4.3}{\kilo\gram},
-a two-dimensional lidar for localisation, and a single-board computer. Its measured average speed
-through this maze, turns included, is \SI{0.39}{\metre\per\second}. It carries at most
-\SI{5}{\kilo\gram} at a time, and loading or unloading takes \SI{30}{\second} of standing still.
+The transport robot is a small differential-drive platform of the TurtleBot class
+(\SI{4.3}{\kilo\gram}, lidar localisation), whose measured average speed through this maze, turns
+included, is \SI{0.39}{\metre\per\second}. It carries at most \SI{5}{\kilo\gram}, and loading or
+unloading takes \SI{30}{\second} of standing still. Four modelled properties constrain what it can
+do (\cref{tab:robot}); the full parameter set is in \cref{app:configuration}.
 
-Four physical properties constrain what it can do, and all four are modelled explicitly rather
-than assumed away (the full parameter set is in \cref{app:configuration}):
+\begin{table}[H]
+    \centering
+    \begin{spacing}{1.0}
+    \caption{The robot's physical constraints and the parameters that express them.}
+    \label{tab:robot}
+    \small
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        Property & Model\\
+        \midrule
+        Energy & \SI{6}{\watt} whenever switched on, plus \SI{0.005}{\watt\hour\per\metre} driving
+                 empty and \SI{0.00116}{\watt\hour\per\metre} per carried kilogram; a
+                 \SI{22}{\watt\hour} battery, roughly \SI{1.7}{\hour} of continuous driving.\\
+        Charging & \SI{25}{\watt}, so a full recharge costs about an hour of working time --- which
+                 is why the robot chooses \emph{how far} to charge, not only whether to.\\
+        Heat & Motors reach about \SI{55}{\degreeCelsius} at continuous load in a
+                 \SI{22}{\degreeCelsius} hall; above that wear accelerates, and at
+                 \SI{70}{\degreeCelsius} the robot must stop and cool. A heavy payload heats it
+                 faster.\\
+        Wear & Drive condition degrades with energy drawn and time spent hot. A fully worn drive
+                 draws \SI{30}{\percent} more energy for the same journey, and below
+                 \SI{30}{\percent} condition the robot is due for maintenance.\\
+        \bottomrule
+    \end{tabularx}
+    \end{spacing}
+\end{table}
 
-\begin{description}[leftmargin=1.2em, style=nextline]
-  \item[Energy.] The robot draws \SI{6}{\watt} whenever it is switched on, plus
-        \SI{0.005}{\watt\hour\per\metre} while driving empty and a further
-        \SI{0.00116}{\watt\hour\per\metre} for every kilogram it carries. Its battery holds
-        \SI{22}{\watt\hour}, which is roughly \SI{1.7}{\hour} of continuous driving --- enough for
-        a shift only if the robot does not drive needlessly.
-  \item[Charging.] The charging station delivers \SI{25}{\watt}, so a full recharge takes about an
-        hour. Charging is therefore not a pause but a decision with a real cost in lost working
-        time, which is why the robot can choose \emph{how far} to charge rather than only whether
-        to.
-  \item[Heat.] The motors warm up under load and cool down when idle, reaching a steady state of
-        about \SI{55}{\degreeCelsius} at continuous full load in a \SI{22}{\degreeCelsius} hall.
-        Above \SI{55}{\degreeCelsius} wear accelerates; at \SI{70}{\degreeCelsius} the robot must
-        stop and cool down. A heavy payload heats it faster.
-  \item[Wear.] The drivetrain's condition degrades with energy drawn and with time spent hot. A
-        worn drive is not merely old: at \SI{0}{\percent} condition it draws \SI{30}{\percent} more
-        energy for the same journey, and below \SI{30}{\percent} the robot is due for maintenance
-        and may no longer be given work.
-\end{description}
-
-These properties interact. Carrying more units per trip saves journeys but costs energy per metre
-and heats the motors faster; driving with a hot motor costs extra energy through reduced
-efficiency; and every watt-hour drawn wears the drive a little further, which in turn makes future
-journeys more expensive.
+These interact: more payload saves journeys but costs energy per metre and heats the motors, a hot
+motor costs extra energy through reduced efficiency, and every watt-hour drawn wears the drive
+further, making future journeys more expensive.
 
 \section{What the robot can do}
 \label{sec:actions}
 
-The robot's behaviour is expressed as a sequence of complete actions rather than as continuous
-motion. One action is one decision, and the next decision is only taken when the current action
-has finished. Four kinds of action exist:
+Behaviour is expressed as complete actions rather than continuous motion: one action is one
+decision, and the next decision is taken only when the current action has finished.
+\texttt{PICKUP:<A|B|C>} drives to a section and loads as many waiting units as still fit;
+\texttt{DELIVER} drives to the delivery point and unloads everything carried, which is the only way
+units become value; \texttt{CHARGE:<40|70|100>} charges to the chosen level, making the trade-off
+between a quick top-up and longer independence explicit; and \texttt{WAIT} stands still for sixty
+seconds, which is free at the charging station and merely costs idle power anywhere else.
 
-\begin{description}[leftmargin=1.2em, style=nextline]
-  \item[\texttt{PICKUP:<A|B|C>}] Drive to the named section and load as many waiting units as
-        still fit within the payload limit, emptying that much of its buffer.
-  \item[\texttt{DELIVER}] Drive to the delivery point and unload everything carried. Only delivered
-        units count as produced value.
-  \item[\texttt{CHARGE:<40|70|100>}] Drive to the charging station and charge up to the chosen
-        level. Offering three levels makes the trade-off explicit: a quick top-up returns the robot
-        to work sooner, a full charge buys independence for longer.
-  \item[\texttt{WAIT:<s>}] Stand still for sixty seconds. At the charging station this is free and
-        tops up the battery; anywhere else it merely spends idle power.
-\end{description}
-
-Driving itself is not part of the decision problem. A navigation stack plans and follows the route,
-recovers from obstacles, and reports success or failure (\cref{sec:executor}); the decision layer
+Driving itself is not part of the decision problem. A navigation stack plans the route, follows it,
+recovers from obstacles and reports success or failure (\cref{sec:executor}); the decision layer
 chooses \emph{where} to go, never \emph{how} to get there.
 
 \section{What counts as a good shift}
 \label{sec:objective}
 
-A shift lasts one hour of factory time. Everything the robot does during it is judged by a single
+A shift lasts one hour of factory time, and everything the robot does in it is judged by one
 number, so that different behaviours can be compared without argument:
 
 \begin{equation}
@@ -158,77 +145,57 @@ number, so that different behaviours can be compared without argument:
         \;-\; 20\,n_{\text{violations}}
 \end{equation}
 
-where $n_{\text{delivered}}$ is the number of units brought to the delivery point,
-$n_{\text{lost}}$ the production lost while lines stood blocked, $E_{\text{battery}}$ the energy
-drawn from the battery in watt-hours, and $n_{\text{violations}}$ the number of safety violations
-(defined in \cref{sec:constraints}).
+with $n_{\text{delivered}}$ the units brought to the delivery point, $n_{\text{lost}}$ the
+production lost while lines stood blocked, $E_{\text{battery}}$ the energy drawn from the battery in
+watt-hours and $n_{\text{violations}}$ the safety violations defined below.
 
-The weights encode a position that is worth stating plainly. A delivered unit and a lost unit
-weigh the same, because a unit that never got made is as costly as one that never arrived. Energy
-is deliberately cheap: at \num{0.5} per watt-hour, and with a measured journey between two points of the hall costing
-roughly \SIrange{0.18}{0.25}{\watt\hour}, no reasonable policy can improve its score by refusing to work --- energy is a
-tie-breaker between journeys, not a reason to stay at home. A safety violation, in contrast, costs
-twenty units, far more than any shift's worth of careful energy saving, because a stranded or
-overheated robot is not a slightly worse outcome but a different kind of outcome: it requires a
-human being to walk into the hall.
-
-Two things this objective deliberately does not charge for. Time spent idle is free, since the
-shift has a fixed length and an idle robot in a calm factory harms nothing. And only energy drawn
-\emph{from the battery} is counted, not the energy the charging station supplies while the robot
-is docked. The second choice is a simplification whose consequences are revisited honestly in
+The weights encode a position worth stating. A delivered unit and a lost unit weigh the same,
+because a unit never made is as costly as one never arrived. Energy is deliberately cheap --- a
+measured journey across the hall costs \SIrange{0.18}{0.25}{\watt\hour} --- so it is a tie-breaker
+between journeys, not a reason to stay at home. A violation costs twenty units, far more than any
+shift's worth of careful saving, because a stranded or overheated robot is a different kind of
+outcome: it requires a person to walk into the hall. Idle time and the energy the charger supplies
+while the robot is docked are deliberately not charged for, a simplification revisited in
 \cref{sec:limitations}.
 
 \section{Constraints}
 \label{sec:constraints}
 
 Four conditions must hold at all times, and breaking any of them counts as a safety violation in
-\cref{eq:objective}:
+\cref{eq:objective}: \textbf{(C1)} at least \SI{15}{\percent} of the battery must remain after the
+robot has returned to the charging station; \textbf{(C2)} motor temperature must stay below
+\SI{70}{\degreeCelsius}; \textbf{(C3)} the robot may never plan to carry more than
+\SI{5}{\kilo\gram}; and \textbf{(C4)} below \SI{30}{\percent} drive condition it may only charge or
+wait.
 
-\begin{enumerate}[label=\textbf{C\arabic*.}, leftmargin=*]
-  \item \textbf{Battery reserve.} At least \SI{15}{\percent} of the pack must remain after the robot
-        has returned to the charging station. The reserve is not a threshold on the current battery
-        level but on the level \emph{after the journey home}, which means the constraint depends on
-        where the robot is and what it is carrying.
-  \item \textbf{Temperature.} Motor temperature must stay below \SI{70}{\degreeCelsius}.
-  \item \textbf{Payload.} The robot may never plan to carry more than \SI{5}{\kilo\gram}.
-  \item \textbf{Maintenance.} Below \SI{30}{\percent} drive condition the robot may only charge or
-        wait; it is no longer fit for transport work.
-\end{enumerate}
-
-Constraint~C1 is the interesting one, because it cannot be checked by looking at the battery
-gauge. Answering \emph{may I fetch from section~B?} requires simulating the whole journey ---
-there, loaded, and home again --- through the robot's own energy, thermal and wear models. The
-same question asked with a hot motor, a heavy load or a worn drive has a different answer.
+C1 is the interesting one, because it cannot be checked by reading the battery gauge. Answering
+\emph{may I fetch from section~B?} requires simulating the whole journey --- there, loaded, and home
+again --- through the robot's own energy, thermal and wear models, and the same question asked with
+a hot motor, a heavy load or a worn drive has a different answer.
 
 \section{Why the problem is not trivial}
 \label{sec:why-hard}
 
-The setting was designed so that no simple rule is obviously right. Three pieces of arithmetic
-show why.
+Three pieces of arithmetic show that no simple rule is obviously right.
 
-\paragraph{The robot is not comfortably faster than the factory.}
-At nominal rates the three lines together produce \num{55} units per hour with a combined mass of
-\SI{29.5}{\kilo\gram}. With a payload limit of \SI{5}{\kilo\gram}, at least six loaded deliveries
-per hour are needed just to keep pace, and each of them costs travel time to the section, loading,
-travel to the delivery point and unloading. The robot has enough capacity for the nominal factory,
-but not much to spare --- and the scenarios in \cref{sec:scenarios} include days where the demand
-exceeds what one robot can carry, so that some loss is unavoidable and the only question is how
-little.
+At nominal rates the three lines produce \num{55} units per hour weighing
+\SI{29.5}{\kilo\gram}; with a payload limit of \SI{5}{\kilo\gram}, at least six loaded deliveries
+per hour are needed merely to keep pace. The robot has enough capacity for the nominal factory and
+little to spare --- and some scenarios exceed what one robot can carry, so that the only question
+is how little is lost.
 
-\paragraph{Urgency and cost point in different directions.}
-Section~B fills fastest and is therefore usually the most urgent, but it is also the section
-farthest from the charging station (\SI{15.18}{\metre}) and from section~A
-(\SI{18.28}{\metre}). Section~C fills slowest, but sits closest to the delivery point
+Urgency and cost point in different directions. Section~B fills fastest and is therefore usually
+the most urgent, but it is also farthest from the charging station (\SI{15.18}{\metre}) and from
+section~A (\SI{18.28}{\metre}). Section~C fills slowest but sits closest to the delivery point
 (\SI{6.30}{\metre}) and carries the heaviest units, so serving it is cheap per journey and
-expensive per kilogram. A policy that always serves the most urgent line drives further than one
-that batches nearby work; a policy that always minimises distance eventually lets a line block.
+expensive per kilogram. Always serving the most urgent line drives further than batching nearby
+work; always minimising distance eventually lets a line block.
 
-\paragraph{Charging competes with everything else.}
-Recharging from empty takes about an hour at \SI{25}{\watt} --- a whole shift. A robot that charges
-too early gives up working time it cannot get back; one that charges too late violates C1, and the
-penalty for that is worth twenty delivered units. Because the reserve must hold \emph{after} the
-journey home, the moment at which charging becomes unavoidable depends on where the robot happens
-to be standing.
+Charging competes with everything else. Recharging from empty takes about an hour --- a whole shift
+--- so charging too early gives up working time that cannot be recovered, and charging too late
+violates C1 at a penalty worth twenty delivered units. Because the reserve must hold \emph{after}
+the journey home, the moment at which charging becomes unavoidable depends on where the robot
+happens to be standing.
 
 None of these tensions can be resolved once and written down as a fixed order of visits, because
 the state that decides them --- buffer fills, machine health, battery, temperature, condition ---
@@ -237,44 +204,17 @@ changes continuously and partly at random.
 \section{Scenarios}
 \label{sec:scenarios}
 
-A single factory configuration would measure very little, so the problem is instantiated in twelve
-scenarios (\cref{tab:scenarios}). Each one changes the parameters of \cref{sec:factory} or
-\cref{sec:robot} --- production rates, buffer sizes, unit masses, machine health, ambient
-temperature, battery capacity or the robot's initial state --- while the objective and the
-constraints stay the same.
+The problem is instantiated in twelve scenarios, listed with their parameter overrides in
+\cref{app:scenarios}. Each changes the parameters of this chapter --- production rates, buffer
+sizes, unit masses, machine health, ambient temperature, battery capacity or the robot's initial
+state --- while the objective and the constraints stay the same.
 
-Six of the scenarios were written before the decision models were trained, and both learned models
-in \cref{ch:models} use exactly those six. The other six were written afterwards, when the models
-already existed, and are never used for training or for selecting a model. They therefore measure
+Six of them were written before the decision models were trained, and both learned models in
+\cref{ch:models} use exactly those six. The other six were written afterwards, when the models
+already existed, and are never used for training or model selection. They therefore measure
 something the first six cannot: whether a policy still behaves sensibly in a factory it has never
 seen. This separation is what makes \cref{sec:generalisation} a measurement rather than a claim,
 and it is maintained down to the random seeds (\cref{sec:splits}).
-
-\begin{table}[H]
-    \centering
-    \caption{The twelve scenarios. ``Seen'' scenarios are available for training; ``unseen''
-             scenarios were written after training and are used only for evaluation.}
-    \label{tab:scenarios}
-    \begin{tabularx}{\textwidth}{llX}
-        \toprule
-        Scenario & Split & What it stresses\\
-        \midrule
-        \texttt{balanced}          & seen   & Nominal rates, rare faults, healthy fully charged robot.\\
-        \texttt{high\_demand}      & seen   & All lines at twice the nominal rate; robot utilisation about \num{0.85}.\\
-        \texttt{one\_hot\_section} & seen   & Section~B at double speed, blocking within ten minutes if neglected.\\
-        \texttt{fault\_burst}      & seen   & Worn machines failing about once per hour with long repairs.\\
-        \texttt{low\_battery\_start} & seen & Robot starts at \SI{30}{\percent} battery with buffers already half full.\\
-        \texttt{worn\_robot}       & seen   & Drive condition \SI{45}{\percent}: more energy per metre, close to the maintenance limit.\\
-        \midrule
-        \texttt{heavy\_load}       & unseen & Double production, heavier parts, half-charged robot: slightly beyond one robot's capacity.\\
-        \texttt{heavy\_parts}      & unseen & Units about twice as heavy, so fewer fit per trip.\\
-        \texttt{small\_buffers}    & unseen & Lean production: buffers hold only a few units and block within minutes.\\
-        \texttt{section\_breakdown}& unseen & Section~B's machine failing (health \SI{35}{\percent}) while A and C run normally.\\
-        \texttt{hot\_factory}      & unseen & \SI{38}{\degreeCelsius} in the hall and poor cooling: long heavy trips risk the temperature limit.\\
-        \texttt{aged\_battery}     & unseen & Pack down to \SI{12}{\watt\hour} (\SI{55}{\percent} of new) and a slower \SI{15}{\watt} charger.\\
-        \bottomrule
-    \end{tabularx}
-\end{table}
 
 With the world, the actions, the objective and the constraints fixed, the question of this thesis
 can be stated exactly: \emph{which policy, choosing one action at a time from the state of the

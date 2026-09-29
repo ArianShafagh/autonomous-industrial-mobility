@@ -66,21 +66,16 @@ reference makes fewer, fuller trips (\cref{sec:limitations}). The look-ahead hor
 training is \SI{900}{\second}; lengthening it so that the benefit of waiting for a fuller load
 appears in the training targets is a cheap experiment with a clear prediction.
 
-\paragraph{More than one robot.}
-Several robots sharing one charger and one delivery point turn this into a scheduling problem with
-congestion and contention. The symbolic layer would need rules about mutual exclusion and the
-observation would need to include the other robots; this is the largest step away from what was
-built here, and the most industrially relevant.
-
 \paragraph{Learn the symbolic layer.}
-The rules are hand-written, and H5 demonstrated that a necessary one can simply be missing until a
-real shift exposes it. Inducing rules from logged decisions, as some of the related work does,
-would remove that dependence on the author's foresight --- provided the induced rules stay readable
-enough to be checked by a person, which is the property that makes the current layer valuable.
+The rules are hand-written, and H5 demonstrated that a necessary one can be missing until a real
+shift exposes it. Inducing rules from logged decisions would remove that dependence on the author's
+foresight --- provided the induced rules stay readable enough to be checked by a person, which is
+the property that makes the current layer valuable.
 
-\paragraph{A physical robot.}
-Everything here is simulation, and the agreement between the two simulators is consistency rather
-than proof (\cref{sec:limitations}). A physical AMR with the same navigation stack would test the
-energy model against rolling resistance, wheel slip and a real battery, and would show whether the
-reserve rule that never failed in simulation is calibrated correctly for a floor that is not
-perfectly flat.
+\paragraph{Beyond one robot, and beyond simulation.}
+Several robots sharing one charger and one delivery point turn this into a scheduling problem with
+congestion and contention, requiring rules about mutual exclusion and an observation that includes
+the other robots: the largest step away from what was built here, and the most industrially
+relevant. Everything here is also simulation, and agreement between the two simulators is
+consistency rather than proof (\cref{sec:limitations}); a physical AMR would test the energy model
+against rolling resistance, wheel slip and a real battery.

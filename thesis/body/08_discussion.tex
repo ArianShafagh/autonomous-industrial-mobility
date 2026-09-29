@@ -20,12 +20,10 @@ it reached its throughput with \SI{21}{\percent} less energy (\SI{8.42}{\watt\ho
 stated in \cref{sec:constraints}.
 
 \paragraph{RQ2 --- What does each half contribute?}
-The rules contribute the guarantee, and they are not merely a safety net: the symbolic layer alone
-scores \num{52.91}, above \texttt{ppo} and far above the rule-based reference. The network
-contributes a small, consistent improvement on top --- \num{0.90} points against the symbolic layer
-and \num{0.96} against the analytic estimate alone, both at $p<0.001$. Neither half is redundant,
-but they are not equal partners: the rules carry most of the competence, and the network refines
-it. The most striking evidence for the division of labour is \texttt{ns\_neural\_only}. Without
+The rules carry most of the competence and all of the guarantee: the symbolic layer alone scores
+\num{52.91}, above \texttt{ppo}. The network adds a small, consistent improvement --- \num{0.90}
+points against the symbolic layer and \num{0.96} against the analytic estimate alone, both
+$p<0.001$. The clearest evidence for the division of labour is \texttt{ns\_neural\_only}: without
 rules, the same network delivers \emph{more} units than the full model (\num{60.7} against
 \num{59.9}) and loses almost no production (\num{0.21} against \num{1.90}) --- it has genuinely
 learned what is worth doing --- while violating constraints in \num{57} of \num{360} shifts. It
@@ -41,13 +39,11 @@ where its training no longer covers the situation --- \num{49} of its \num{53} u
 unseen scenarios, \num{29} of them in \texttt{heavy\_load} alone.
 
 \paragraph{RQ4 --- Do fast-simulator results transfer to the full simulation?}
-Yes, with a known bias. Energy transfers almost exactly (\SI{+0.2}{\percent}) because it is
-computed from the same physical model in both cases; throughput is \SI{5.1}{\percent} lower in
-Gazebo because real driving loses seconds per leg to acceleration, arrival tolerances and
-occasional recovery behaviours. The bias is systematic and in one direction, so it shifts all
-policies together and leaves their ordering intact --- which is what a comparison needs. The
-sixty-minute shifts additionally reproduced the safety difference itself
-(\cref{tab:longshift}), so the central claim of this thesis does not rest on the abstraction.
+Yes, with a known bias: energy transfers almost exactly (\SI{+0.2}{\percent}), while throughput is
+\SI{5.1}{\percent} lower in Gazebo because real driving loses seconds per leg. The bias is
+systematic and one-directional, so it shifts all policies together and leaves their ordering
+intact, and the sixty-minute shifts reproduced the safety difference itself
+(\cref{tab:longshift}) --- so the central claim does not rest on the abstraction.
 
 \section{Why bounding the correction works}
 \label{sec:why-bound}
@@ -55,26 +51,21 @@ sixty-minute shifts additionally reproduced the safety difference itself
 The bound of \cref{eq:bounded} is one line of code, and it is worth being precise about why such a
 small change is worth \num{3.87} points on unseen scenarios.
 
-The score of an action is the sum of two terms with different epistemic status. The analytic
-estimate is arithmetic on the current state: given the distances, the payload and the objective
-weights, it computes what an action moves and what it costs. Arithmetic \emph{extrapolates} --- it
-is as valid in a factory producing twice as fast as in the one it was written for. The learned
-correction is a function fitted to a sample of states; it \emph{interpolates}. Inside the region
-its training covered, it encodes real knowledge that the arithmetic lacks: which line will block
-next, when a fuller load repays the detour. Outside that region, it continues to produce confident
-numbers with no basis.
+The score of an action sums two terms with different epistemic status. The analytic estimate is
+arithmetic on the current state, and arithmetic \emph{extrapolates}: it is as valid in a factory
+producing twice as fast as in the one it was written for. The learned correction is a function
+fitted to a sample of states, and it \emph{interpolates}: inside the region its training covered it
+encodes knowledge the arithmetic lacks --- which line will block next, when a fuller load repays a
+detour --- and outside it continues to produce confident numbers with no basis.
 
-Unbounded, the second term dominates the first: the corrections observed in the failing scenario
-were around $+20$ on every candidate, while the estimates differed by a few units. The ranking was
-therefore decided entirely by the network, in a factory where its training did not apply, and the
-rules could not intervene because none of its choices were illegal --- waiting with cargo while
-lines block is wasteful, not forbidden.
-
-Bounding the correction re-establishes the intended hierarchy without touching either component.
-Where the arithmetic is nearly indifferent, the network decides, and its judgement is exactly what
-is wanted. Where the arithmetic is clear, no amount of misplaced confidence can overturn it. The
-selection table (\cref{tab:bound-sweep}) shows both halves of this: $\beta=0$, which silences the
-network, is worse than every bounded setting, and so is $\beta=\infty$.
+Unbounded, the second term dominates: corrections in the failing scenario were around $+20$ on
+every candidate while the estimates differed by a few units, so the ranking was decided entirely by
+the network in a factory where its training did not apply. The rules could not intervene, because
+none of its choices were illegal --- waiting with cargo while lines block is wasteful, not
+forbidden. Bounding the correction restores the intended hierarchy without touching either
+component: where the arithmetic is nearly indifferent the network decides, and where it is clear no
+amount of misplaced confidence can overturn it. \Cref{tab:bound-sweep} shows both halves of this,
+since $\beta=0$ and $\beta=\infty$ are both worse than the bounded settings.
 
 This is a different mechanism from the shielding and action masking discussed in
 \cref{sec:safe-learning}. Those act on the \emph{legality} of actions: a shield removes what is
@@ -113,13 +104,12 @@ Two results in this thesis exist only because a measurement was questioned, and 
 decision that had already been made.
 
 \paragraph{An unfair training setup.}
-PPO's parallel environments were originally each bound to one scenario, so with four environments
-the agent saw four of the six training scenarios. Had this gone unnoticed, the thesis would have
-compared a fully trained neuro-symbolic model against a partially trained baseline, and the
-comparison would have been worthless regardless of its statistics. The correction is undramatic
---- after retraining on all six, PPO's score and its violation rate are essentially unchanged ---
-but that outcome is itself the useful finding: PPO's constraint violations are not a symptom of
-insufficient scenario coverage, and would not have been fixed by more of the same training.
+PPO's parallel environments were originally bound to one scenario each, so with four environments
+the agent saw four of the six training scenarios --- which would have made the comparison worthless
+regardless of its statistics. The correction is undramatic, since after retraining on all six
+PPO's score and violation rate are essentially unchanged, but that outcome is itself the useful
+finding: its constraint violations are not a symptom of insufficient scenario coverage and would
+not have been fixed by more of the same training.
 
 \paragraph{A benchmark that measured the wrong regime.}
 The global planner was selected on a short benchmark tour, where Theta$^{*}$ was \SI{3.3}{\percent}
@@ -170,39 +160,24 @@ no further such gap exists. Learning the symbolic layer, as some of the related 
 (\cref{sec:decision-making}), would address this, at the cost of the readability the hand-written
 rules provide.
 
-\paragraph{Simulation throughout.}
-No physical robot was involved. The energy model is calibrated and validated against Gazebo, but
-Gazebo shares its assumptions about rolling resistance and motor efficiency, so agreement between
-them is consistency rather than proof. Localisation error, wheel slip, floor variation and battery
-ageing would all test the model in ways this work cannot.
+\paragraph{Simulation throughout, and thin in volume.}
+No physical robot was involved, and although the energy model is validated against Gazebo, Gazebo
+shares its assumptions about rolling resistance and motor efficiency, so their agreement is
+consistency rather than proof. Twelve twenty-minute and two sixty-minute validation shifts are
+demonstrations rather than statistics: they establish that the fast simulator does not mislead and
+that the safety difference is real in the full stack, but cannot support a confidence interval on
+the sim-to-real gap.
 
-\paragraph{The full-simulation evidence is thin in volume.}
-Twelve twenty-minute shifts and two sixty-minute shifts are demonstrations, not statistics. They
-establish that the fast simulator does not mislead and that the safety difference is real in the
-full stack; they cannot support a confidence interval on the sim-to-real gap.
-
-\section{Threats to validity}
-\label{sec:validity}
-
-\paragraph{Internal validity.}
+\paragraph{Validity of the comparison itself.}
 Policies are compared on identical seeds with paired non-parametric tests, which removes the
-dominant source of variance. No correction for multiple comparisons is applied
-(\cref{sec:statistics}), so isolated significant results should be treated with caution; the
-conclusions drawn here rest on differences that are consistent across scenarios or supported by a
-mechanism, not on single $p$-values. The bound $\beta$ was selected on training scenarios and
-development seeds only, so the improvement it produces on the test set is not a selection effect.
-
-\paragraph{External validity.}
-The results describe this factory: one layout, three sections with these rates, this robot, this
-objective. The scenario set was deliberately widened to twelve configurations, six of them never
-seen during training, which supports claims about robustness to \emph{parameter} changes --- rates,
-masses, buffer sizes, battery health, ambient temperature. It supports no claim about a different
-hall geometry, more robots, or a different task structure.
-
-\paragraph{Construct validity.}
-Whether the score in \cref{eq:objective} expresses what a factory wants is a modelling assumption.
-Two of its weights are defensible from first principles (a delivered unit and a lost unit are
-worth the same; energy is cheap relative to production), while the penalty of \num{20} per safety
-violation is a stand-in for a cost --- an unplanned intervention --- that has no natural unit. This
-thesis therefore avoids resting any conclusion on the penalty's magnitude, and reports violation
-counts separately throughout.
+dominant source of variance, and the bound $\beta$ was selected on training scenarios and
+development seeds only, so its improvement on the test set is not a selection effect. No correction
+for multiple comparisons is applied (\cref{sec:statistics}), so the conclusions above rest on
+differences that are consistent across scenarios or supported by a mechanism rather than on
+isolated $p$-values. Externally, the twelve scenarios support claims about robustness to
+\emph{parameter} changes --- rates, masses, buffer sizes, battery health, temperature --- but not
+about a different hall, more robots or a different task structure. Finally, whether
+\cref{eq:objective} expresses what a factory wants is a modelling assumption: two of its weights
+are defensible from first principles, while the penalty of \num{20} per violation stands in for a
+cost that has no natural unit, which is why no conclusion here rests on its magnitude and violation
+counts are always reported separately.

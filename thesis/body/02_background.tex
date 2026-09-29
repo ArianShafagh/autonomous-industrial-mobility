@@ -15,29 +15,20 @@ technique: how a mobile robot navigates, how it decides what to do, how safety i
 learned policy, how energy enters the decision, and how such systems are validated. The chapter
 closes by naming the gap that \cref{ch:models} addresses.
 
-\section{Autonomous mobile robots in production logistics}
-\label{sec:amr}
-
-Autonomous mobile robots (AMRs) move material between machines, stores and assembly stations. They
-differ from the older automated guided vehicles (AGVs) in that they localise and plan routes
-themselves instead of following fixed markers, which makes them attractive for factories whose
-layout changes. Surveys of the field cover the navigation side thoroughly
-\cite{tang2025pathplanningreview, katona2024obstacleavoidance, aremu2025pathplanningreview}: path
-planning, obstacle avoidance and the classical-versus-heuristic taxonomy of planners are mature
-topics with established solutions.
-
-What remains open is the layer above navigation --- the assignment of transport work. In a
-production setting this is a decision under uncertainty: the robot must choose which station to
-serve, when to deliver, and when to interrupt work to recharge, without knowing when the next part
-will be finished or which machine will fail next \cite{warita2024onlineplanning}. That is the
-problem this thesis addresses.
-
-\section{Navigation with ROS~2 and Nav2}
+\section{Mobile robots and their navigation}
 \label{sec:nav2}
 
-The robot in this thesis uses ROS~2 \cite{macenski2022ros2} with the Nav2 navigation stack
-\cite{macenski2020nav2}, the de-facto standard for mobile robot navigation in research and
-increasingly in industry. Four of its components matter here.
+Autonomous mobile robots (AMRs) move material between machines, stores and assembly stations,
+localising and planning routes themselves rather than following fixed markers. Surveys cover the
+navigation side thoroughly \cite{tang2025pathplanningreview, katona2024obstacleavoidance,
+aremu2025pathplanningreview}: path planning and obstacle avoidance are mature topics with
+established solutions. What remains open is the layer above --- the assignment of transport work,
+a decision under uncertainty about when the next part will be finished and which machine will fail
+next \cite{warita2024onlineplanning}. That is the problem this thesis addresses.
+
+The robot here uses ROS~2 \cite{macenski2022ros2} with the Nav2 navigation stack
+\cite{macenski2020nav2}, the de-facto standard in research and increasingly in industry. Four of
+its components matter.
 
 A \textbf{costmap} represents the hall as an occupancy grid inflated by the robot's footprint, so
 that a path which keeps to free cells is one the robot can physically follow. A \textbf{global
@@ -50,9 +41,9 @@ planned path while reacting to what the sensors currently see. \textbf{AMCL} loc
 the map using its lidar, and a \textbf{behaviour tree} sequences the whole process, including
 recovery behaviours when a goal cannot be reached.
 
-This separation matters for the thesis's scope: Nav2 answers \emph{how do I get there}, and the
-decision models of \cref{ch:models} answer \emph{where should I go and why}. Reported deployments
-of ROS~2 and Nav2 in logistics environments \cite{borse2025robotinonav} follow the same division.
+The separation matters for scope: Nav2 answers \emph{how do I get there} and the decision models of
+\cref{ch:models} answer \emph{where should I go and why}, a division that reported ROS~2 and Nav2
+deployments in logistics follow as well \cite{borse2025robotinonav}.
 
 \section{Deciding what to do next}
 \label{sec:decision-making}
@@ -140,7 +131,7 @@ For the decision to be meaningful, the underlying energy model has to be credibl
 energy prediction for mobile robots \cite{gora2024energyprediction} place analytic models of the
 kind used here --- idle power plus a distance term plus a payload term --- among the alternatives
 and give consumption ranges against which such a model can be sanity-checked
-(\cref{sec:robot-model}). Payload-dependent consumption has been estimated empirically for ground
+(\cref{sec:models-shared}). Payload-dependent consumption has been estimated empirically for ground
 robots \cite{mohamadi2024payloadpower}, which supports treating the payload term as proportional to
 carried mass rather than as a free parameter. Measurements of which quantities actually dominate
 consumption find angular velocity and acceleration to be the principal predictors, with payload

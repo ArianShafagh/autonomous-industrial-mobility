@@ -18,24 +18,8 @@ The results reported in this thesis were produced at commit \texttt{<commit hash
 % the version of the code that produced the numbers you actually report).
 
 \file{THESIS\_DATA.md} in the repository root maps every result in this thesis to the file it comes
-from, and \file{HANDOVER.md} records how each experiment was run and why each decision was taken.
-
-\section{Installing}
-
-The system needs ROS~2 Jazzy, Nav2 and Gazebo Harmonic, and a Python environment created with
-access to the system packages so that ROS's own Python bindings remain importable:
-
-\begin{lstlisting}[language=bash, caption={Setting up the workspace}]
-git clone git@github.com:ArianShafagh/autonomous-industrial-mobility.git
-cd autonomous-industrial-mobility
-source /opt/ros/jazzy/setup.bash
-python3 -m venv --system-site-packages venv
-venv/bin/pip install -r requirements.txt
-colcon build --symlink-install
-source install/setup.bash
-\end{lstlisting}
-
-\file{SETUP\_NEW\_PC.md} gives the full list of system packages.
+from, \file{HANDOVER.md} records how each experiment was run and why each decision was taken, and
+\file{SETUP\_NEW\_PC.md} lists the system packages and the installation steps.
 
 \section{Reproducing the evaluation}
 
@@ -50,8 +34,9 @@ venv/bin/python tools/ai/plot_results.py \
     --gazebo   tools/ai/results/gazebo_<timestamp>.csv
 \end{lstlisting}
 
-The evaluation is deterministic: the same command on the same models reproduces the same table,
-because every policy runs the same fixed seeds (\cref{sec:splits}).
+The evaluation is deterministic --- every policy runs the same fixed seeds (\cref{sec:splits}) ---
+while training is seeded but not bit-exact across machines, so retraining reproduces the reported
+behaviour rather than the last decimal.
 
 \section{Reproducing the training}
 
@@ -64,10 +49,6 @@ venv/bin/python -u tools/ai/train_ns.py
 venv/bin/python -u tools/ai/train_ppo.py --threads 3
 venv/bin/python -u tools/ai/train_ppo.py --threads 3 --no-masks
 \end{lstlisting}
-
-Training is seeded but not bit-exact across machines, because the order in which parallel
-environments finish differs; retraining therefore reproduces the reported behaviour, not the
-reported numbers to the last decimal.
 
 \section{Reproducing the full-simulation validation}
 
@@ -86,29 +67,15 @@ venv/bin/python -u tools/ai/run_gazebo_batch.py --models ns \
     --scenarios low_battery_start --seeds 5000 --shift-min 20 --planner ThetaStar
 \end{lstlisting}
 
-Each run starts the complete system, waits for the mission summary, stops that run and leaves no
-process behind. Stopping is otherwise manual: \file{./scripts/stop.sh} ends a simulation, and no
-script ever stops one that it did not start itself.
+\section{Running the system, and testing it}
 
-\section{Running the system interactively}
-
-\begin{lstlisting}[language=bash, caption={Watching the robot work a shift}]
-./scripts/run.sh          # asks for scenario, model, planner, view and shift length
-./scripts/run.sh --yes    # starts exactly what config/run.yaml says
-./scripts/run.sh --list   # shows the scenarios, models and planners
-\end{lstlisting}
-
-The live dashboard is then at \url{http://localhost:8000}: sections, robot state, the maze with the
-robot's position, and every decision with its explanation. It is read-only
-(\cref{sec:monitoring}).
-
-\section{Tests}
-
-\begin{lstlisting}[language=bash, caption={The test suite}]
+\begin{lstlisting}[language=bash, caption={Watching a shift, and the test suite}]
+./scripts/run.sh   # asks for scenario, model, planner, view and shift length;
+                   # the read-only dashboard is then at http://localhost:8000
 venv/bin/python -m pytest -q src/robofetch_core/test src/robofetch_factory/test src/robofetch_ai/test
 # 163 passed
 \end{lstlisting}
 
 The suite covers the robot and factory models, the fast simulator, the Gymnasium environment and
-the symbolic layer, where each hard rule has a test that constructs the situation it must forbid
-and checks both the refusal and its stated reason.
+the symbolic layer, where each hard rule has a test constructing the situation it must forbid and
+checking both the refusal and its stated reason.
