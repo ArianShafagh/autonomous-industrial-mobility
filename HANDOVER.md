@@ -1038,3 +1038,39 @@ Still open: the claim that dispatching-rule baselines are the standard compariso
 paywalled. Very likely correct, but unconfirmed — flagged in the audit rather than asserted.
 
 Rebuilt after the edits: 82 pages, 0 errors, 0 undefined references.
+
+---
+
+# Mopping mocap (separate track, `mocap/`)
+
+3 synced fisheye security cameras in the room corners record a person mopping; the framework turns
+that into 3D body keypoints in a floor-based world frame. The robot that shadows the motion is out
+of scope here. Plan: M0 skeleton+probe, M1 intrinsics, M2 extrinsics, M3 YOLO26m-pose 2D, M4
+triangulation+filtering, M5 visualisation+QA. Videos stay on the local PC (`mocap/data/`, ignored).
+
+## M0 — Package skeleton and video probe (2026-10-03)
+
+### Done
+- `mocap/` as a plain Python package with its own venv/requirements (no ROS, so no `numpy<2` pin).
+- `config/board.yaml` (ChArUco sizes — placeholders until the real board is measured),
+  `config/rig.yaml` (cameras, video paths, frame offsets, OSD masks), `config/pipeline.yaml`.
+- `camera.py`: `Camera` with lens model `pinhole` / `rational` / `fisheye`, world→camera `R, t`,
+  `project` and `undistort` (to normalised rays) through the matching OpenCV functions, YAML I/O.
+- `video.py`: header metadata, real frame timestamps (ffprobe if installed, else OpenCV), VFR and
+  dropped-frame detection, `SyncedReader` (frame-aligned 3-camera reading with offsets, OSD masks, step).
+- `probe.py` / `python -m mocap probe`: per video size/codec/fps/frames/VFR; per recording checks
+  that the 3 cameras agree; per camera checks the calibration video has the recording resolution;
+  contact sheets + `probe.yaml` in `out/probe/`.
+- `skeleton.py`: COCO-17 joints and rigid bones (bone-length stability = later accuracy check).
+
+### Decisions
+- OpenCV pinned `<5`: 5.0 is out but untested with this code and with Ultralytics.
+- `omnidir` lens model left out until the probe shows a field of view > ~180°.
+
+### Results / verification
+- `pytest mocap/tests`: 13 passed (fisheye/rational/pinhole project↔undistort exact to 1e-6,
+  synced reading with offsets/masks/step, VFR + dropped-frame detection, group/resolution checks).
+- Probe run on synthetic videos flagged a 20 fps camera and a 10-frame count mismatch as expected.
+
+### Next
+- Run `python -m mocap probe` locally on the real videos; fill in `config/board.yaml`.

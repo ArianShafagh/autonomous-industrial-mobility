@@ -29,3 +29,9 @@ robofetch_venv/
 
 # The thesis lives in its own repository (see THESIS_DATA.md) and ignores its own
 # LaTeX build artefacts there.
+
+# mocap: videos and everything generated from them stay on the local PC; YOLO weights are downloaded
+mocap/data/
+mocap/out/
+mocap/venv/
+mocap/*.pt

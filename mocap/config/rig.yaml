@@ -1,0 +1,15 @@
+# The 3 ceiling-corner fisheye cameras and where their videos are (paths relative to mocap/).
+cameras: [cam0, cam1, cam2]
+
+# Video files are found with any common extension (.mp4 .avi .mkv .mov .dav ...).
+calib_videos: data/calib/{cam}          # single-camera ChArUco videos (intrinsics)
+static_board: data/static_board/{cam}   # board lying still, seen by all 3 at once (extrinsics)
+sessions_dir: data/sessions             # data/sessions/<name>/{cam}.* = mopping recordings
+calib_dir: calib                        # calibration results (YAML, small, tracked in git)
+out_dir: out                            # everything generated from videos (ignored by git)
+
+# Recordings are synced; a non-zero offset drops that many frames at the start of a camera.
+frame_offsets: {cam0: 0, cam1: 0, cam2: 0}
+
+# Pixel boxes [x, y, w, h] to blank out before detection (NVR timestamp / camera-name overlays).
+osd_masks: {cam0: [], cam1: [], cam2: []}

@@ -1,0 +1,22 @@
+intrinsics:
+  model: auto            # auto (pick fisheye or rational by hold-out error) | fisheye | rational | omnidir
+  frame_step: 5          # look at every Nth video frame
+  min_corners: 8         # ChArUco corners a frame needs to be used
+  max_frames: 80         # diverse subset used for the solve
+  holdout: 0.2           # share of frames kept out to compare lens models
+
+detector:
+  model: yolo26m-pose.pt
+  device: auto           # auto | cpu | 0
+  person_conf: 0.4
+  mode: {cam0: raw, cam1: raw, cam2: raw}   # raw | rectified (detect on an undistorted fisheye frame)
+
+triangulation:
+  keypoint_conf: 0.3     # 2D keypoints below this are not used
+  min_views: 2
+  reproj_thresh_px: 15   # a view further off than this is dropped as an outlier
+
+filtering:
+  max_gap_frames: 10     # gaps up to this long are interpolated, longer stay NaN
+  cutoff_hz: 6.0         # zero-phase Butterworth low-pass
+  order: 4

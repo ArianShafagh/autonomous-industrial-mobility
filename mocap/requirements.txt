@@ -1,0 +1,10 @@
+# Own venv, no ROS needed (keeps clear of the workspace's numpy<2 pin):
+#   python3 -m venv mocap/venv && mocap/venv/bin/pip install -r mocap/requirements.txt
+# For the RTX GPU install the CUDA build of torch first (see pytorch.org), then this file.
+numpy
+scipy
+pyyaml
+matplotlib
+opencv-contrib-python>=4.8,<5   # aruco + fisheye + omnidir; 5.x not tested yet
+ultralytics>=8.4                # YOLO26 pose (from M3)
+pytest

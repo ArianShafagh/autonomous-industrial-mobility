@@ -1,0 +1,8 @@
+# ChArUco board used for calibration. Fill in the REAL values of the printed board:
+# count squares (not markers) and measure the printed sizes with a ruler, in metres.
+squares_x: 7               # squares along the board's long side
+squares_y: 5               # squares along the short side
+square_length_m: 0.040     # one chessboard square edge
+marker_length_m: 0.030     # one ArUco marker edge (smaller than the square)
+dictionary: DICT_5X5_100   # the ArUco dictionary the board was generated with
+legacy_pattern: false      # true if the board was made with OpenCV < 4.6 (or calib.io with even squares_y)
